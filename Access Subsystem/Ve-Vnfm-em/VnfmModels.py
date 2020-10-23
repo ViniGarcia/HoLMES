@@ -1,6 +1,14 @@
 import enum
 
 '''
+ERROR CODES:
+-1: Attribute type not satisfied
+-2: Mandatory attribute not satisfied
+-3: Invalid member in structure
+'''
+
+
+'''
 CLASS: VnfInstance
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 22 Oct. 2020
@@ -961,30 +969,87 @@ class VnfExtCpInfo:
 CLASS: VnfcSnapshotInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Validation method)
 DESCRIPTION: Implementation of the reference structure that
 			 describes information about an snapshot of a VN-
 			 FC of a VNF instance in the Ve-Vnfm-em
 			 reference point.
 '''
 class VnfcSnapshotInfo:
-	id = ""														#String, mandatory (1)
-	vnfcInstanceId = ""											#String, mandatory (1)
-	creationStartedAt = ""										#String, mandatory (1)
-	creationFinishedAt = ""										#String, optional (0..1)
-	vnfcResourceInfoId = ""										#String, mandatory (1)
-	computeSnapshotResource = ""								#String, optional (0..1)
-	storageSnapshotResources = [{								#Dictionary, optional (0..N)
-								"storageResourceId":"",				#String, mandatory (1)
-								"storageSnapshotResource":"",		#String, optional (0..1)
-								"userDefinedData":{}				#String, optional (0..1)
-								}]
+	id = None													#IdentifierLocal (String), mandatory (1)
+	vnfcInstanceId = None										#IdentifierInVnf (String), mandatory (1)
+	creationStartedAt = None									#DateTime (String), mandatory (1)
+	creationFinishedAt = None									#DateTime (String), optional (0..1)
+	vnfcResourceInfoId = None									#IdentifierInVnf (String), mandatory (1)
+	computeSnapshotResource = None								#ResourceHandle (Class), optional (0..1)
+	storageSnapshotResources = []								#Structure (Dictionary), optional (0..N)
+
+	def storageSnapshotResourcesStruct(self):
+		return {"storageResourceId":None,						#IdentifierInVnf (String), mandatory (1)
+				"storageSnapshotResource":None,					#ResourceHandle (Class), optional (0..1)
+				"userDefinedData":{}}							#KeyValuePairs (Dictionary), optional (0..1)
+
+	def validate(self):
+		if not type(self.id) == str:
+			if self.id == None:
+				return ("0", -2)
+			else:
+				return ("0", -1)
+
+		if not type(self.vnfcInstanceId) == str:
+			if self.vnfcInstanceId == None:
+				return ("1", -2)
+			else:
+				return ("1", -1)
+
+		if not type(self.creationStartedAt) == str:
+			if self.creationStartedAt == None:
+				return ("2", -2)
+			else:
+				return ("2", -1)
+
+		if not type(self.creationFinishedAt) == str and self.creationFinishedAt != None:
+			return ("3", -1)
+
+		if not type(self.vnfcResourceInfoId) == str:
+			if self.vnfcResourceInfoId == None:
+				return ("4", -2)
+			else:
+				return ("4", -1)
+
+		if not type(self.computeSnapshotResource) == ResourceHandle and self.computeSnapshotResource != None:
+			return ("5", -1)
+
+		if not type(self.storageSnapshotResources) == list:
+			return ("6", -1)
+		for index in range(len(self.storageSnapshotResources)):
+			if not type(self.storageSnapshotResources[index]) == dict:
+				return ("6." + str(index), -1)
+
+			keyList = ["storageResourceId", "storageSnapshotResource", "userDefinedData"]
+			for key in self.storageSnapshotResources[index]:
+				if not type(key) == str:
+					return ("6." + str(index) + "." + str(key), -1)
+				if not key in keyList:
+					return ("6." + str(index) + "." + str(key), -3)
+				keyList.remove(key)
+
+			if type(self.storageSnapshotResources[index]["storageResourceId"]) != str:
+				return ("6." + str(index) + ".storageResourceId", -1)
+			if type(self.storageSnapshotResources[index]["storageSnapshotResource"]) != ResourceHandle and self.storageSnapshotResources[index]["storageSnapshotResource"] != None:
+				return ("6." + str(index) + ".storageSnapshotResource", -1)
+			if type(self.storageSnapshotResources[index]["userDefinedData"]) != dict:
+				return ("6." + str(index) + ".userDefinedData", -1)
+
+			for key in self.storageSnapshotResources[index]["userDefinedData"]:
+				if not type(key) == str:
+					return ("6." + str(index) + ".userDefinedData." + str(key), -1)
 
 '''
 CLASS: ModificationsTriggeredByVnfPkgChange
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Validation method)
 DESCRIPTION: Implementation of the reference structure that
 			 describes the modification of an entry in an
 			 VNF instance when a previous modification occur
@@ -992,14 +1057,52 @@ DESCRIPTION: Implementation of the reference structure that
 			 point.
 '''
 class ModificationsTriggeredByVnfPkgChange:
-	vnfConfigurableProperties = {}		#Dictionary, optional (0..1)
-	metadata = {}						#Dictionary, optional (0..1)
-	extensions = {}						#Dictionary, optional (0..1)
-	vnfdId = ""							#String, optional (0..1)
-	vnfProvider = ""					#String, optional (0..1)
-	vnfProductName = ""					#String, optional (0..1)
-	vnfSoftwareVersion = ""				#String, optional (0..1)
-	vnfdVersion = ""					#String, optional (0..1)
+	vnfConfigurableProperties = {}		#KeyValuePairs (Dictionary), optional (0..1)
+	metadata = {}						#KeyValuePairs (Dictionary), optional (0..1)
+	extensions = {}						#KeyValuePairs (Dictionary), optional (0..1)
+	vnfdId = None						#Identifier (String), optional (0..1)
+	vnfProvider = None					#String, optional (0..1)
+	vnfProductName = None				#String, optional (0..1)
+	vnfSoftwareVersion = None			#Version (String), optional (0..1)
+	vnfdVersion = None					#Version (String), optional (0..1)
+
+	def validate(self):
+		
+		if not type(self.vnfConfigurableProperties) == dict:
+			return ("0", -1)
+		for key in self.vnfConfigurableProperties:
+			if not type(key) == str:
+				return ("0." + str(key), -1)
+
+		if not type(self.metadata) == dict:
+			return ("1", -1) 
+		for key in self.metadata:
+			if not type(key) == str:
+				return ("1." + str(key), -1)
+
+		if not type(self.extensions) == dict:
+			return ("2", -1)
+		for key in self.extensions:
+			if not type(key) == str:
+				return ("2." + str(key), -1)
+
+		if not type(self.vnfdId) == str and self.vnfdId != None:
+			return ("3", -1)
+
+		if not type(self.vnfProvider) == str and self.vnfProvider != None:
+			return ("4", -1)
+
+		if not type(self.vnfProductName) == str and self.vnfProductName != None:
+			return ("5", -1)
+
+		if not type(self.vnfSoftwareVersion) == str and self.vnfSoftwareVersion != None:
+			return ("6", -1)
+
+		if not type(self.vnfdVersion) == str and self.vnfdVersion != None:
+			return ("7", -1)
+
+#######################################################################################################
+#######################################################################################################
 
 '''
 CLASS: VnfOperationalStateType
