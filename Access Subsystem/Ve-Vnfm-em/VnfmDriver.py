@@ -660,7 +660,7 @@ class VnfmDriver:
 	ARGUMENT: Subscription ID (String)
 	RETURN: String data (according to the VNFM) or integer code (HTTP)
 	'''
-	def get_s_subscriptionID(self):
+	def get_s_subscriptionID(self, vnfSubscriptionID):
 		return 501
 
 	'''
@@ -671,7 +671,7 @@ class VnfmDriver:
 	ARGUMENT: Subscription ID (String)
 	RETURN: Integer code (HTTP)
 	'''
-	def post_s_subscriptionID(self):
+	def post_s_subscriptionID(self, vnfSubscriptionID):
 		return 501
 
 	'''
@@ -686,16 +686,321 @@ class VnfmDriver:
 	def post_s_subscriptionID(self):
 		return 405
 
+	'''
+	PATH: /vnfm/pm_jobs
+	ACTION: GET
+	DESCRIPTION: Get information of PM jobs. The API consumer can use this
+				 method to retrieve information about PM jobs.
+	ARGUMENT: --
+	RETURN: String data (according to the VNFM) or Integer code (HTTP)
+	'''
+	def get_pm_jobs(self):
+		return 501
 
+	'''
+	PATH: /vnfm/pm_jobs
+	ACTION: POST
+	DESCRIPTION: Create PM jobs. Create a new individual performance
+				 monitoring job into the system to the available VNFs.
+	ARGUMENT: --
+	RETURN: Location URI (String) or Integer code (HTTP)
+	'''
+	def post_pm_jobs(self):
+		return 501
 
-#TESTE
-class TackerDriver(VNFMDriver):
+	'''
+	PATH: vnfm/pm_jobs/{pmJobId}
+	ACTION: GET
+	DESCRIPTION: Get information of a single PM job. The API consumer can 
+				 use this method for reading an individual performance mo-
+				 nitoring job.
+	ARGUMENT: PM job ID (string)
+	RETURN: String data (according to the VNFM) or Integer code (HTTP)
+	'''	
+	def get_pmj_pmJobID(self, pmJobID):
+		return 501
 
-	def __init__(self):
-		super().__init__("Tacker")
+	'''
+	PATH: vnfm/pm_jobs/{pmJobId}
+	ACTION: PATCH
+	DESCRIPTION: Update PM job callback. This method allows to modify an
+				 individual performance monitoring job resource.
+	ARGUMENT: PM job ID (string), serialized pm job descriptor (string)
+	RETURN: Integer code (HTTP)
+	'''	
+	def patch_pmj_pmJobID(self, pmJobID, pmJobDescriptor):
+		return 501
 
-	def barulho(self):
-		print("grup grup")
+	'''
+	PATH: vnfm/pm_jobs/{pmJobId}
+	ACTION: DELETE
+	DESCRIPTION: Delete a PM job. This method terminates an individual per-
+				 formance monitoring job.
+	ARGUMENT: PM job ID (string)
+	RETURN: Integer code (HTTP)
+	'''	
+	def delete_pmj_pmJobID(self, pmJobID):
+		return 501
 
-tackito = TackerDriver()
-tackito.barulho()
+	'''
+	PATH: vnfm/pm_jobs/{pmJobId}/reports/{reportId}
+	ACTION: GET
+	DESCRIPTION: Read an individual performance report. The API consumer can
+				 use this method for reading an individual performance report.
+	ARGUMENT: PM job ID (string), PM job report ID (string)
+	RETURN: String data (according to the VNFM) or Integer code (HTTP)
+	'''	
+	def get_pmjid_r_reportID(self, pmJobID, pmjReportID):
+		return 501
+
+	'''
+	PATH: vnfm/thresholds
+	ACTION: GET
+	DESCRIPTION: Query thresholds. The API consumer can use this method to query
+				 information about thresholds.
+	ARGUMENT: --
+	RETURN: String data (according to the VNFM)  or Integer code (HTTP)
+	'''	
+	def get_thresholds(self):
+		return 501
+
+	'''
+	PATH: vnfm/thresholds
+	ACTION: POST
+	DESCRIPTION: Create a threshold. Request parameters to create a new indi-
+				 vidual threshold resource.
+	ARGUMENT: --
+	RETURN: Location URI (String) or Integer code (HTTP)
+	'''	
+	def post_thresholds(self):
+		return 501
+
+	'''
+	PATH: vnfm/thresholds/{thresholdId}
+	ACTION: GET
+	DESCRIPTION: Read a single threshold. The API consumer can use this method
+				 for reading an individual threshold.
+	ARGUMENT: Threshold ID (String)
+	RETURN: String data (according to the VNFM) or Integer code (HTTP)
+	'''	
+	def get_t_thresholdID(self, thresholdID):
+		return 501
+
+	'''
+	PATH: vnfm/thresholds/{thresholdId}
+	ACTION: PATCH
+	DESCRIPTION: Update threshold callback. This method allows to modify an indivi-
+				 dual threshold resource.
+	ARGUMENT: Threshold ID (String), serialized threshold descriptor (String)
+	RETURN: Integer code (HTTP)
+	'''	
+	def patch_t_thresholdID(self, thresholdID, thresholdDescriptor):
+		return 501
+
+	'''
+	PATH: vnfm/thresholds/{thresholdId}
+	ACTION: DELETE
+	DESCRIPTION: Delete a threshold. This method allows to delete a threshold.
+	ARGUMENT: Threshold ID (String)
+	RETURN: Integer code (HTTP)
+	'''	
+	def delete_t_thresholdID(self, thresholdID):
+		return 501
+
+	'''
+	PATH: vnfm/vfm/alarms
+	ACTION: GET
+	DESCRIPTION: Query alarms related to VNF instances. The API consumer can
+				 use this method to retrieve information about the alarm list.
+	ARGUMENT: --
+	RETURN: String data (according to the VNFM) or Integer code (HTTP)
+	'''	
+	def get_vfm_alarms(self):
+		return 501
+
+	'''
+	PATH: vnfm/vfm/alarms/{alarmId}
+	ACTION: GET
+	DESCRIPTION: Read individual alarm. The API consumer can use this
+				 method to read an individual alarm.
+	ARGUMENT: Alarm ID (String)
+	RETURN: String data (according to the VNFM) or Integer code (HTTP)
+	'''	
+	def get_vfm_a_alarmID(self, alarmID):
+		return 501
+
+	'''
+	PATH: vnfm/vfm/alarms/{alarmId}
+	ACTION: PATCH
+	DESCRIPTION: Acknowledge individual alarm. This method modifies an
+				 individual alarm resource.
+	ARGUMENT: Alarm ID (String), serialized alarm descriptor (String)
+	RETURN: Integer code (HTTP)
+	'''	
+	def patch_vfm_a_alarmID(self, alarmID, alarmDescriptor):
+		return 501
+
+	'''
+	PATH: vnfm/vfm/alarms/{alarmId}/escalate
+	ACTION: POST
+	DESCRIPTION: Escalate the API consumer's view of perceived severity.
+				 The POST method enables the API consumer to escalate the
+				 perceived severity of an alarm that is represented by an
+				 individual alarm resource.
+	ARGUMENT: Alarm ID (String) and alarm severity (String)
+	RETURN: Integer code (HTTP)
+	'''	
+	def post_vfm_aid_escalate(self, alarmID, alarmSeverity):
+		return 501
+
+	'''
+	PATH: vnfm/vfm/subscriptions
+	ACTION: GET
+	DESCRIPTION: Query multiple subscriptions. The API consumer can use
+				 this method to retrieve the list of active subscriptions
+				 for VNF alarms subscribed by the API consumer. It can be
+				 used e.g. for resynchronization after error situations.
+	ARGUMENT: --
+	RETURN: String data (according to the VNFM) or Integer code (HTTP)
+	'''	
+	def get_vfm_subscriptions(self):
+		return 501
+
+	'''
+	PATH: vnfm/vfm/subscriptions
+	ACTION: POST
+	DESCRIPTION: Subscribe to VNF alarms. The POST method creates a new
+				 subscription.
+	ARGUMENT: Serialized subscription request (String)
+	RETURN: Integer code (HTTP)
+	'''
+	def post_vfm_subscriptions(self, subscriptionRequest):
+		return 501
+
+	'''
+	PATH: vnfm/vfm/subscriptions/{subscriptionId}
+	ACTION: GET
+	DESCRIPTION: Read an individual subscription. The API consumer can use
+				 this method for reading an individual subscription for VNF
+				 alarms subscribed by the API consumer.
+	ARGUMENT: Subscription ID (String)
+	RETURN: String data (according to the VNFM) or Integer code (HTTP)
+	'''
+	def get_vfm_s_subscriptionID(self, subscriptionID):
+		return 501
+
+	'''
+	PATH: vnfm/vfm/subscriptions/{subscriptionId}
+	ACTION: DELETE
+	DESCRIPTION: Terminate a subscription. This method terminates an individu-
+				 al subscription.
+	ARGUMENT: Subscription ID (String)
+	RETURN: Integer code (HTTP)
+	'''
+	def delete_vfm_s_subscriptionID(self, subscriptionID):
+		return 501
+
+	'''
+	PATH: vnfm/vii/indicators
+	ACTION: GET
+	DESCRIPTION: Query multiple VNF indicators. This resource allows to query all
+				 VNF indicators that are known to the API producer.
+	ARGUMENT: --
+	RETURN: String data (according to the VNFM) or Integer code (HTTP)
+	'''
+	def get_vii_indicators(self):
+		return 501
+
+	'''
+	PATH: vnfm/vii/indicators/{vnfInstanceId}
+	ACTION: GET
+	DESCRIPTION: Query multiple VNF indicators related to one VNF instance. This re-
+				 source allows to query all VNF indicators that are known to the API
+				 producer.
+	ARGUMENT: VNF instance ID (String)
+	RETURN: String data (according to the VNFM) or Integer code (HTTP)
+	'''
+	def get_vii_i_vnfInstanceID(self, vnfInstanceID):
+		return 501
+
+	'''
+	PATH: vnfm/vii/indicators/{vnfInstanceId}/{indicatorId}
+	ACTION: GET
+	DESCRIPTION: Read an individual VNF indicator to one VNF instance.
+	ARGUMENT: VNF instance ID (String), Indicator ID (String)
+	RETURN: String data (according to the VNFM) or Integer code (HTTP)
+	'''
+	def get_vii_iid_indicatorID(self, vnfInstanceID, indicatorID):
+		return 501
+
+	'''
+	PATH: vnfm/vii/indicators/{indicatorId}
+	ACTION: GET
+	DESCRIPTION: Read an individual VNF indicator to all VNF instances.
+	ARGUMENT: Indicator ID (String)
+	RETURN: String data (according to the VNFM) or Integer code (HTTP)
+	'''
+	def get_vii_i_indicatorID(self, indicatorID):
+		return 501
+
+	'''
+	PATH: vnfm/vii/subscriptions
+	ACTION: GET
+	DESCRIPTION: Query multiple subscriptions of indicators.
+	ARGUMENT: --
+	RETURN: String data (according to the VNFM) or Integer code (HTTP)
+	'''
+	def get_vii_subscriptions(self):
+		return 501
+
+	'''
+	PATH: vnfm/vii/subscriptions
+	ACTION: POST
+	DESCRIPTION: Subscribe to VNF indicator change notifications.
+	ARGUMENT: Serialized subscription request (String)
+	RETURN: Integer code (HTTP)
+	'''
+	def post_vii_subscriptions(self, subscriptionRequest):
+		return 501
+
+	'''
+	PATH: vnfm/vii/subscriptions/{subscriptionId}
+	ACTION: GET
+	DESCRIPTION: Read an individual subscription.
+	ARGUMENT: Subscription ID (String)
+	RETURN: String data (according to the VNFM) or Integer code (HTTP)
+	'''
+	def get_vii_s_subscriptionID(self, subscriptionID):
+		return 501
+
+	'''
+	PATH: vnfm/vii/subscriptions/{subscriptionId}
+	ACTION: DELETE
+	DESCRIPTION: Terminate a subscription.
+	ARGUMENT: Subscription ID (String)
+	RETURN: Integer code (HTTP)
+	'''
+	def delete_vii_s_subscriptionID(self, subscriptionID):
+		return 501
+
+	'''
+	PATH: vnfm/vci/configuration
+	ACTION: GET
+	DESCRIPTION: Read configuration data of a VNF instance and its VNFC
+				 instances.
+	ARGUMENT: --
+	RETURN: String data (according to the VNFM) or Integer code (HTTP)
+	'''
+	def get_vci_configuration(self):
+		return 501
+
+	'''
+	PATH: vnfm/vci/configuration
+	ACTION: PATCH
+	DESCRIPTION: Set configuration data of a VNF instance and/or its VNFC
+				 instances.
+	ARGUMENT: Serialized VNF configuration modification request (String)
+	RETURN: Integer code (HTTP)
+	'''
+	def patch_vci_configuration(self):
+		return 501

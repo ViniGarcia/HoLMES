@@ -1,12 +1,42 @@
 import enum
 
 '''
-ERROR CODES:
+VALIDATION ERROR CODES:
 -1: Attribute type not satisfied
 -2: Mandatory attribute not satisfied
 -3: Invalid member in structure
 '''
 
+#######################################################################################################
+#######################################################################################################
+
+'''
+CLASS: VnfInstanceSubscriptionFilter
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 22 Oct. 2020
+L. UPDATE: 22 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This type represents subscription filter cri-
+			 teria to match VNF instances.
+'''
+class VnfInstanceSubscriptionFilter:
+	vnfdIds = None 							#Identifier (String), mandatory (1)
+	vnfProductsFromProviders = []			#Structure (Dictionary), optional (0..N)
+	vnfInstanceIds = []						#Identifier (String), optional (0..N)
+	vnfInstanceNames = []					#String, optional (0..N)
+
+	def vnfProductsFromProvidersStruct(self):
+		return {"vnfProducts":[]}			#Structure (Dictionary), optional (0..N)
+
+	def vnfProductsStruct(self):
+		return {"vnfProductName":None, 		#String, mandatory (1)
+				"versions":[]}				#Structure (Dictionary), optional (0..N)
+
+	def versionsStruct(self):
+		return {"vnfSoftwareVersion":None,	#Version (String), mandatory (1)
+				"vnfdVersions":[]}			#Version (String), optional (0..N)
+
+#######################################################################################################
+#######################################################################################################
 
 '''
 CLASS: VnfInstance
@@ -1191,3 +1221,654 @@ DESCRIPTION: Enumerator of notification verbosity of LCM
 class LcmOpOccNotificationVerbosityType(enum.Enum):
 	FULL  = 0
 	SHORT = 1
+
+#######################################################################################################
+#######################################################################################################
+
+'''
+CLASS: ThresholdCrossedNotification
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents a notification that is sent
+			 through the Ve-Vnfm-em reference point when a th-
+			 reshold has been crossed.
+'''
+class ThresholdCrossedNotification:
+	id = None								#Identifier (String), mandatory (1)
+	notificationType = None					#String, mandatory (1)
+	timeStamp = None						#DateTime (String), mandatory (1)
+	thresholdId = None						#Identifier (String), mandatory (1)
+	crossingDirection = None				#CrossingDirectionType (Class), mandatory (1)
+	objectType = None						#String, mandatory (1)
+	objectInstanceId = None					#Identifier (String), mandatory (1)
+	subObjectInstanceId = None 				#IdentifierInVnf (String), optional (0..1)
+	performanceMetric = None 				#String, mandatory (1)
+	performanceValue = None 				#Anything, mandatory (1)
+	context = {}							#KeyValuePairs (Dictionary), optional (0..1)
+	links = None 							#Structure (Dictionary), mandatory (1)	
+
+	def linksStruct(self):
+		return {"objectInstance":None, 		#URI (String), optional (0..1)
+				"threshold":None} 			#URI (String), mandatory (1)
+
+'''
+CLASS: PerformanceInformationAvailableNotification
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This notification informs the receiver that performan-
+			 ce information is available. The notification shall be
+			 triggered by the VNFM when new performance information
+			 collected by a performance monitoring job is available.
+'''
+class PerformanceInformationAvailableNotification:
+	id = None								#Identifier (String), mandatory (1)
+	notificationType = None					#String, mandatory (1)
+	timeStamp = None						#DateTime (String), mandatory (1)
+	pmJobId = None							#Identifier (String), mandatory (1)
+	objectType = None						#String, mandatory (1)
+	objectInstanceId = None					#Identifier (String), mandatory (1)
+	subObjectInstanceIds = []				#IdentifierInVnf (String), optional (0..N)
+	links = None 							#Structure (Dictionary), mandatory (1)
+
+	def linksStruct(self):
+		return {"objectInstance":None, 		#URI (String), optional (0..1)
+				"pmJob":None,				#URI (String), mandatory (1)
+				"performanceReport":None}	#URI (String), mandatory (1)
+
+'''
+CLASS: CreatePmJobRequest
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents a request to create a perfomance
+			 monitoring job.
+'''
+class CreatePmJobRequest:
+	objectType = None						#String, mandatory (1)
+	objectInstanceIds = []					#Identifier (String), mandatory (1..N)
+	subObjectInstanceIds = []				#IdentifierInVnf (String), optional (0..N)
+	criteria = None 						#PmJobCriteria (Class), mandatory (1)
+	callbackUri = None 						#URI (String), mandatory (1)
+	authentication = None 					#SubscriptionAuthentication (String), optional (0..1)
+
+'''
+CLASS: PmJob
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents a performance monitoring job.
+'''
+class PmJob:
+	id = None								#Identifier (String), mandatory (1)
+	objectType = None						#String, mandatory (1)
+	objectInstanceIds = []					#Identifier (String), mandatory (1..N)
+	subObjectInstanceIds = []				#IdentifierInVnf (String), optional (0..N)
+	criteria = None 						#PmJobCriteria (Class), mandatory (1)
+	callbackUri = None 						#URI (String), mandatory (1)
+	reports = []							#Structure (Dictionary), optional (0..N)
+	links = None 							#Structure (Dictionary), mandatory (1)
+
+	def reportsStruct(self):
+		return {"href":None, 				#URI (String), mandatory (1)
+				"readyTime":None,			#DateTime (String), mandatory (1)
+				"expiryTime":None, 			#DateTime (String), optional (0..1)
+				"fileSize":0}				#Unsigend Integer, optional (0..1)
+
+	def linksStruct(self):
+		return {"self":None,				#URI (String), mandatory (1)
+				"objects":None}				#URI (String), optional (0..N)
+
+'''
+CLASS: CreateThresholdRequest
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents a request to create a threshold.
+'''
+def CreateThresholdRequest:
+	objectType = None						#String, mandatory (1)
+	objectInstanceId = None 				#Identifier (String), mandatory (1)
+	subObjectInstanceIds = []				#IdentifierInVnf (String), optional (0..N)
+	criteria = None 						#ThresholdCriteria (Class), mandatory (1)
+	callbackUri = None 						#URI (String), mandatory (1)
+	authentication = None 					#SubscriptionAuthentication (Class), optional (0..1)
+
+'''
+CLASS: Threshold
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents a threshold.
+'''
+def Threshold:
+	id = None								#Identifier (String), mandatory (1)
+	objectType = None						#String, mandatory (1)
+	objectInstanceId = None 				#Identifier (String), mandatory (1)
+	subObjectInstanceIds = []				#IdentifierInVnf (String), optional (0..N)
+	criteria = None 						#ThresholdCriteria (Class), mandatory (1)
+	callbackUri = None 						#URI (String), mandatory (1)
+	links = None 							#Structure (Dictionary), mandatory (1)
+
+	def linksStruct(self):
+		return {"self":None,				#URI (String), mandatory (1)
+				"objects":None}				#URI (String), optional (0..N)
+
+'''
+CLASS: PerformanceReport
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class defines the format of a performance report
+			 provided by the VNFM to the API consumer as a result of
+			 collecting performance information as part of a PM job.
+'''
+def PerformanceReport:
+	entries = []							#Structure (Dictionary), mandatory (1..N)
+
+	def entriesStruct(self):
+		return {"objectType":None,			#String, mandatory (1)
+				"objectInstanceId":None, 	#Identifier (String), mandatory (1)
+				"subObjectInstanceId":None,	#IdentifierInVnf (String), optional (0..1)
+				"performanceMetric":None, 	#String, mandatory (1)
+				"performanceValues":[]}		#Structure (Dictionary), mandatory (1..N)
+
+	def performanceValuesStruct(self):
+		return {"timeStamp":None, 			#DateTime (String), mandatory (1)
+				"value":None,				#Anything, mandatory (1)
+				"context":{}} 				#KeyValuePairs (Dictionary), optional (0..1)
+
+'''
+CLASS: ThresholdModifications
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents modifications to a threshold.
+'''
+def ThresholdModifications:
+	callbackUri = None 						#URI (String), optional (0..1)
+	authentication = None 					#SubscriptionAuthentication (String), optional (0..1)
+
+'''
+CLASS: PmJobModifications
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents modifications to a performance
+		   	 monitoring job.
+'''
+def PmJobModifications:
+	callbackUri = None 						#URI (String), optional (0..1)
+	authentication = None 					#SubscriptionAuthentication (String), optional (0..1)
+
+'''
+CLASS: PmJobCriteria
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents collection criteria for perfor-
+			 mance monitoring jobs.
+'''
+def PmJobCriteria:
+	performanceMetric = []					#String, optional (0..N)
+	performanceMetricGroup = []				#String, optional (0..N)
+	collectionPeriod = 0					#Unsigned integer, mandatory (1)
+	reportingPeriod = 0						#Unsigned integer, mandatory (1)
+	reportingBoundary = None 				#DateTime (String), optional (0..1)
+
+'''
+CLASS: ThresholdCriteria
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents criteria that define a threshold.
+'''
+def ThresholdCriteria:
+	performanceMetric = None				#String, mandatory (1)
+	thresholdType = None 					#String (SIMPLE), mandatory (1)
+	simpleThresholdDetails = None 			#Structure (Dictionary), optional (0..1)
+
+	def simpleThresholdDetailsStruct(self):
+		return {"thresholdValue":0.0,		#Float, mandatory (1)
+				"hysteresis":0.0}			#Float, mandatory (1)
+
+#######################################################################################################
+#######################################################################################################
+
+'''
+CLASS: CrossingDirectionType
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 23 Oct. 2020
+L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: Enumerator of crossing direction type. Do not modify
+			 the object values of this class.
+'''
+class CrossingDirectionType(enum.Enum):
+	UP = 0
+	DOWN = 1
+
+#######################################################################################################
+#######################################################################################################
+
+'''
+CLASS: FmSubscriptionRequest
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents a subscription request related to
+			 notifications about VNF faults.
+'''
+def FmSubscriptionRequest:
+	filter = None 							#FmNotificationsFilter (Class), optional (0..1)
+	callbackUri = None 						#URI (String), mandatory (1)
+	authentication = None 					#SubscriptionAuthentication (String), optional (0..1)
+
+'''
+CLASS: FmSubscription
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents a subscription related to notifica-
+			 tions about VNF faults.
+'''
+def FmSubscription:
+	id = None								#Identifier (String), mandatory (1)
+	filter = None 							#FmNotificationsFilter (Class), optional (0..1)
+	callbackUri = None 						#URI (String), mandatory (1)
+	links = None 							#Structure (Dictionary), mandatory (1)
+
+	def linkStruct(self):
+		return {"self":None}				#URI (String), mandatory (1)
+
+'''
+CLASS: Alarm
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: The alarm class encapsulates information about an alarm.
+'''
+def Alarm:
+	id = None								#Identifier (String), mandatory (1)
+	managedObjectId = None 					#Identifier (String), mandatory (1)
+	vnfcInstanceIds = []					#IdentifierVnf (String), optional (0..N)
+	rootCauseFaultyResource = None 			#FaultyResourceInfo (Class), optional (0..1)
+	alarmRaisedTime = None 					#DateTime (String), mandatory (1)
+	alarmChangedTime = None 				#DateTime (String), optional (0..1)
+	alarmClearedTime = None 				#DateTime (String), optional (0..1)
+	alarmAcknowledgedTime = None 			#DateTime (String), optional (0..1)
+	ackState = None 						#AckState (Enum), mandatory (1)
+	perceivedSeverity = None 				#PerceivedSeverityType (Class), mandatory (1)
+	eventTime = None 						#DateTime (String), mandatory (1)
+	eventType = None 						#EventType (Class), mandatory (1)
+	faultType = None 						#String, optional (0..1)
+	probableCause = None 					#String, mandatory (1)
+	isRootCause = False 					#Boolean, mandatory (1)
+	correlatedAlarmIds = [] 				#Identifier (String), optional (0..N)
+	faultDetails = [] 						#String, optional (0..N)
+	links = None 							#Structure (Dictionary), mandatory (1)
+	
+	def linkStruct(self):
+		return {"self":None,				#URI (String), mandatory (1)
+				"objectInstance":None}		#URI (String), optional (0..1)
+
+'''
+CLASS: AlarmNotification
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents an alarm notification about VNF faults.
+			 This notification shall be triggered by the VNFM when an a-
+			 larm has been created or an alarm has been updated.
+'''
+def AlarmNotification:
+	id = None								#Identifier (String), mandatory (1)
+	notificationType = None					#String (AlarmNotification), mandatory (1)
+	subscriptionId = None 					#Identifier (String), mandatory (1)
+	timeStamp = None 						#DateTime (String), mandatory (1)
+	alarm = None 							#Alarm (Class), mandatory (1)
+	links = None 							#Structure (Dictionary), mandatory (1)
+
+	def linkStruct(self):
+		return {"subscription":None}		#URI (String), mandatory (1)
+
+'''
+CLASS: AlarmClearedNotification
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents an alarm cleared notification about VNF
+			 faults. The notification shall be triggered by the VNFM when
+			 an alarm has been cleared.
+'''
+def AlarmClearedNotification:
+	id = None								#Identifier (String), mandatory (1)
+	notificationType = None					#String (AlarmClearedNotification), mandatory (1)
+	subscriptionId = None 					#Identifier (String), mandatory (1)
+	timeStamp = None 						#DateTime (String), mandatory (1)
+	alarmId = None							#Identifier (String), mandatory (1)
+	alarmClearedTime = None 				#DateTime (String), mandatory (1)
+	links = None 							#Structure (Dictionary), mandatory (1)
+
+	def linkStruct(self):
+		return {"subscription":None, 		#URI (String), mandatory (1)
+				"alarm":None}				#URI (String), mandatory (1)
+
+'''
+CLASS: PerceivedSeverityRequest
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents the escalated value of the perceived
+			 severity for an alarm.
+'''
+def PerceivedSeverityRequest:
+	proposedPerceivedSeverity = None 		#PerceivedSeverityType (Class), mandatory (1)
+
+'''
+CLASS: AlarmListRebuiltNotification
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents a notification that the alarm list
+			 has been rebuilt. The notification shall be triggered by
+			 the VNFM when the alarm list has been rebuilt.
+'''
+def AlarmListRebuiltNotification:
+	id = None								#Identifier (String), mandatory (1)
+	notificationType = None					#String (AlarmListRebuiltNotification), mandatory (1)
+	subscriptionId = None 					#Identifier (String), mandatory (1)
+	timeStamp = None 						#DateTime (String), mandatory (1)
+	links = None 							#Structure (Dictionary), mandatory (1)
+
+	def linkStruct(self):
+		return {"subscription":None, 		#URI (String), mandatory (1)
+				"alarms":None}				#URI (String), mandatory (1)
+
+'''
+CLASS: AlarmModifications
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents attribute modifications for an indivi-
+			 dual alarm resource, i.e. modifications to a resource repre-
+			 sentation based on the "Alarm" data type.
+'''
+def AlarmModifications:
+	ackState = None 						#AckState (Enum), mandatory (1)
+
+'''
+CLASS: FmNotificationsFilter
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents a subscription filter related to notifi-
+			 cations about VNF faults.
+'''
+def FmNotificationsFilter:
+	vnfInstanceSubscriptionFilter = None 	#VnfInstanceSubscriptionFilter (Class), optional (0..1)
+	notificationTypes = []					#String (AlarmNotification | AlarmClearedNotification | AlarmListRebuiltNotification), optional (0..N)
+	faultyResourceTypes = []				#FaultyResourceType (Class), optional (0..N)
+	perceivedSeverities = []				#PerceivedSeverityType (Class), optional (0..N)
+	eventTypes = []							#EventType (Class), optional (0..N)
+	probableCauses = [] 					#String, optional (0..N)
+
+'''
+CLASS: FaultyResourceInfo
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents the faulty virtual resources that have a
+			 negative impact on a VNF.
+'''
+def FaultyResourceInfo:
+	faultyResource = None 					#ResourceHandle (Class), mandatory (1)
+	faultyResourceType = None 				#FaultyResourceType (Class), mandatory (1)
+
+#######################################################################################################
+#######################################################################################################
+
+'''
+CLASS: PerceivedSeverityType
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 23 Oct. 2020
+L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: Enumerator of perceived severity type. Do not modify
+			 the object values of this class.
+'''
+class PerceivedSeverityType(enum.Enum):
+	CRITICAL = 0
+	MAJOR = 1
+	MINOR = 2
+	WARNING = 3
+	INDETERMINATE = 4
+	CLEARED = 5
+
+'''
+CLASS: EventType
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 23 Oct. 2020
+L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: Enumerator of event type. Do not modify the object values
+			 of this class.
+'''
+class EventType(enum.Enum):
+	COMMUNICATIONS_ALARM = 0
+	PROCESSING_ERROR_ALARM = 1
+	ENVIRONMENTAL_ALARM = 2
+	QOS_ALARM = 3
+	EQUIPMENT_ALARM = 4
+
+'''
+CLASS: FaultyResourceType
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 23 Oct. 2020
+L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: Enumerator of faulty resource type. Do not modify the object
+			 values of this class.
+'''
+class FaultyResourceType(enum.Enum):
+	COMPUTE = 0
+	STORAGE = 1
+	NETWORK = 2
+
+#######################################################################################################
+#######################################################################################################
+
+'''
+CLASS: VnfIndicator
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents a VNF indicator value.
+'''
+def VnfIndicator:
+	id = None								#Identifier (String), mandatory (1)
+	name = None 							#String, optional (0..1)
+	value = None 							#String, mandatory (1)
+	vnfInstanceId = None 					#Identifier (String), mandatory (1)
+	links = None 							#Structure (Dictionary), mandatory (1)
+
+	def linkStruct(self):
+		return {"subscription":None, 		#URI (String), mandatory (1)
+				"vnfInstance":None}			#URI (String), mandatory (1)
+
+'''
+CLASS: VnfIndicatorSubscriptionRequest
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents a subscription request
+			 related to VNF indicator value change noti-
+			 fications.
+'''
+def VnfIndicatorSubscriptionRequest:
+	filter = None 							#VnfIndicatorNotificationsFilter (Class), optional (0..1)
+	callbackUri = None 						#URI (String), mandatory (1)
+	authentication = None 					#SubscriptionAuthentication (String), optional (0..1)
+
+'''
+CLASS: VnfIndicatorSubscription
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents a subscription related
+			 to notifications about VNF indicator value
+			 changes.
+'''
+def VnfIndicatorSubscription:
+	id = None								#Identifier (String), mandatory (1)
+	filter = None 							#VnfIndicatorNotificationsFilter (Class), optional (0..1)
+	callbackUri = None 						#URI (String), mandatory (1)
+	links = None 							#Structure (Dictionary), mandatory (1)
+
+	def linkStruct(self):
+		return {"self":None}				#URI (String), mandatory (1)
+
+'''
+CLASS: VnfIndicatorValueChangeNotification
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents a VNF indicator value
+			 change notification.
+'''
+def VnfIndicatorValueChangeNotification:
+	id = None								#Identifier (String), mandatory (1)
+	notificationType = None					#String (VnfIndicatorValueChangeNotification), mandatory (1)
+	subscriptionId = None 					#Identifier (String), mandatory (1)
+	timeStamp = None 						#DateTime (String), mandatory (1)
+	vnfIndicatorId = None 					#IdentifierInVnfd (String), mandatory (1)
+	name = None 							#String, optional (0..1)
+	value = None 							#String, mandatory (1)
+	vnfInstanceId = None 					#Identifier (String), mandatory (1)
+	links = None 							#Structure (Dictionary), mandatory (1)
+
+	def linkStruct(self):
+		return {"subscription":None, 		#URI (String), mandatory (1)
+				"vnfInstance":None}			#URI (String), mandatory (1)
+
+'''
+CLASS: SupportedIndicatorsChangeNotification
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents a notification to in-
+			 form the receiver that the set of indicators
+			 supported by a VNF instance has changed.
+'''
+def SupportedIndicatorsChangeNotification:
+	id = None								#Identifier (String), mandatory (1)
+	notificationType = None					#String (VnfIndicatorValueChangeNotification), mandatory (1)
+	subscriptionId = None 					#Identifier (String), mandatory (1)
+	timeStamp = None 						#DateTime (String), mandatory (1)
+	vnfInstanceId = None 					#Identifier (String), mandatory (1)
+	supportedIndicators = [] 				#Structure (Dictionary), optional (0..N)
+	links = None 							#Structure (Dictionary), mandatory (1)
+
+	def supportedIndicatorsStruct(self):
+		return {"vnfIndicatorId":None, 		#IdentifierInVnfd (String), mandatory (1)
+				"name":None} 				#String, optional (0..1)
+	
+	def linkStruct(self):
+		return {"subscription":None, 		#URI (String), mandatory (1)
+				"vnfInstance":None}			#URI (String), mandatory (1)
+
+'''
+CLASS: VnfIndicatorNotificationsFilter
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents a subscription filter
+			 for notifications related to VNF indicators.
+'''
+def VnfIndicatorNotificationsFilter:
+	vnfInstanceSubscriptionFilter = None 	#VnfInstanceSubscriptionFilter (Class), optional (0..1)
+	notificationTypes = []					#String (VnfIndicatorValueChangeNotification | SupportedIndicatorsChangeNotification), optional (0..N)
+	indicatorIds = []						#IdentifierInVnfd (String), optional (0..N)
+
+#######################################################################################################
+#######################################################################################################
+
+'''
+CLASS: VnfConfigModifications
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents request parameters for
+			 the "Set Configuration" operation.
+'''
+def VnfConfigModifications:
+	vnfConfigurationData = None 			#VnfConfigurationData (Class), optional (0..1)
+	vnfcConfigurationData = [] 				#VnfcConfigurationData (Class), optinal (0..N)
+	vnfcConfigurationDataDeleteIds = []		#Identifier (String), optinal (0..N)
+
+'''
+CLASS: VnfConfiguration
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents configuration parameters
+			 of a VNF instance and its VNFC instances.
+'''
+def VnfConfiguration:
+	vnfConfigurationData = None 			#VnfConfigurationData, mandatory (1)
+	VnfcConfigurationData = [] 				#VnfcConfigurationData, optional (0..N)
+
+'''
+CLASS: VnfConfigurationData
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents configuration parameters
+			 of a VNF instance.
+'''
+def VnfConfigurationData:
+	extCpConfig = [] 						#CpConfiguration (Class), optional (0..N)
+	dhcpServer = None 						#IpAddress (String), optional (0..1)
+	vnfSpecificData = {} 					#KeyValuePairs (Dictionary), optional (0..1)
+
+
+'''
+CLASS: VnfcConfigurationData
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents configuration parameters
+			 of a VNFC instance.
+'''
+def VnfcConfigurationData:
+	vnfcInstanceId = None 					#IdentifierInVnf (String), mandatory (1)
+	intCpConfig = [] 						#CpConfiguration (Class), optional (0..N)
+	dhcpServer = None 						#IpAddress (String), optional (0..1)
+	vnfcSpecificData = {} 					#KeyValuePairs (Dictionary), optional (0..1)
+
+'''
+CLASS: CpConfiguration
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents configuration parameters
+			of a CP instance.
+'''
+def CpConfiguration:
+	cpId = None 							#IdentifierInVnf (String), mandatory (1)
+	cpdId = None 							#IdentifierInVnfd (String), mandatory (1)
+	addresses = []							#CpAddress (Class), mandatory (1..N)
+
+'''
+CLASS: CpAddress
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents configuration parameters
+			 of a CP instance address.
+'''
+def CpAddress:
+	address = None 							#Structure (Dictionary), optional (0..1)
+	useDynamicAddress = False 				#Boolean, optional (0..1)
+	port = 0 								#Unsigned integer, optional (0..1)
+
+	def addressStruct(self):
+		return {"macAddress":None, 			#MacAddress (String), optional (0..1)
+				"ipAddress":None}			#IpAddress (String), optional (0..1)
