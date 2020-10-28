@@ -13,8 +13,8 @@ VALIDATION ERROR CODES:
 '''
 CLASS: VnfInstanceSubscriptionFilter
 AUTHOR: Vinicius Fulber-Garcia
-CREATION: 22 Oct. 2020
-L. UPDATE: 22 Oct. 2020 (Fulber-Garcia; Class creation)
+CREATION: 27 Oct. 2020
+L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
 DESCRIPTION: This type represents subscription filter cri-
 			 teria to match VNF instances.
 '''
@@ -42,474 +42,498 @@ class VnfInstanceSubscriptionFilter:
 CLASS: VnfInstance
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 22 Oct. 2020
-L. UPDATE: 22 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a VNF instance in the Ve-Vnfm-em re-
 			 ference point.
 '''
 class VnfInstance:
-	id = ""														#String, mandatory (1)
-	vnfInstanceName = ""										#String, optional (0..1)
-	vnfInstanceDescription = ""									#String, optional (0..1)
-	vnfdId = ""													#String, mandatory (1)
-	vnfProvider = ""											#String, mandatory (1)
-	vnfProductName = ""											#String, mandatory (1)
-	vnfSoftwareVersion = ""										#String, mandatory (1)
-	vnfdVersion = ""											#String, mandatory (1)
-	vnfConfigurableProperties = {}								#Dictionary, optinal (0..1)
-	instantiationState = ""										#String (NOT_INSTANTIATED | NSTANTIATED), madatory (1)
-	instantiatedVnfInfo = {										#Dictionary, optinal (0..1)
-						   "flavourId":"",							#String, mandatory (1)
-						   "vnfState":"",							#String, mandatory (1)
-						   "scaleStatus":[],						#String, optinal (0..N)
-						   "maxScaleLevels":[],						#String, optinal (0..N)
-						   "extCpInfo":[],							#String, mandatory (1..N)
-						   "extVirtualLinkInfo":[],					#String, optinal (0..N)
-						   "extManagedVirtualLinkInfo":[],			#String, optinal (0..N)
-						   "monitoringParameters":[],				#String, optinal (0..N)
-						   "localizationLanguage":"",				#String, optinal (0..1)
-						   "vnfcResourceInfo":[],					#String, optinal (0..N)
-						   "vnfVirtualLinkResourceInfo":[],			#String, optinal (0..N)
-						   "virtualStorageResourceInfo":[],			#String, optinal (0..N)
-						   "vnfcInfo":[]							#String, optinal (0..N)							
-						  }							
-	metadata = {}												#Dictionary, optinal (0..1)
-	extensions = {}												#Dictionary, optinal (0..1)
-	links = {													#Dictionary, mandatory (1)
-			 "self":"",												#String, mandatory (1)
-			 "indicators":"",										#String, optinal (0..1)
-			 "instantiate":"",										#String, optinal (0..1)
-			 "terminate":"",										#String, optinal (0..1)
-			 "scale":"",											#String, optinal (0..1)
-			 "scaleToLevel":"",										#String, optinal (0..1)
-			 "changeFlavour":"",									#String, optinal (0..1)
-			 "heal":"",												#String, optinal (0..1)
-			 "operate":"",											#String, optinal (0..1)
-			 "changeExtConn":"",									#String, optinal (0..1)
-			 "createSnapshot":"",									#String, optinal (0..1)
-			 "revertToSnapshot":""									#String, optinal (0..1)
-			}
+	id = None											#Identifier (String), mandatory (1)
+	vnfInstanceName = None								#String, optional (0..1)
+	vnfInstanceDescription = None						#String, optional (0..1)
+	vnfdId = None										#Identifier (String), mandatory (1)
+	vnfProvider = None									#String, mandatory (1)
+	vnfProductName = None								#String, mandatory (1)
+	vnfSoftwareVersion = None							#Version (String), mandatory (1)
+	vnfdVersion = None									#Version (String), mandatory (1)
+	vnfConfigurableProperties = None					#KeyValuePairs (Dictionary), optional (0..1)
+	instantiationState = None							#String (NOT_INSTANTIATED | NSTANTIATED), madatory (1)
+	instantiatedVnfInfo = None 							#Structure (Dictionary), optional (0..1)						
+	metadata = None										#KeyValuePairs (Dictionary), optional (0..1)
+	extensions = None									#KeyValuePairs (Dictionary), optional (0..1)
+	links = None 										#Structure (Dictionary), mandatory (1)
+
+	def instantiatedVnfInfoStruct(self):
+		return {"flavourId":None,						#IdentifierInVnfd (String), mandatory (1)
+				"vnfState":None,						#VnfOperationalStateType (Class), mandatory (1)
+				"scaleStatus":[],						#ScaleInfo (Class), optional (0..N)
+				"maxScaleLevels":[],					#ScaleInfo (Class), optional (0..N)
+				"extCpInfo":[],							#VnfExtCpInfo (Class), mandatory (1..N)
+				"extVirtualLinkInfo":[],				#ExtVirtualLinkInfo (Class), optional (0..N)
+				"extManagedVirtualLinkInfo":[],			#ExtManagedVirtualLinkInfo (Class), optional (0..N)
+				"monitoringParameters":[],				#MonitoringParameter (Class), optional (0..N)
+				"localizationLanguage":None,			#String, optional (0..1)
+				"vnfcResourceInfo":[],					#VnfcResourceInfo (Class), optional (0..N)
+				"vnfVirtualLinkResourceInfo":[],		#VnfVirtualLinkResourceInfo (Class), optional (0..N)
+				"virtualStorageResourceInfo":[],		#VirtualStorageResourceInfo (Class), optional (0..N)
+				"vnfcInfo":[]}							#VnfcInfo (Class), optional (0..N)
+
+	def linksStruct(self):
+		return {"self":None,							#URI (String), mandatory (1)
+			 "indicators":None,							#URI (String), optinal (0..1)
+			 "instantiate":None,						#URI (String), optinal (0..1)
+			 "terminate":None,							#URI (String), optinal (0..1)
+			 "scale":None,								#URI (String), optinal (0..1)
+			 "scaleToLevel":None,						#URI (String), optinal (0..1)
+			 "changeFlavour":None,						#URI (String), optinal (0..1)
+			 "heal":None,								#URI (String), optinal (0..1)
+			 "operate":None,							#URI (String), optinal (0..1)
+			 "changeExtConn":None,						#URI (String), optinal (0..1)
+			 "createSnapshot":None,						#URI (String), optinal (0..1)
+			 "revertToSnapshot":None}					#URI (String), optinal (0..1)
 
 '''
 CLASS: CreateVnfRequest
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 22 Oct. 2020
-L. UPDATE: 22 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a creation request of a VNF instance
 			 in the Ve-Vnfm-em reference point.
 '''
 class CreateVnfRequest:
-	vnfdId = ""						#String, mandatory (1)
-	vnfInstanceName = ""			#String, optional (0..1)
-	vnfInstanceDescription = ""		#String, optional (0..1)
-	metadata = {}					#Dictionary, optinal (0..1)
+	vnfdId = None							#Identifier (String), mandatory (1)
+	vnfInstanceName = None					#String, optional (0..1)
+	vnfInstanceDescription = None			#String, optional (0..1)
+	metadata = None							#Structure (Dictionary), optinal (0..1)
 
 '''
 CLASS: InstantiateVnfRequest
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 22 Oct. 2020
-L. UPDATE: 22 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes an instantiation request of a VNF ins-
 			 tance in the Ve-Vnfm-em reference point.
 '''
 class InstantiateVnfRequest:
-	flavourId = ""					#String, mandatory (1)
-	instantiationLevelId = ""		#String, optional (0..1)
-	extVirtualLinks = []			#String, optinal (0..N)
-	extManagedVirtualLinks = []		#String, optinal (0..N)
-	localizationLanguage = ""		#String, optional (0..1)
-	extensions = {}					#Dictionary, optinal (0..1)
-	additionalParams = {}			#Dictionary, optinal (0..1)
-	vnfConfigurableProperties = {}	#Dictionary, optinal (0..1)
+	flavourId = None						#IdentifierInVnfd (String), mandatory (1)
+	instantiationLevelId = None				#IdentifierInVnfd (String), optional (0..1)
+	extVirtualLinks = []					#ExtVirtualLinkData (Class), optional (0..N)
+	extManagedVirtualLinks = []				#ExtManagedVirtualLinkData (Class), optional (0..N)
+	localizationLanguage = None				#String, optional (0..1)
+	extensions = None						#KeyValuePairs (Dictionary), optional (0..1)
+	additionalParams = None					#KeyValuePairs (Dictionary), optional (0..1)
+	vnfConfigurableProperties = None		#KeyValuePairs (Dictionary), optional (0..1)
 
 '''
 CLASS: ScaleVnfRequest
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 22 Oct. 2020
-L. UPDATE: 22 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a resource scaling request of a VNF 
 			 instance in the Ve-Vnfm-em reference point.
 '''
 class ScaleVnfRequest:
-	type = ""						#String (SCALE_OUT | SCALE_IN), madatory (1)
-	aspectId = ""					#String, mandatory (1)
-	numberOfSteps = 0				#Integer, optional (0..1)
-	additionalParams = {}			#Dictionary, optinal (0..1)
+	type = None								#String (SCALE_OUT | SCALE_IN), madatory (1)
+	aspectId = None							#IdentifierInVnfd (String), mandatory (1)
+	numberOfSteps = None					#Integer, optional (0..1)
+	additionalParams = None					#KeyValuePairs (Dictionary), optional (0..1)
 
 '''
 CLASS: ScaleVnfToLevelRequest
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 22 Oct. 2020
-L. UPDATE: 22 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a level scaling request of a VNF ins-
 			 tance in the Ve-Vnfm-em reference point.
 '''
 class ScaleVnfToLevelRequest:
-	instantiationLevelId = "" 		#Integer, optional (0..1)
-	scaleInfo = []					#String, optinal (0..N)
-	additionalParams = {}			#Dictionary, optinal (0..1)
+	instantiationLevelId = None 			#IdentifierInVnfd (String), optional (0..1)
+	scaleInfo = []							#ScaleInfo (Class), optinal (0..N)
+	additionalParams = None					#KeyValuePairs (Dictionary), optional (0..1)
 
 '''
 CLASS: ChangeVnfFlavourRequest
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 22 Oct. 2020
-L. UPDATE: 22 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a changing flavour request of a VNF
 			 instance in the Ve-Vnfm-em reference point.
 '''
 class ChangeVnfFlavourRequest:
-	newFlavourId = ""				#String, mandatory (1)
-	instantiationLevelId = ""		#String, optional (0..1)
-	extVirtualLinks = []			#String, optinal (0..N)
-	extManagedVirtualLinks = []		#String, optinal (0..N)
-	additionalParams = {}			#Dictionary, optinal (0..1)
-	extensions = {}					#Dictionary, optinal (0..1)
-	vnfConfigurableProperties = {}	#Dictionary, optinal (0..1)
+	newFlavourId = None						#IdentifierInVnfd (String), mandatory (1)
+	instantiationLevelId = None				#IdentifierInVnfd (String), optional (0..1)
+	extVirtualLinks = []					#ExtVirtualLinkData (Class), optinal (0..N)
+	extManagedVirtualLinks = []				#ExtManagedVirtualLinkData (Class), optinal (0..N)
+	additionalParams = None					#KeyValuePairs (Dictionary), optional (0..1)
+	extensions = None						#KeyValuePairs (Dictionary), optional (0..1)
+	vnfConfigurableProperties = None		#KeyValuePairs (Dictionary), optional (0..1)
 
 '''
 CLASS: TerminateVnfRequest
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 22 Oct. 2020
-L. UPDATE: 22 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a termination request of a VNF instan-
 			 ce in the Ve-Vnfm-em reference point.
 '''
 class TerminateVnfRequest:
-	terminationType = ""			#String (FORCEFUL | GRACEFUL), madatory (1)
-	gracefulTerminationTimeout = 0	#Integer, optional (0..1)
-	additionalParams = {}			#Dictionary, optinal (0..1)
+	terminationType = None					#String (FORCEFUL | GRACEFUL), madatory (1)
+	gracefulTerminationTimeout = None		#Integer, optional (0..1)
+	additionalParams = None					#KeyValuePairs (Dictionary), optional (0..1)
 
 '''
 CLASS: HealVnfRequest
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 22 Oct. 2020
-L. UPDATE: 22 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a healing request of a VNF instance
 			 in the Ve-Vnfm-em reference point.
 '''
 class HealVnfRequest:
-	vnfcInstanceId = []				#String, optinal (0..N)
-	cause = ""						#Dictionary, optinal (0..1)
-	additionalParams = {}			#Dictionary, optinal (0..1)
-	healScript = ""					#String, optional (0..1)
+	vnfcInstanceId = []						#Identifier (String), optional (0..N)
+	cause = None							#String, optional (0..1)
+	additionalParams = None					#KeyValuePairs (Dictionary), optional (0..1)
+	healScript = None						#String, optional (0..1)
 
 '''
 CLASS: OperateVnfRequest
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 22 Oct. 2020
-L. UPDATE: 22 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes an operation request of a VNF instan-
 			 ce in the Ve-Vnfm-em reference point.
 '''
 class OperateVnfRequest:
-	vnfcInstanceId = []				#String, optinal (0..N)
-	changeStateTo = ""				#String, optinal (0..N)
-	stopType = ""					#String (FORCEFUL | GRACEFUL), optional (0..1)
-	gracefulStopTimeout = 0			#Integer, optional (0..1)
-	additionalParams = {}			#Dictionary, optinal (0..1)
+	vnfcInstanceId = []						#Identifier (String), optional (0..N)
+	changeStateTo = None					#VnfOperationalStateType (Class), optional (0..N)
+	stopType = None							#StopType (Class), optional (0..1)
+	gracefulStopTimeout = None				#Integer, optional (0..1)
+	additionalParams = None					#KeyValuePairs (Dictionary), optional (0..1)
 
 '''
 CLASS: ChangeExtVnfConnectivityRequest
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 22 Oct. 2020
-L. UPDATE: 22 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes an external connectivity changing re-
 			 quest of a VNF instance in the Ve-Vnfm-em refe-
 			 rence point.
 '''
 class ChangeExtVnfConnectivityRequest:
-	extVirtualLinks = []			#String, mandatory (1..N)
-	additionalParams = {}			#Dictionary, optinal (0..1)
+	extVirtualLinks = []					#ExtVirtualLinkData (Class), mandatory (1..N)
+	additionalParams = None					#KeyValuePairs (Dictionary), optional (0..1)
 
 '''
 CLASS: ChangeCurrentVnfPkgRequest
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 22 Oct. 2020
-L. UPDATE: 22 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a VNF package changing request of a
 			 VNF instance in the Ve-Vnfm-em reference point.
 '''
 class ChangeCurrentVnfPkgRequest:
-	vnfdId = ""						#String, mandatory (1)
-	extVirtualLinks = []			#String, optional (0..N)
-	extManagedVirtualLinks = []		#String, optional (0..N)
-	additionalParams = {}			#Dictionary, optinal (0..1)
-	extensions = {}					#Dictionary, optinal (0..1)
-	vnfConfigurableProperties = {}	#Dictionary, optinal (0..1)
+	vnfdId = None							#Identifier (String), mandatory (1)
+	extVirtualLinks = []					#ExtVirtualLinkData (Class), optional (0..N)
+	extManagedVirtualLinks = []				#ExtManagedVirtualLinkData (Class), optional (0..N)
+	additionalParams = None					#KeyValuePairs (Dictionary), optional (0..1)
+	extensions = None						#KeyValuePairs (Dictionary), optional (0..1)
+	vnfConfigurableProperties = None		#KeyValuePairs (Dictionary), optional (0..1)
 
 '''
 CLASS: VnfInfoModificationRequest
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 22 Oct. 2020
-L. UPDATE: 22 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a VNF package changing request of a
 			 VNF instance in the Ve-Vnfm-em reference point.
 '''
 class VnfInfoModificationRequest:
-	vnfInstanceName = ""			#String, optional (0..1)
-	vnfInstanceDescription = ""		#String, optional (0..1)
-	vnfdId = ""						#String, optional (0..1)
-	vnfConfigurableProperties = {}	#Dictionary, optinal (0..1)
-	metadata = {}					#Dictionary, optinal (0..1)
-	extensions = {}					#Dictionary, optinal (0..1)
-	vnfcInfoModifications = []		#String, optional (0..N)
+	vnfInstanceName = None					#String, optional (0..1)
+	vnfInstanceDescription = None			#String, optional (0..1)
+	vnfdId = ""								#Identifier (String), optional (0..1)
+	vnfConfigurableProperties = None		#KeyValuePairs (Dictionary), optional (0..1)
+	metadata = None							#KeyValuePairs (Dictionary), optional (0..1)
+	extensions = None						#KeyValuePairs (Dictionary), optional (0..1)
+	vnfcInfoModifications = []				#VnfcInfoModifications (Class), optional (0..N)
 
 '''
 CLASS: VnfInfoModificationRequest
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a VNF information changing request of 
 			 a VNF instance in the Ve-Vnfm-em reference point.
 '''
 class VnfInfoModificationRequest:
-	vnfInstanceName = ""			#String, optional (0..1)
-	vnfInstanceDescription = ""		#String, optional (0..1)
-	vnfConfigurableProperties = {}	#Dictionary, optinal (0..1)
-	metadata = {}					#Dictionary, optinal (0..1)
-	extensions = {}					#Dictionary, optinal (0..1)
-	vnfdId = ""						#String, optional (0..1)
-	vnfProvider = ""				#String, optional (0..1)
-	vnfProductName = ""				#String, optional (0..1)
-	vnfSoftwareVersion = ""			#String, optional (0..1)
-	vnfdVersion = ""				#String, optional (0..1)
-	vnfcInfoModifications = []		#String, optional (0..N)
+	vnfInstanceName = None					#String, optional (0..1)
+	vnfInstanceDescription = None			#String, optional (0..1)
+	vnfConfigurableProperties = None		#KeyValuePairs (Dictionary), optional (0..1)
+	metadata = None							#KeyValuePairs (Dictionary), optional (0..1)
+	extensions = None						#KeyValuePairs (Dictionary), optional (0..1)
+	vnfdId = None							#Identifier (String), optional (0..1)
+	vnfProvider = None						#String, optional (0..1)
+	vnfProductName = None					#String, optional (0..1)
+	vnfSoftwareVersion = None				#Version (String), optional (0..1)
+	vnfdVersion = None						#Version (String), optional (0..1)
+	vnfcInfoModifications = []				#VnfcInfoModifications (String), optional (0..N)
 
 '''
 CLASS: VnfLcmOpOcc
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a VNF LCM operation occurence of a 
 			 VNF instance in the Ve-Vnfm-em reference point.
 '''
 class VnfLcmOpOcc:
-	id = ""											#String, mandatory (1)
-	operationState = ""								#String, mandatory (1)
-	stateEnteredTime = ""							#String, mandatory (1)
-	startTime = ""									#String, mandatory (1)
-	vnfInstanceId = ""								#String, mandatory (1)
-	grantId = ""									#String, optional (0..1)
-	operation = ""									#String, mandatory (1)
-	isAutomaticInvocation = False					#Boolean, mandatory (1)
-	operationParams = []							#String, optional (0..N)
-	isCancelPending = False							#Boolean, mandatory (1)
-	cancelMode = ""									#String, optional (0..1)
-	error = ""										#String, optional (0..1)
-	resourceChanges = {								#Dictionary, optinal (0..N)
-						"affectedVnfcs":[],				#String, optional (0..N)
-						"affectedVirtualLinks":[],		#String, optional (0..N)
-						"affectedExtLinkPorts":[],		#String, optional (0..N)
-						"affectedVirtualStorages":[],	#String, optional (0..N)
-					  }
-	changedInfo = ""								#String, optional (0..1)
-	changedExtConnectivity = []						#String, optional (0..N)
-	modificationsTriggeredByVnfPkgChange = ""		#String, optional (0..1)
-	vnfSnapshotInfoId = ""							#String, optional (0..1)
-	links = {										#Dictionary, mandatory (1)
-				"self":"",								#String, mandatory (1)
-				"vnfInstance":"",						#String, mandatory (1)
-				"grant":"",								#String, optional (0..1)
-				"cancel":"",							#String, optional (0..1)
-				"retry":"",								#String, optional (0..1)
-				"rollback":"",							#String, optional (0..1)
-				"fail":"",								#String, optional (0..1)
-				"vnfSnapshot":""						#String, optional (0..1)
-			}
+	id = None											#Identifier (String), mandatory (1)
+	operationState = None								#LcmOperationStateType (Class), mandatory (1)
+	stateEnteredTime = None								#DateTime (String), mandatory (1)
+	startTime = None									#DateTime (String), mandatory (1)
+	vnfInstanceId = None								#Identifier (String), mandatory (1)
+	grantId = None										#Identifier (String), optional (0..1)
+	operation = None									#LcmOperationType (Class), mandatory (1)
+	isAutomaticInvocation = None						#Boolean, mandatory (1)
+	operationParams = None								#KeyValuePairs (Dictionary), optional (0..N)
+	isCancelPending = None								#Boolean, mandatory (1)
+	cancelMode = None									#CancelModeType (Class), optional (0..1)
+	error = None										#String, optional (0..1)
+	resourceChanges = None								#Structure (Dictionary), optional (0..1)
+	changedInfo = None									#VnfInfoModifications (Class), optional (0..1)
+	changedExtConnectivity = []							#ExtVirtualLinkInfo (Class), optional (0..N)
+	modificationsTriggeredByVnfPkgChange = None			#ModificationsTriggeredByVnfPkgChange (Class), optional (0..1)
+	vnfSnapshotInfoId = None							#Identifier (String), optional (0..1)
+	links = None										#Structure (Dictionary), mandatory (1)
+
+	def resourceChanges(self):
+		return {"affectedVnfcs":[],						#AffectedVnfc (Class), optional (0..N)
+				"affectedVirtualLinks":[],				#AffectedVirtualLink (Class), optional (0..N)
+				"affectedExtLinkPorts":[],				#AffectedExtLinkPort (Class), optional (0..N)
+				"affectedVirtualStorages":[]}			#AffectedVirtualStorage (Class), optional (0..N)
+
+	def links(self):
+		return {"self":None,							#URI (String), mandatory (1)
+	 			"vnfInstance":None,						#URI (String), mandatory (1)
+	 			"grant":None,							#URI (String), optional (0..1)
+	 			"cancel":None,							#URI (String), optional (0..1)
+	 			"retry":None,							#URI (String), optional (0..1)
+	 			"rollback":None,						#URI (String), optional (0..1)
+	 			"fail":None,							#URI (String), optional (0..1)
+	 			"vnfSnapshot":None}						#URI (String), optional (0..1)
 
 '''
 CLASS: CancelMode
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a cancel mode selection of an opera-
 			 tion of a VNF instance in the Ve-Vnfm-em refe-
 			 rence point.
 '''
 class CancelMode:
-	cancelMode = ""				#String, mandatory (1)
+	cancelMode = None						#CancelModeType (Class), mandatory (1)
 
 '''
 CLASS: LccnSubscriptionRequest
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a LCN subscription request of a VNF
 			 instance in the Ve-Vnfm-em reference point.
 '''
-class LccnSubscriptionRequest:
-	id = ""						#String, mandatory (1)
-	filter = ""					#String, optional (0..1)
-	callbackUri = ""			#String, mandatory (1)
-	verbosity = ""				#String, mandatory (1)
-	links = {					#Dictionary, mandatory (1)
-		"self":""					#String, mandatory (1)
-	}
+def LccnSubscriptionRequest:
+	filter = None 							#LifecycleChangeNotificationsFilter (Class), optional (0..1)
+	callbackUri = None 						#URI (String), mandatory (1)
+	authentication = None 					#SubscriptionAuthentication (String), optional (0..1)
+	verbosity = None 						#LcmOpOccNotificationVerbosityType (Class), optional (0..1)
+
+'''
+CLASS: LccnSubscription
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 23 Oct. 2020
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
+DESCRIPTION: Implementation of the reference structure that
+			 describes a LCN subscription of a VNF instance
+			 in the Ve-Vnfm-em reference point.
+'''
+class LccnSubscription:
+	id = None								#Identifier (String), mandatory (1)
+	filter = None							#LifecycleChangeNotificationsFilter (Class), optional (0..1)
+	callbackUri = None						#URI (String), mandatory (1)
+	verbosity = None						#LcmOpOccNotificationVerbosityType (Class), mandatory (1)
+	links = None 							#Structure (Dictionary), mandatory (1)
+
+	def linksStruct(self):
+		return {"self":None}				#URI (String), mandatory (1)
+	
 
 '''
 CLASS: VnfLcmOperationOccurrenceNotification
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a LCN occurence notification of a VNF
 			 instance in the Ve-Vnfm-em reference point.
 '''
 class VnfLcmOperationOccurrenceNotification:
-	id = ""										#String, mandatory (1)
-	notificationType = ""						#String, mandatory (1)
-	subscriptionId = ""							#String, mandatory (1)
-	timeStamp = ""								#String, mandatory (1)
-	notificationStatus = ""						#String (START | RESULT), mandatory (1)
-	operationState = ""							#String, mandatory (1)
-	vnfInstanceId = ""							#String, mandatory (1)
-	operation = ""								#String, mandatory (1)
-	isAutomaticInvocation = ""					#String, mandatory (1)
-	verbosity = ""								#String, optional (0..1)
-	vnfLcmOpOccId = ""							#String, mandatory (1)
-	affectedVnfcs = []							#String, optional (0..N)
-	affectedVirtualLinks = []					#String, optional (0..N)
-	affectedExtLinkPorts = []					#String, optional (0..N)
-	affectedVirtualStorages = []				#String, optional (0..N)
-	changedInfo = ""							#String, optional (0..1)
-	changedExtConnectivity = []					#String, optional (0..N)
-	modificationsTriggeredByVnfPkgChange = ""	#String, optional (0..1)
-	error = ""									#String, optional (0..1)
-	_links = ""									#String, mandatory (1)
+	id = None											#Identifier (String), mandatory (1)
+	notificationType = None								#String, mandatory (1)
+	subscriptionId = None								#Identifier (String), mandatory (1)
+	timeStamp = None									#DateTime (String), mandatory (1)
+	notificationStatus = None							#String (START | RESULT), mandatory (1)
+	operationState = None								#LcmOperationStateType (Class), mandatory (1)
+	vnfInstanceId = None								#Identifier (String), mandatory (1)
+	operation = None									#LcmOperationType (Class), mandatory (1)
+	isAutomaticInvocation = None						#Boolean, mandatory (1)
+	verbosity = None									#LcmOpOccNotificationVerbosityType (Class), optional (0..1)
+	vnfLcmOpOccId = None								#Identifier (String), mandatory (1)
+	affectedVnfcs = []									#AffectedVnfc (Class), optional (0..N)
+	affectedVirtualLinks = []							#AffectedVirtualLink (Class), optional (0..N)
+	affectedExtLinkPorts = []							#AffectedExtLinkPort (Class), optional (0..N)
+	affectedVirtualStorages = []						#AffectedVirtualStorage (Class), optional (0..N)
+	changedInfo = None									#VnfInfoModifications (Class), optional (0..1)
+	changedExtConnectivity = []							#ExtVirtualLinkInfo (Class), optional (0..N)
+	modificationsTriggeredByVnfPkgChange = None			#ModificationsTriggeredByVnfPkgChange (, optional (0..1)
+	error = None										#String, optional (0..1)
+	_links = None										#LccnLinks, mandatory (1)
 
 '''
 CLASS: VnfIdentifierCreationNotification
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a creation operation notification of
 			 a VNF instance in the Ve-Vnfm-em reference point.
 '''
 class VnfIdentifierCreationNotification:
-	id = ""						#String, mandatory (1)
-	notificationType = ""		#String, mandatory (1)
-	subscriptionId = ""			#String, mandatory (1)
-	timeStamp = ""				#String, mandatory (1)
-	vnfInstanceId = ""			#String, mandatory (1)
-	links = ""					#String, mandatory (1)
+	id = None								#Identifier (String), mandatory (1)
+	notificationType = None					#String, mandatory (1)
+	subscriptionId = None					#Identifier (String), mandatory (1)
+	timeStamp = None						#DateTime (String), mandatory (1)
+	vnfInstanceId = None					#Identifier (String), mandatory (1)
+	links = None							#LccnLinks, mandatory (1)
 
 '''
 CLASS: VnfIdentifierDeletionNotification
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a deletion operation notification of
 			 a VNF instance in the Ve-Vnfm-em reference point.
 '''
 class VnfIdentifierDeletionNotification:
-	id = ""						#String, mandatory (1)
-	notificationType = ""		#String, mandatory (1)
-	subscriptionId = ""			#String, mandatory (1)
-	timeStamp = ""				#String, mandatory (1)
-	vnfInstanceId = ""			#String, mandatory (1)
-	links = ""					#String, mandatory (1)
+	id = None								#Identifier (String), mandatory (1)
+	notificationType = None					#String, mandatory (1)
+	subscriptionId = None					#Identifier (String), mandatory (1)
+	timeStamp = None						#DateTime (String), mandatory (1)
+	vnfInstanceId = None					#Identifier (String), mandatory (1)
+	links = None							#LccnLinks, mandatory (1)
 
 '''
 CLASS: CreateVnfSnapshotInfoRequest
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a snapshot information operation no-
 			 tification of a VNF instance in the Ve-Vnfm-em
 			 reference point.
 '''
 class CreateVnfSnapshotInfoRequest:
-	vnfSnapshotPkgId = ""		#String, optional (0..1)
+	vnfSnapshotPkgId = None					#Identifier (String), optional (0..1)
 
 '''
 CLASS: CreateVnfSnapshotRequest
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a snapshot creation notification of
 			 a VNF instance in the Ve-Vnfm-em reference po-
 			 int.
 '''
 class CreateVnfSnapshotRequest:
-	vnfSnapshotInfoId = ""		#String, mandatory (1)
-	vnfcInstanceId = ""			#String, optional (0..1)
-	additionalParams = {}		#Dictionary, optional (0..1)
-	userDefinedData = {}		#Dictionary, optional (0..1)
+	vnfSnapshotInfoId = None				#Identifier (String), mandatory (1)
+	vnfcInstanceId = None					#IdentifierInVnf (String), optional (0..1)
+	additionalParams = None					#KeyValuePairs (Dictionary), optional (0..1)
+	userDefinedData = None					#KeyValuePairs (Dictionary), optional (0..1)
 
 '''
 CLASS: VnfSnapshotInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a individual VNF snapshot of a VNF 
 			 instance in the Ve-Vnfm-em reference point.
 '''
 class VnfSnapshotInfo:
-	id = ""						#String, mandatory (1)
-	vnfSnapshotPkgId = ""		#String, optional (0..1)
-	vnfSnapshot = ""			#String, optional (0..1)
-	links = {					#Dictionary, mandatory (1)
-				"self":"",			#String, mandatory (1)
-				"takenFrom":""		#String, optional (0..1)
-			}
+	id = None								#Identifier (String), mandatory (1)
+	vnfSnapshotPkgId = None					#Identifier (String), optional (0..1)
+	vnfSnapshot = None						#VnfSnapshot (Class), optional (0..1)
+	links = None 							#Structure (Dictionary), mandatory (1)
+
+	def linksStruct(self):
+		return {"self":None,				#URI (String), mandatory (1)
+	 			"takenFrom":None}			#URI (String), optional (0..1)
 
 '''
 CLASS: VnfSnapshotInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a VNF snapshot of a VNF instance in
 			 the Ve-Vnfm-em reference point.
 '''
 class VnfSnapshot:
-	id = ""						#String, mandatory (1)
-	vnfInstanceId = ""			#String, mandatory (1)
-	creationStartedAt = ""		#String, mandatory (1)
-	creationFinishedAt = ""		#String, optional (0..1)
-	vnfdId = ""					#String, mandatory (1)
-	vnfInstance = ""			#String, mandatory (1)
-	vnfcSnapshots = []			#String, mandatory (1..N)
-	userDefinedData = {}		#Dictionary, optional (0..1)
-	links = {					#Dictionary, mandatory (1)
-		"self":""					#String, mandatory (1)
-	}
+	id = None								#Identifier (String), mandatory (1)
+	vnfInstanceId = None					#Identifier (String), mandatory (1)
+	creationStartedAt = None				#DateTime (String), mandatory (1)
+	creationFinishedAt = None				#DateTime (String), optional (0..1)
+	vnfdId = None							#Identifier (String), mandatory (1)
+	vnfInstance = None						#VnfInstance (Class), mandatory (1)
+	vnfcSnapshots = []						#VnfcSnapshotInfo (Class), mandatory (1..N)
+	userDefinedData = None					#KeyValuePairs (Dictionary), optional (0..1)
+	links = None
+
+	def linksStruct(self):					
+		return {"self":None}				#URI (String), mandatory (1)
+	
 
 '''
 CLASS: RevertToVnfSnapshotRequest
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a revertion to a snapshot request of
 			 a VNF instance in the Ve-Vnfm-em reference po-
 			 int.
 '''
 class RevertToVnfSnapshotRequest:
-	vnfSnapshotInfoId = ""		#String, optional (0..1)
-	vnfcInstanceId = ""			#String, optional (0..1)
-	vnfcSnapshotInfoId = ""		#String, optional (0..1)
-	additionalParams = {}		#Dictionary, optional (0..1)
+	vnfSnapshotInfoId = None				#Identifier (String), optional (0..1)
+	vnfcInstanceId = None					#Identifier (String), optional (0..1)
+	vnfcSnapshotInfoId = None				#Identifier (String), optional (0..1)
+	additionalParams = None					#KeyValuePairs (Dictionary), optional (0..1)
 
 #######################################################################################################
 #######################################################################################################
@@ -518,68 +542,68 @@ class RevertToVnfSnapshotRequest:
 CLASS: ExtVirtualLinkData
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a external virtual link of a VNF ins-
 			 tance in the Ve-Vnfm-em reference point.
 '''
 class ExtVirtualLinkData:
-	id = ""						#String, mandatory (1)
-	vimConnectionId = ""		#String, optional (0..1)
-	resourceProviderId = ""		#String, optional (0..1)
-	resourceId = ""				#String, mandatory (1)
-	extCps = []					#String, mandatory (1..N)
-	extLinkPorts = []			#String, optional (0..1)
+	id = None								#Identifier (String), mandatory (1)
+	vimConnectionId = None					#Identifier (String), optional (0..1)
+	resourceProviderId = None				#Identifier (String), optional (0..1)
+	resourceId = None						#IdentifierInVim (String), mandatory (1)
+	extCps = []								#VnfExtCpData (Class), mandatory (1..N)
+	extLinkPorts = []						#ExtLinkPortData (Class), optional (0..1)
 
 '''
 CLASS: ExtVirtualLinkInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes information about an external virtual
 			 link of a VNF instance in the Ve-Vnfm-em refe-
 			 rence point.
 '''
 class ExtVirtualLinkInfo:
-	id = ""						#String, mandatory (1)
-	resourceHandle = ""			#String, mandatory (1)
-	extLinkPorts = []			#String, optional (0..N)
-	currentVnfExtCpData = []	#String, mandatory (1..N)
+	id = None								#Identifier (String), mandatory (1)
+	resourceHandle = None					#ResourceHandle (Class), mandatory (1)
+	extLinkPorts = []						#ExtLinkPortInfo (Class), optional (0..N)
+	currentVnfExtCpData = []				#VnfExtCpData (Class), mandatory (1..N)
 
 '''
 CLASS: ExtManagedVirtualLinkData
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes an externally-managed internal virtual
 			 link of a VNF instance in the Ve-Vnfm-em refe-
 			 rence point.
 '''
 class ExtManagedVirtualLinkData:
-	id = ""						#String, mandatory (1)
-	vnfVirtualLinkDescId = ""	#String, mandatory (1)
-	vimConnectionId = ""		#String, optional (0..1)
-	resourceProviderId = ""		#String, optional (0..1)
-	resourceId = ""				#String, mandatory (1)
+	id = None								#Identifier (String), mandatory (1)
+	vnfVirtualLinkDescId = None				#IdentifierInVnfd (String), mandatory (1)
+	vimConnectionId = None					#Identifier (String), optional (0..1)
+	resourceProviderId = None				#Identifier (String), optional (0..1)
+	resourceId = None						#IdentifierInVim (String), mandatory (1)
 
 '''
 CLASS: ExtManagedVirtualLinkInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes information about externally-managed
 			 internal virtual link of a VNF instance in the
 			 Ve-Vnfm-em reference point.
 '''
 class ExtManagedVirtualLinkInfo:
-	id = ""						#String, mandatory (1)
-	vnfVirtualLinkDescId = ""	#String, mandatory (1)
-	vnfdId = ""					#String, optional (0..1)
-	networkResource = ""		#String, mandatory (1)
-	vnfLinkPorts = []			#String, optional (0..N)
+	id = None								#Identifier (String), mandatory (1)
+	vnfVirtualLinkDescId = None				#IdentifierInVnfd (String), mandatory (1)
+	vnfdId = None							#Identifier (String), optional (0..1)
+	networkResource = None					#ResourceHandle (Class), mandatory (1)
+	vnfLinkPorts = []						#VnfLinkPortInfo (Class), optional (0..N)
 
 '''
 CLASS: VnfExtCpData
