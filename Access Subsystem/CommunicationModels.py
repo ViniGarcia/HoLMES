@@ -1,10 +1,18 @@
 import enum
 
 '''
+GENERAL INFORMATION: This file contains several classes that enable the
+					 EMS to communicate other management components, as
+					 well as other management components communicate with
+					 the EMS platform.
+NOTE:				 The classes are implemente and fully compliant with 
+					 the ETSI specification. However, the validation me-
+					 thods are not implemented for most of the classes (
+					 TODO).
 VALIDATION ERROR CODES:
--1: Attribute type not satisfied
--2: Mandatory attribute not satisfied
--3: Invalid member in structure
+					 -1: Attribute type not satisfied
+					 -2: Mandatory attribute not satisfied
+					 -3: Invalid member in structure
 '''
 
 #######################################################################################################
@@ -356,7 +364,7 @@ DESCRIPTION: Implementation of the reference structure that
 			 describes a LCN subscription request of a VNF
 			 instance in the Ve-Vnfm-em reference point.
 '''
-def LccnSubscriptionRequest:
+class LccnSubscriptionRequest:
 	filter = None 							#LifecycleChangeNotificationsFilter (Class), optional (0..1)
 	callbackUri = None 						#URI (String), mandatory (1)
 	authentication = None 					#SubscriptionAuthentication (String), optional (0..1)
@@ -513,7 +521,7 @@ class VnfSnapshot:
 	vnfInstance = None						#VnfInstance (Class), mandatory (1)
 	vnfcSnapshots = []						#VnfcSnapshotInfo (Class), mandatory (1..N)
 	userDefinedData = None					#KeyValuePairs (Dictionary), optional (0..1)
-	links = None
+	links = None 							#Structure (Dictionary), mandatory (1)
 
 	def linksStruct(self):					
 		return {"self":None}				#URI (String), mandatory (1)
@@ -609,439 +617,445 @@ class ExtManagedVirtualLinkInfo:
 CLASS: VnfExtCpData
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes external connection points of a VNF
 			 instance in the Ve-Vnfm-em reference point.
 '''
 class VnfExtCpData:
-	cpdId = ""					#String, mandatory (1)
-	cpConfig = []				#String, mandatory (1..N)
+	cpdId = None							#IdentifierInVnfd (String), mandatory (1)
+	cpConfig = []							#KeyValuePairs (Dictionary), mandatory (1..N)
 
 '''
 CLASS: VnfExtCpConfig
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes the configuration of an external co-
 			 nnection point of a VNF instance in the Ve-Vn-
 			 fm-em reference point.
 '''
 class VnfExtCpConfig:
-	parentCpConfigId = ""		#String, optional (0..1)
-	linkPortId = ""				#String, optional (0..1)
-	cpProtocolData = []			#String, optional (0..N)
+	parentCpConfigId = None					#IdentifierInVnf (String), optional (0..1)
+	linkPortId = None						#Identifier (String), optional (0..1)
+	cpProtocolData = []						#CpProtocolData (Class), optional (0..N)
 
 '''
 CLASS: CpProtocolData
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes network protocols data of a VNF ins-
 			 tance in the Ve-Vnfm-em reference point.
 '''
 class CpProtocolData:
-	layerProtocol = ""			#String (P_OVER_ETHERNET), mandatory (1)
-	ipOverEthernet = ""			#String, optional (0..1)
+	layerProtocol = None					#String (P_OVER_ETHERNET), mandatory (1)
+	ipOverEthernet = None					#IpOverEthernetAddressData (Class), optional (0..1)
 
 '''
 CLASS: IpOverEthernetAddressData
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes an IP over ethernet internet address 
 			 of a VNF instance in the Ve-Vnfm-em reference
 			 point.
 '''
 class IpOverEthernetAddressData:
-	macAddress = ""									#String, optional (0..1)
-	segmentationId = ""								#String, optional (0..1)
-	ipAddresses = [{								#Dictionary, optional (0..N)
-					"type":"",							#String (IPV4 | IPV6), mandatory (1)
-					"fixedAddresses":[],				#String, optional (0..N)
-					"numDynamicAddresses":0,			#Integer, optional (0..1)
-					"addressRange":{					#Dictionary, optional (0..1)	
-									"minAddress":"",		#String, mandatory (1)
-									"maxAddress":""			#String, mandatory (1)
-								   },
-					"subnetId":""						#String, optional (0..1)
-				  }]
+	macAddress = None						#MacAddress (String), optional (0..1)
+	segmentationId = None					#String, optional (0..1)
+	ipAddresses = []						#Structure (Dictionary), optional (0..N)
 
+	def ipAddressesStruct(self):
+		return {"type":None,				#String (IPV4 | IPV6), mandatory (1)
+				"fixedAddresses":[],		#IpAddress (String), optional (0..N)
+				"numDynamicAddresses":None,	#Integer, optional (0..1)
+				"addressRange":None, 		#Structure (Dictionary), optional (0..1)
+				"subnetId":None}			#IdentifierInVim (String), optional (0..1)
+	
+	def addressRangeStruct(self):
+		return {"minAddress":None,			#IpAddress (String), mandatory (1)
+				"maxAddress":None}			#IpAddress (String), mandatory (1)
+				  
 '''
 CLASS: ScaleInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes information about scaling operations
 			 of a VNF instance in the Ve-Vnfm-em reference
 			 point.
 '''
 class ScaleInfo:
-	aspectId = ""				#String, mandatory (1)
-	vnfdId = ""					#String, optional (0..1)
-	scaleLevel = 0				#Integer, mandatory (1)
+	aspectId = None							#IdentifierInVnfd (String), mandatory (1)
+	vnfdId = None							#Identifier (String), optional (0..1)
+	scaleLevel = None						#Integer, mandatory (1)
 
 '''
 CLASS: VnfcResourceInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes information about virtualized compute
 			 and storage resources of a VNF instance in the
 			 Ve-Vnfm-em reference point.
 '''
 class VnfcResourceInfo:
-	id = ""								#String, mandatory (1)
-	vduId = ""							#String, mandatory (1)
-	vnfdId = ""							#String, optional (0..1)
-	computeResource = ""				#String, mandatory (1)
-	storageResourceIds = []				#String, optional (0..N)
-	reservationId = ""					#String, optional (0..N)
-	vnfcCpInfo = [{						#Dictionary, optional (0..N)
-					"id":"",				#String, mandatory (1)
-					"cpdId":"",				#String, mandatory (1)
-					"vnfExtCpId":"",		#String, optional (0..1)
-					"cpProtocolInfo":[],	#String, optional (0..N)
-					"vnfLinkPortId":"",		#String, optional (0..1)
-					"metadata":{}			#Dictionary, optional (0..1)
-				 }]
-	metadata = {}							#Dictionary, optional (0..1)
+	id = None								#Identifier (String), mandatory (1)
+	vduId = None							#IdentifierInVnfd (String), mandatory (1)
+	vnfdId = None							#Identifier (String), optional (0..1)
+	computeResource = None					#ResourceHandle (Class), mandatory (1)
+	storageResourceIds = []					#IdentifierInVnf (String), optional (0..N)
+	reservationId = None					#Identifier (String), optional (0..N)
+	vnfcCpInfo = []							#Structure (Dictionary), optional (0..N)
+	metadata = None							#KeyValuePairs (Dictionary), optional (0..1)
+
+	def vnfcCpInfoStruct(self):
+		return {"id":None,					#IdentifierInVnf (String), mandatory (1)
+		 		"cpdId":None,				#IdentifierInVnfd (String), mandatory (1)
+		 		"vnfExtCpId":None,			#IdentifierInVnf (String), optional (0..1)
+		 		"cpProtocolInfo":[],		#CpProtocolInfo (Class), optional (0..N)
+				"vnfLinkPortId":None,		#IdentifierInVnf (String), optional (0..1)
+		 		"metadata":None}			#KeyValuePairs (Dictionary), optional (0..1)
+	
 
 '''
 CLASS: VnfVirtualLinkResourceInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes information about virtualized link
 			 resources of a VNF instance in the Ve-Vnfm-em
 			 reference point.
 '''
 class VnfVirtualLinkResourceInfo:
-	id = ""						#String, mandatory (1)
-	vnfVirtualLinkDescId = ""	#String, mandatory (1)
-	vnfdId = ""					#String, optional (0..1)
-	networkResource = ""		#String, mandatory (1)
-	reservationId = ""			#String, optional (0..1)
-	vnfLinkPorts = []			#String, optional (0..N)
-	metadata = {}				#Dictionary, optional (0..1)
+	id = None								#IdentifierInVnf (String), mandatory (1)
+	vnfVirtualLinkDescId = None				#IdentifierInVnfd (String), mandatory (1)
+	vnfdId = None							#Identifier (String), optional (0..1)
+	networkResource = None					#ResourceHandle (Class), mandatory (1)
+	reservationId = None					#Identifier (String), optional (0..1)
+	vnfLinkPorts = []						#VnfLinkPortInfo (Class), optional (0..N)
+	metadata = None							#KeyValuePairs (Dictionary), optional (0..1)
 
 '''
 CLASS: VirtualStorageResourceInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes information about virtualized storage
 			 resources of a VNF instance in the Ve-Vnfm-em
 			 reference point.
 '''
 class VirtualStorageResourceInfo:
-	id = ""						#String, mandatory (1)
-	virtualStorageDescId = ""	#String, mandatory (1)
-	vnfdId = ""					#String, optional (0..1)
-	storageResource = ""		#String, mandatory (1)
-	reservationId = ""			#String, optional (0..1)
-	metadata = {}				#Dictionary, optional (0..1)
+	id = None								#IdentifierInVnf (String), mandatory (1)
+	virtualStorageDescId = None				#IdentifierInVnfd (String), mandatory (1)
+	vnfdId = None							#Identifier (String), optional (0..1)
+	storageResource = None					#ResourceHandle (Class), mandatory (1)
+	reservationId = None					#Identifier (String), optional (0..1)
+	metadata = None							#KeyValuePairs (Dictionary), optional (0..1)
 
 '''
 CLASS: VnfLinkPortInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes information about ports of internal
 			 virtual links of a VNF instance in the Ve-Vn-
 			 fm-em reference point.
 '''
 class VnfLinkPortInfo:
-	id = ""						#String, mandatory (1)
-	resourceHandle = ""			#String, mandatory (1)
-	cpInstanceId = ""			#String, optional (0..1)
-	cpInstanceType = ""			#String (VNFC_CP | EXT_CP), optional (0..1)
+	id = None								#IdentifierInVnf (String), mandatory (1)
+	resourceHandle = None					#ResourceHandle (Class), mandatory (1)
+	cpInstanceId = None						#IdentifierInVnf (String), optional (0..1)
+	cpInstanceType = None					#String (VNFC_CP | EXT_CP), optional (0..1)
 
 '''
 CLASS: ExtLinkPortInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes information about link ports of ext-
 			 ernal virtual links of a VNF instance in the
 			 Ve-Vnfm-em reference point.
 '''
 class VnfLinkPortInfo:
-	id = ""						#String, mandatory (1)
-	resourceHandle = ""			#String, mandatory (1)
-	cpInstanceId = ""			#String, optional (0..1)
+	id = None								#Identifier (String), mandatory (1)
+	resourceHandle = None					#ResourceHandle (Class), mandatory (1)
+	cpInstanceId = None						#IdentifierInVnf (String), optional (0..1)
 
 '''
 CLASS: ExtLinkPortData
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a link ports of external virtual li-
 			 nks of a VNF instance in the Ve-Vnfm-em refe-
 			 rence point.
 '''
 class VnfLinkPortInfo:
-	id = ""						#String, mandatory (1)
-	resourceHandle = ""			#String, mandatory (1)
+	id = None								#Identifier (String), mandatory (1)
+	resourceHandle = None					#ResourceHandle (Class), mandatory (1)
 
 '''
 CLASS: ResourceHandle
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a particular computational resource 
 			 of a VNF instance in the Ve-Vnfm-em reference
 			 point.
 '''
 class ResourceHandle:
-	vimConnectionId = ""		#String, optional (0..1)
-	resourceProviderId = ""		#String, optional (0..1)
-	resourceId = ""				#String, mandatory (1)
-	vimLevelResourceType = ""	#String, optional (0..1)
+	vimConnectionId = None					#Identifier (String), optional (0..1)
+	resourceProviderId = None				#Identifier (String), optional (0..1)
+	resourceId = None						#IdentifierInVim (String), mandatory (1)
+	vimLevelResourceType = None				#String, optional (0..1)
 
 '''
 CLASS: CpProtocolInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes information about the protocol layers
 			 of a CP of a VNF instance in the Ve-Vnfm-em re-
 			 ference point.
 '''
 class CpProtocolInfo:
-	layerProtocol = ""			#String (IP_OVER_ETHERNET), mandatory (1)
-	ipOverEthernet = ""			#String, optional (0..1)
+	layerProtocol = None					#String (IP_OVER_ETHERNET), mandatory (1)
+	ipOverEthernet = None					#IpOverEthernetAddressInfo (Class), optional (0..1)
 
 '''
 CLASS: IpOverEthernetAddressInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes information about the network address
 			 of a VNF instance in the Ve-Vnfm-em reference
 			 point.
 '''
 class IpOverEthernetAddressInfo:
-	macAddress = ""									#String, optional (0..1)
-	segmentationId = ""								#String, optional (0..1)
-	ipAddresses = [{								#Dictionary, optional (0..N)
-					"type":"",							#String (IPV4 | IPV6), mandatory (1)
-					"addresses":[],						#String, optional (0..N)
-					"isDynamic":False,					#Boolean, optional (0..1)
-					"addressRange":{					#Dictionary, optional (0..1)
-									"minAddress":"",		#String, optional (0..1)
-									"maxAddress":""			#String, optional (0..1)
-									},
-					"subnetId":""						#String, optional (0..1)
-				  }]
+	macAddress = None						#MacAddress (String), optional (0..1)
+	segmentationId = None					#String, optional (0..1)
+	ipAddresses = []						#Structure (Dictionary), optional (0..N)
+
+	def ipAddresses(self):
+		return {"type":None,				#String (IPV4 | IPV6), mandatory (1)
+				"addresses":[],				#IpAddress (String), optional (0..N)
+				"isDynamic":None,			#Boolean, optional (0..1)
+				"addressRange":None,		#Structure (Dictionary), optional (0..1)
+				"subnetId":None}			#String, optional (0..1)
+
+	def addressRangeStruct(self):
+		return {"minAddress":"",			#IpAddress (String), optional (0..1)
+				"maxAddress":""}			#IpAddress (String), optional (0..1)
 
 '''
 CLASS: MonitoringParameter
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a monitoring parameter of a VNF ins-
 			 tance in the Ve-Vnfm-em reference point.
 '''
 class MonitoringParameter:
-	id = ""						#String, mandatory (1)
-	vnfdId = ""					#String, optional (0..1)
-	name = ""					#String, optional (0..1)
-	performanceMetric = ""		#String, mandatory (1)
+	id = None								#IdentifierInVnfd (String), mandatory (1)
+	vnfdId = None							#Identifier (String), optional (0..1)
+	name = None								#String, optional (0..1)
+	performanceMetric = None				#String, mandatory (1)
 
 '''
 CLASS: LifecycleChangeNotificationsFilter
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a subscription filter of notifications
 			 related lifecycle changes of a VNF instance in
 			 the Ve-Vnfm-em reference point.
 '''
 class LifecycleChangeNotificationsFilter:
-	vnfInstanceSubscriptionFilter = ""		#String, optional (0..1)
+	vnfInstanceSubscriptionFilter = None	#VnfInstanceSubscriptionFilter (Class), optional (0..1)
 	notificationTypes = []					#String (VnfLcmOperationOccurrenceNotification | VnfIdentifierCreationNotification | VnfIdentifierDeletionNotification), optional (0..1)
-	operationTypes = []						#String, optional (0..N)
-	operationStates = []					#String, optional (0..N)
+	operationTypes = []						#LcmOperationType (Class), optional (0..N)
+	operationStates = []					#LcmOperationStateType (Class), optional (0..N)
 
 '''
 CLASS: AffectedVnfc
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes an adition, remotion, or modification 
 			 of a VNFC of a VNF instance in the Ve-Vnfm-em
 			 reference point.
 '''
 class AffectedVnfc:
-	id = ""							#String, mandatory (1)
-	vduId = ""						#String, mandatory (1)
-	vnfdId = ""						#String, optional (0..1)
-	changeType = ""					#String (ADDED | REMOVED | MODIFIED | TEMPORARY), mandatory (1)
-	computeResource = ""			#String, mandatory (1)
-	metadata = {}					#Dictionary, optional (0..1)
-	affectedVnfcCpIds = []			#String, optional (0..N)
-	addedStorageResourceIds = []	#String, optional (0..N)
-	removedStorageResourceIds = []	#String, optional (0..N)
+	id = None								#IdentifierInVnf (String), mandatory (1)
+	vduId = None							#IdentifierInVnfd (String), mandatory (1)
+	vnfdId = None							#Identifier (String), optional (0..1)
+	changeType = None						#String (ADDED | REMOVED | MODIFIED | TEMPORARY), mandatory (1)
+	computeResource = None					#ResourceHandle (Class), mandatory (1)
+	metadata = None							#KeyValuePairs (Dictionary), optional (0..1)
+	affectedVnfcCpIds = []					#IdentifierInVnf (String), optional (0..N)
+	addedStorageResourceIds = []			#IdentifierInVnf (String), optional (0..N)
+	removedStorageResourceIds = []			#IdentifierInVnf (String), optional (0..N)
 
 '''
 CLASS: AffectedVirtualLink
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes an adition, remotion, or modification 
 			 of a virtual link of a VNF instance in the Ve-
 			 Vnfm-em reference point.
 '''
 class AffectedVirtualLink:
-	id = ""							#String, mandatory (1)
-	vnfVirtualLinkDescId = ""		#String, mandatory (1)
-	vnfdId = ""						#String, optional (0..1)
-	changeType = ""					#String (ADDED | REMOVED | MODIFIED | TEMPORARY | LINK_PORT_ADDED | LINK_PORT_REMOVED), mandatory (1)
-	networkResource = ""			#String, mandatory (1)
-	vnfLinkPortIds = []				#String, optional (0..N)
-	metadata = {}					#Dictionary, optional (0..1)
+	id = None								#IdentifierInVnf (String), mandatory (1)
+	vnfVirtualLinkDescId = None				#IdentifierInVnfd (String), mandatory (1)
+	vnfdId = None							#Identifier (String), optional (0..1)
+	changeType = None						#String (ADDED | REMOVED | MODIFIED | TEMPORARY | LINK_PORT_ADDED | LINK_PORT_REMOVED), mandatory (1)
+	networkResource = None					#ResourceHandle (Class), mandatory (1)
+	vnfLinkPortIds = []						#IdentifierInVnf (String), optional (0..N)
+	metadata = None							#KeyValuePairs (Dictionary), optional (0..1)
 
 '''
 CLASS: AffectedExtLinkPort
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes an adition or remotion of an external
 			 link port of a VNF instance in the Ve-Vnfm-em
 			 reference point.
 '''
 class AffectedVirtualLink:
-	id = ""							#String, mandatory (1)
-	changeType = ""					#String (ADDED | REMOVED), mandatory (1)
-	extCpInstanceId = ""			#String, mandatory (1)
-	resourceHandle = ""				#String, mandatory (1)
+	id = None								#IdentifierInVnf (String), mandatory (1)
+	changeType = None						#String (ADDED | REMOVED), mandatory (1)
+	extCpInstanceId = None					#IdentifierInVnf (String), mandatory (1)
+	resourceHandle = None					#ResourceHandle (Class), mandatory (1)
 
 '''
 CLASS: AffectedVirtualStorage
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes an adition, remotion, or modification 
 			 of a virtual storage of a VNF instance in the
 			 Ve-Vnfm-em reference point.
 '''
 class AffectedVirtualStorage:
-	id = ""							#String, mandatory (1)
-	virtualStorageDescId = ""		#String, mandatory (1)
-	vnfdId = ""						#String, optional (0..1)
-	changeType = ""					#String (ADDED | REMOVED | MODIFIED | TEMPORARY), mandatory (1)
-	storageResource = ""			#String, mandatory (1)
-	metadata = {}					#Dictionary, optional (0..1)
+	id = None								#IdentifierInVnf (String), mandatory (1)
+	virtualStorageDescId = None				#IdentifierInVnfd (String), mandatory (1)
+	vnfdId = None							#Identifier (String), optional (0..1)
+	changeType = None						#String (ADDED | REMOVED | MODIFIED | TEMPORARY), mandatory (1)
+	storageResource = None					#ResourceHandle (Class), mandatory (1)
+	metadata = None							#KeyValuePairs (Dictionary), optional (0..1)
 
 '''
 CLASS: LccnLinks
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a link to resource that a notificati-
 			 on can contain to a VNF instance in the Ve-Vn-
 			 fm-em reference point.
 '''
 class LccnLinks:
-	vnfInstance = ""				#String, mandatory (1)
-	subscription = ""				#String, mandatory (1)
-	vnfLcmOpOcc = ""				#String, optional (0..1)
+	vnfInstance = None						#URI (String), mandatory (1)
+	subscription = None						#URI (String), mandatory (1)
+	vnfLcmOpOcc = None						#URI (String), optional (0..1)
 
 '''
 CLASS: VnfcInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes information about a VNFC instance of
 			 a VNF instance in the Ve-Vnfm-em reference point.
 '''
 class VnfcInfo:
-	id = ""							#String, mandatory (1)
-	vduId = ""						#String, mandatory (1)
-	vnfcResourceInfoId = ""			#String, optional (0..1)
-	vnfcState = ""					#String (STARTED | STOPPED), mandatory (1)
-	vnfcConfigurableProperties = {}	#Dictionary, optional (0..1)
+	id = None								#IdentifierInVnf (String), mandatory (1)
+	vduId = None							#IdentifierInVnfd (String), mandatory (1)
+	vnfcResourceInfoId = None				#IdentifierInVnf (String), optional (0..1)
+	vnfcState = None						#String (STARTED | STOPPED), mandatory (1)
+	vnfcConfigurableProperties = None		#KeyValuePairs (Dictionary), optional (0..1)
 
 '''
 CLASS: VnfcInfoModifications
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes the modification of an entry in an arr-
 			 ay of "VnfcInfo" of a VNF instance in the Ve-Vn-
 			 fm-em reference point.
 '''
 class VnfcInfoModifications:
-	id = ""								#String, mandatory (1)
-	vnfcConfigurableProperties = {}		#Dictionary, mandatory (1)
+	id = None								#IdentifierInVnf (String), mandatory (1)
+	vnfcConfigurableProperties = None		#KeyValuePairs (Dictionary), mandatory (1)
 
 '''
 CLASS: VnfExtCpInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes information about an external connec-
 			 tion point of a VNF instance in the Ve-Vnfm-em
 			 reference point.
 '''
 class VnfExtCpInfo:
-	id = ""								#String, mandatory (1)
-	cpdId = ""							#String, mandatory (1)
-	cpConfigId = ""						#String, mandatory (1)
-	vnfdId = ""							#String, optional (0..1)
-	cpProtocolInfo = []					#String, mandatory (1..N)
-	extLinkPortId = ""					#String, optional (0..1)
-	metadata = {}						#Dictionary, optional (0..1)
-	associatedVnfcCpId = ""				#String, optional (0..1)
-	associatedVnfVirtualLinkId = ""		#String, optional (0..1)
+	id = None								#IdentifierInVnf (String), mandatory (1)
+	cpdId = None							#IdentifierInVnfd (String), mandatory (1)
+	cpConfigId = None						#IdentifierInVnf (String), mandatory (1)
+	vnfdId = None							#Identifier (String), optional (0..1)
+	cpProtocolInfo = []						#CpProtocolInfo (Class), mandatory (1..N)
+	extLinkPortId = None					#Identifier (String), optional (0..1)
+	metadata = None							#KeyValuePairs (Dictionary), optional (0..1)
+	associatedVnfcCpId = None				#Identifier (String), optional (0..1)
+	associatedVnfVirtualLinkId = None		#Identifier (String), optional (0..1)
 
 '''
 CLASS: VnfcSnapshotInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Validation method)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes information about an snapshot of a VN-
 			 FC of a VNF instance in the Ve-Vnfm-em
 			 reference point.
 '''
 class VnfcSnapshotInfo:
-	id = None													#IdentifierLocal (String), mandatory (1)
-	vnfcInstanceId = None										#IdentifierInVnf (String), mandatory (1)
-	creationStartedAt = None									#DateTime (String), mandatory (1)
-	creationFinishedAt = None									#DateTime (String), optional (0..1)
-	vnfcResourceInfoId = None									#IdentifierInVnf (String), mandatory (1)
-	computeSnapshotResource = None								#ResourceHandle (Class), optional (0..1)
-	storageSnapshotResources = []								#Structure (Dictionary), optional (0..N)
+	id = None											#IdentifierLocal (String), mandatory (1)
+	vnfcInstanceId = None								#IdentifierInVnf (String), mandatory (1)
+	creationStartedAt = None							#DateTime (String), mandatory (1)
+	creationFinishedAt = None							#DateTime (String), optional (0..1)
+	vnfcResourceInfoId = None							#IdentifierInVnf (String), mandatory (1)
+	computeSnapshotResource = None						#ResourceHandle (Class), optional (0..1)
+	storageSnapshotResources = []						#Structure (Dictionary), optional (0..N)
 
 	def storageSnapshotResourcesStruct(self):
-		return {"storageResourceId":None,						#IdentifierInVnf (String), mandatory (1)
-				"storageSnapshotResource":None,					#ResourceHandle (Class), optional (0..1)
-				"userDefinedData":{}}							#KeyValuePairs (Dictionary), optional (0..1)
+		return {"storageResourceId":None,				#IdentifierInVnf (String), mandatory (1)
+				"storageSnapshotResource":None,			#ResourceHandle (Class), optional (0..1)
+				"userDefinedData":None}					#KeyValuePairs (Dictionary), optional (0..1)
 
 	def validate(self):
 		if not type(self.id) == str:
@@ -1103,7 +1117,7 @@ class VnfcSnapshotInfo:
 CLASS: ModificationsTriggeredByVnfPkgChange
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 23 Oct. 2020 (Fulber-Garcia; Validation method)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: Implementation of the reference structure that
 			 describes the modification of an entry in an
 			 VNF instance when a previous modification occur
@@ -1111,14 +1125,14 @@ DESCRIPTION: Implementation of the reference structure that
 			 point.
 '''
 class ModificationsTriggeredByVnfPkgChange:
-	vnfConfigurableProperties = {}		#KeyValuePairs (Dictionary), optional (0..1)
-	metadata = {}						#KeyValuePairs (Dictionary), optional (0..1)
-	extensions = {}						#KeyValuePairs (Dictionary), optional (0..1)
-	vnfdId = None						#Identifier (String), optional (0..1)
-	vnfProvider = None					#String, optional (0..1)
-	vnfProductName = None				#String, optional (0..1)
-	vnfSoftwareVersion = None			#Version (String), optional (0..1)
-	vnfdVersion = None					#Version (String), optional (0..1)
+	vnfConfigurableProperties = None		#KeyValuePairs (Dictionary), optional (0..1)
+	metadata = None							#KeyValuePairs (Dictionary), optional (0..1)
+	extensions = None						#KeyValuePairs (Dictionary), optional (0..1)
+	vnfdId = None							#Identifier (String), optional (0..1)
+	vnfProvider = None						#String, optional (0..1)
+	vnfProductName = None					#String, optional (0..1)
+	vnfSoftwareVersion = None				#Version (String), optional (0..1)
+	vnfdVersion = None						#Version (String), optional (0..1)
 
 	def validate(self):
 		
@@ -1253,7 +1267,7 @@ class LcmOpOccNotificationVerbosityType(enum.Enum):
 CLASS: ThresholdCrossedNotification
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 27 Oct. 2020
-L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: This class represents a notification that is sent
 			 through the Ve-Vnfm-em reference point when a th-
 			 reshold has been crossed.
@@ -1269,7 +1283,7 @@ class ThresholdCrossedNotification:
 	subObjectInstanceId = None 				#IdentifierInVnf (String), optional (0..1)
 	performanceMetric = None 				#String, mandatory (1)
 	performanceValue = None 				#Anything, mandatory (1)
-	context = {}							#KeyValuePairs (Dictionary), optional (0..1)
+	context = None							#KeyValuePairs (Dictionary), optional (0..1)
 	links = None 							#Structure (Dictionary), mandatory (1)	
 
 	def linksStruct(self):
@@ -1351,7 +1365,7 @@ CREATION: 27 Oct. 2020
 L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
 DESCRIPTION: This class represents a request to create a threshold.
 '''
-def CreateThresholdRequest:
+class CreateThresholdRequest:
 	objectType = None						#String, mandatory (1)
 	objectInstanceId = None 				#Identifier (String), mandatory (1)
 	subObjectInstanceIds = []				#IdentifierInVnf (String), optional (0..N)
@@ -1366,7 +1380,7 @@ CREATION: 27 Oct. 2020
 L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
 DESCRIPTION: This class represents a threshold.
 '''
-def Threshold:
+class Threshold:
 	id = None								#Identifier (String), mandatory (1)
 	objectType = None						#String, mandatory (1)
 	objectInstanceId = None 				#Identifier (String), mandatory (1)
@@ -1383,12 +1397,12 @@ def Threshold:
 CLASS: PerformanceReport
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 27 Oct. 2020
-L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: This class defines the format of a performance report
 			 provided by the VNFM to the API consumer as a result of
 			 collecting performance information as part of a PM job.
 '''
-def PerformanceReport:
+class PerformanceReport:
 	entries = []							#Structure (Dictionary), mandatory (1..N)
 
 	def entriesStruct(self):
@@ -1401,7 +1415,7 @@ def PerformanceReport:
 	def performanceValuesStruct(self):
 		return {"timeStamp":None, 			#DateTime (String), mandatory (1)
 				"value":None,				#Anything, mandatory (1)
-				"context":{}} 				#KeyValuePairs (Dictionary), optional (0..1)
+				"context":None} 			#KeyValuePairs (Dictionary), optional (0..1)
 
 '''
 CLASS: ThresholdModifications
@@ -1410,7 +1424,7 @@ CREATION: 27 Oct. 2020
 L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
 DESCRIPTION: This class represents modifications to a threshold.
 '''
-def ThresholdModifications:
+class ThresholdModifications:
 	callbackUri = None 						#URI (String), optional (0..1)
 	authentication = None 					#SubscriptionAuthentication (String), optional (0..1)
 
@@ -1422,7 +1436,7 @@ L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
 DESCRIPTION: This class represents modifications to a performance
 		   	 monitoring job.
 '''
-def PmJobModifications:
+class PmJobModifications:
 	callbackUri = None 						#URI (String), optional (0..1)
 	authentication = None 					#SubscriptionAuthentication (String), optional (0..1)
 
@@ -1430,32 +1444,32 @@ def PmJobModifications:
 CLASS: PmJobCriteria
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 27 Oct. 2020
-L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: This class represents collection criteria for perfor-
 			 mance monitoring jobs.
 '''
-def PmJobCriteria:
+class PmJobCriteria:
 	performanceMetric = []					#String, optional (0..N)
 	performanceMetricGroup = []				#String, optional (0..N)
-	collectionPeriod = 0					#Unsigned integer, mandatory (1)
-	reportingPeriod = 0						#Unsigned integer, mandatory (1)
+	collectionPeriod = None					#Unsigned integer, mandatory (1)
+	reportingPeriod = None					#Unsigned integer, mandatory (1)
 	reportingBoundary = None 				#DateTime (String), optional (0..1)
 
 '''
 CLASS: ThresholdCriteria
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 27 Oct. 2020
-L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: This class represents criteria that define a threshold.
 '''
-def ThresholdCriteria:
+class ThresholdCriteria:
 	performanceMetric = None				#String, mandatory (1)
 	thresholdType = None 					#String (SIMPLE), mandatory (1)
 	simpleThresholdDetails = None 			#Structure (Dictionary), optional (0..1)
 
 	def simpleThresholdDetailsStruct(self):
-		return {"thresholdValue":0.0,		#Float, mandatory (1)
-				"hysteresis":0.0}			#Float, mandatory (1)
+		return {"thresholdValue":None,		#Float, mandatory (1)
+				"hysteresis":None}			#Float, mandatory (1)
 
 #######################################################################################################
 #######################################################################################################
@@ -1483,7 +1497,7 @@ L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
 DESCRIPTION: This class represents a subscription request related to
 			 notifications about VNF faults.
 '''
-def FmSubscriptionRequest:
+class FmSubscriptionRequest:
 	filter = None 							#FmNotificationsFilter (Class), optional (0..1)
 	callbackUri = None 						#URI (String), mandatory (1)
 	authentication = None 					#SubscriptionAuthentication (String), optional (0..1)
@@ -1496,7 +1510,7 @@ L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
 DESCRIPTION: This class represents a subscription related to notifica-
 			 tions about VNF faults.
 '''
-def FmSubscription:
+class FmSubscription:
 	id = None								#Identifier (String), mandatory (1)
 	filter = None 							#FmNotificationsFilter (Class), optional (0..1)
 	callbackUri = None 						#URI (String), mandatory (1)
@@ -1509,10 +1523,10 @@ def FmSubscription:
 CLASS: Alarm
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 27 Oct. 2020
-L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: The alarm class encapsulates information about an alarm.
 '''
-def Alarm:
+class Alarm:
 	id = None								#Identifier (String), mandatory (1)
 	managedObjectId = None 					#Identifier (String), mandatory (1)
 	vnfcInstanceIds = []					#IdentifierVnf (String), optional (0..N)
@@ -1527,7 +1541,7 @@ def Alarm:
 	eventType = None 						#EventType (Class), mandatory (1)
 	faultType = None 						#String, optional (0..1)
 	probableCause = None 					#String, mandatory (1)
-	isRootCause = False 					#Boolean, mandatory (1)
+	isRootCause = None 						#Boolean, mandatory (1)
 	correlatedAlarmIds = [] 				#Identifier (String), optional (0..N)
 	faultDetails = [] 						#String, optional (0..N)
 	links = None 							#Structure (Dictionary), mandatory (1)
@@ -1545,7 +1559,7 @@ DESCRIPTION: This class represents an alarm notification about VNF faults.
 			 This notification shall be triggered by the VNFM when an a-
 			 larm has been created or an alarm has been updated.
 '''
-def AlarmNotification:
+class AlarmNotification:
 	id = None								#Identifier (String), mandatory (1)
 	notificationType = None					#String (AlarmNotification), mandatory (1)
 	subscriptionId = None 					#Identifier (String), mandatory (1)
@@ -1565,7 +1579,7 @@ DESCRIPTION: This class represents an alarm cleared notification about VNF
 			 faults. The notification shall be triggered by the VNFM when
 			 an alarm has been cleared.
 '''
-def AlarmClearedNotification:
+class AlarmClearedNotification:
 	id = None								#Identifier (String), mandatory (1)
 	notificationType = None					#String (AlarmClearedNotification), mandatory (1)
 	subscriptionId = None 					#Identifier (String), mandatory (1)
@@ -1586,7 +1600,7 @@ L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
 DESCRIPTION: This class represents the escalated value of the perceived
 			 severity for an alarm.
 '''
-def PerceivedSeverityRequest:
+class PerceivedSeverityRequest:
 	proposedPerceivedSeverity = None 		#PerceivedSeverityType (Class), mandatory (1)
 
 '''
@@ -1598,7 +1612,7 @@ DESCRIPTION: This class represents a notification that the alarm list
 			 has been rebuilt. The notification shall be triggered by
 			 the VNFM when the alarm list has been rebuilt.
 '''
-def AlarmListRebuiltNotification:
+class AlarmListRebuiltNotification:
 	id = None								#Identifier (String), mandatory (1)
 	notificationType = None					#String (AlarmListRebuiltNotification), mandatory (1)
 	subscriptionId = None 					#Identifier (String), mandatory (1)
@@ -1618,7 +1632,7 @@ DESCRIPTION: This class represents attribute modifications for an indivi-
 			 dual alarm resource, i.e. modifications to a resource repre-
 			 sentation based on the "Alarm" data type.
 '''
-def AlarmModifications:
+class AlarmModifications:
 	ackState = None 						#AckState (Enum), mandatory (1)
 
 '''
@@ -1629,7 +1643,7 @@ L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
 DESCRIPTION: This class represents a subscription filter related to notifi-
 			 cations about VNF faults.
 '''
-def FmNotificationsFilter:
+class FmNotificationsFilter:
 	vnfInstanceSubscriptionFilter = None 	#VnfInstanceSubscriptionFilter (Class), optional (0..1)
 	notificationTypes = []					#String (AlarmNotification | AlarmClearedNotification | AlarmListRebuiltNotification), optional (0..N)
 	faultyResourceTypes = []				#FaultyResourceType (Class), optional (0..N)
@@ -1645,7 +1659,7 @@ L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
 DESCRIPTION: This class represents the faulty virtual resources that have a
 			 negative impact on a VNF.
 '''
-def FaultyResourceInfo:
+class FaultyResourceInfo:
 	faultyResource = None 					#ResourceHandle (Class), mandatory (1)
 	faultyResourceType = None 				#FaultyResourceType (Class), mandatory (1)
 
@@ -1706,7 +1720,7 @@ CREATION: 27 Oct. 2020
 L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
 DESCRIPTION: This class represents a VNF indicator value.
 '''
-def VnfIndicator:
+class VnfIndicator:
 	id = None								#Identifier (String), mandatory (1)
 	name = None 							#String, optional (0..1)
 	value = None 							#String, mandatory (1)
@@ -1726,7 +1740,7 @@ DESCRIPTION: This class represents a subscription request
 			 related to VNF indicator value change noti-
 			 fications.
 '''
-def VnfIndicatorSubscriptionRequest:
+class VnfIndicatorSubscriptionRequest:
 	filter = None 							#VnfIndicatorNotificationsFilter (Class), optional (0..1)
 	callbackUri = None 						#URI (String), mandatory (1)
 	authentication = None 					#SubscriptionAuthentication (String), optional (0..1)
@@ -1740,7 +1754,7 @@ DESCRIPTION: This class represents a subscription related
 			 to notifications about VNF indicator value
 			 changes.
 '''
-def VnfIndicatorSubscription:
+class VnfIndicatorSubscription:
 	id = None								#Identifier (String), mandatory (1)
 	filter = None 							#VnfIndicatorNotificationsFilter (Class), optional (0..1)
 	callbackUri = None 						#URI (String), mandatory (1)
@@ -1757,7 +1771,7 @@ L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
 DESCRIPTION: This class represents a VNF indicator value
 			 change notification.
 '''
-def VnfIndicatorValueChangeNotification:
+class VnfIndicatorValueChangeNotification:
 	id = None								#Identifier (String), mandatory (1)
 	notificationType = None					#String (VnfIndicatorValueChangeNotification), mandatory (1)
 	subscriptionId = None 					#Identifier (String), mandatory (1)
@@ -1781,7 +1795,7 @@ DESCRIPTION: This class represents a notification to in-
 			 form the receiver that the set of indicators
 			 supported by a VNF instance has changed.
 '''
-def SupportedIndicatorsChangeNotification:
+class SupportedIndicatorsChangeNotification:
 	id = None								#Identifier (String), mandatory (1)
 	notificationType = None					#String (VnfIndicatorValueChangeNotification), mandatory (1)
 	subscriptionId = None 					#Identifier (String), mandatory (1)
@@ -1806,7 +1820,7 @@ L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
 DESCRIPTION: This class represents a subscription filter
 			 for notifications related to VNF indicators.
 '''
-def VnfIndicatorNotificationsFilter:
+class VnfIndicatorNotificationsFilter:
 	vnfInstanceSubscriptionFilter = None 	#VnfInstanceSubscriptionFilter (Class), optional (0..1)
 	notificationTypes = []					#String (VnfIndicatorValueChangeNotification | SupportedIndicatorsChangeNotification), optional (0..N)
 	indicatorIds = []						#IdentifierInVnfd (String), optional (0..N)
@@ -1822,7 +1836,7 @@ L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
 DESCRIPTION: This class represents request parameters for
 			 the "Set Configuration" operation.
 '''
-def VnfConfigModifications:
+class VnfConfigModifications:
 	vnfConfigurationData = None 			#VnfConfigurationData (Class), optional (0..1)
 	vnfcConfigurationData = [] 				#VnfcConfigurationData (Class), optinal (0..N)
 	vnfcConfigurationDataDeleteIds = []		#Identifier (String), optinal (0..N)
@@ -1835,7 +1849,7 @@ L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
 DESCRIPTION: This class represents configuration parameters
 			 of a VNF instance and its VNFC instances.
 '''
-def VnfConfiguration:
+class VnfConfiguration:
 	vnfConfigurationData = None 			#VnfConfigurationData, mandatory (1)
 	VnfcConfigurationData = [] 				#VnfcConfigurationData, optional (0..N)
 
@@ -1843,29 +1857,29 @@ def VnfConfiguration:
 CLASS: VnfConfigurationData
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 27 Oct. 2020
-L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: This class represents configuration parameters
 			 of a VNF instance.
 '''
-def VnfConfigurationData:
+class VnfConfigurationData:
 	extCpConfig = [] 						#CpConfiguration (Class), optional (0..N)
 	dhcpServer = None 						#IpAddress (String), optional (0..1)
-	vnfSpecificData = {} 					#KeyValuePairs (Dictionary), optional (0..1)
+	vnfSpecificData = None 					#KeyValuePairs (Dictionary), optional (0..1)
 
 
 '''
 CLASS: VnfcConfigurationData
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 27 Oct. 2020
-L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: This class represents configuration parameters
 			 of a VNFC instance.
 '''
-def VnfcConfigurationData:
+class VnfcConfigurationData:
 	vnfcInstanceId = None 					#IdentifierInVnf (String), mandatory (1)
 	intCpConfig = [] 						#CpConfiguration (Class), optional (0..N)
 	dhcpServer = None 						#IpAddress (String), optional (0..1)
-	vnfcSpecificData = {} 					#KeyValuePairs (Dictionary), optional (0..1)
+	vnfcSpecificData = None 				#KeyValuePairs (Dictionary), optional (0..1)
 
 '''
 CLASS: CpConfiguration
@@ -1875,7 +1889,7 @@ L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
 DESCRIPTION: This class represents configuration parameters
 			of a CP instance.
 '''
-def CpConfiguration:
+class CpConfiguration:
 	cpId = None 							#IdentifierInVnf (String), mandatory (1)
 	cpdId = None 							#IdentifierInVnfd (String), mandatory (1)
 	addresses = []							#CpAddress (Class), mandatory (1..N)
@@ -1884,14 +1898,14 @@ def CpConfiguration:
 CLASS: CpAddress
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 27 Oct. 2020
-L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
 DESCRIPTION: This class represents configuration parameters
 			 of a CP instance address.
 '''
-def CpAddress:
+class CpAddress:
 	address = None 							#Structure (Dictionary), optional (0..1)
-	useDynamicAddress = False 				#Boolean, optional (0..1)
-	port = 0 								#Unsigned integer, optional (0..1)
+	useDynamicAddress = None 				#Boolean, optional (0..1)
+	port = None								#Unsigned integer, optional (0..1)
 
 	def addressStruct(self):
 		return {"macAddress":None, 			#MacAddress (String), optional (0..1)
