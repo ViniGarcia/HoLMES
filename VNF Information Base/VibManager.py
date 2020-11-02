@@ -3,6 +3,15 @@ import os
 
 import VibTableModels
 
+'''
+CLASS: VibManager
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 21 Oct. 2020
+L. UPDATE: 02 Nov. 2020 (Fulber-Garcia; Class updates)
+DESCRIPTION: Implementation of the VIB manager. In summary, this class control the
+             information insertion and retrieving from the VIB. It can also modify
+             the VIB internally, reseting the base when necessary.
+'''
 class VibManager:
     _vibPath = ".\\VIB.db"
     _vibConnection = None
@@ -20,16 +29,6 @@ class VibManager:
         if self._vibConnection:
             self._vibConnection.close()
 
-    def _queryVibDatabase(self, sqlQueryRequest):
-
-        try:
-            vibCursor = self._vibConnection.cursor()
-            vibCursor.execute(sqlQueryRequest)
-            return vibCursor.fetchall()
-       
-        except sqlite3.Error as e:
-            raise e
-
     def _resetVibDatabase(self):
 
         if self._vibConnection:
@@ -42,7 +41,7 @@ class VibManager:
             tablesData = VibTableModels.VibSummaryModels()
             for tableName in dir(tablesData):
                 if not tableName.startswith("_"):
-                    self._queryVibDatabase(getattr(tablesData, tableName))
+                    self.queryVibDatabase(getattr(tablesData, tableName))
                 
             return True
         
@@ -50,8 +49,15 @@ class VibManager:
             self._vibConnection = None
             return False
 
-    def selectVibDatabase(self, sqlSelect, sqlFrom, sqlWhere):
-        pass
+    def queryVibDatabase(self, sqlQueryRequest):
+
+        try:
+            vibCursor = self._vibConnection.cursor()
+            vibCursor.execute(sqlQueryRequest)
+            return vibCursor.fetchall()
+       
+        except sqlite3.Error as e:
+            raise e
 
     def insertVibDatabase(self, sqlData):
 
@@ -64,9 +70,7 @@ class VibManager:
         except sqlite3.Error as e:
             raise e
 
-
-
-    #TEMPORARY
+    '''#TEMPORARY
     def vibTesting(self):
         #return self._resetVibDatabase()
         
@@ -74,10 +78,11 @@ class VibManager:
 
         #classTest = VibTableModels.VibVnfInstance("teste1", "teste2", "teste3", "teste4")
         #return self.insertVibDatabase(classTest.toSql())
-        return self._queryVibDatabase("SELECT * FROM VnfInstance;")
+        return self.queryVibDatabase("SELECT * FROM VnfInstance WHERE ID = 1;")
 
-
-        return
-
+        return'''
+'''
 vibTester = VibManager()
-print(vibTester.vibTesting())
+ret = vibTester.vibTesting()
+print(ret)
+'''
