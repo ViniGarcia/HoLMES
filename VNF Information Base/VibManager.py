@@ -13,30 +13,30 @@ DESCRIPTION: Implementation of the VIB manager. In summary, this class control t
              the VIB internally, reseting the base when necessary.
 '''
 class VibManager:
-    _vibPath = ".\\VIB.db"
-    _vibConnection = None
+    __vibPath = "C:\\Users\\55559\\Desktop\\EMSPlatform\\VNF Information Base\\VIB.db"
+    __vibConnection = None
 
     def __init__(self):
 
         try:
-            self._vibConnection = sqlite3.connect(self._vibPath)
+            self.__vibConnection = sqlite3.connect(self.__vibPath)
         
         except sqlite3.Error as e:
-            self._vibConnection = None
+            self.__vibConnection = None
 
     def __del__(self):
 
-        if self._vibConnection:
-            self._vibConnection.close()
+        if self.__vibConnection:
+            self.__vibConnection.close()
 
     def _resetVibDatabase(self):
 
-        if self._vibConnection:
-            self._vibConnection.close()
-            os.remove(self._vibPath)
+        if self.__vibConnection:
+            self.__vibConnection.close()
+            os.remove(self.__vibPath)
        
         try:
-            self._vibConnection = sqlite3.connect(self._vibPath)
+            self.__vibConnection = sqlite3.connect(self.__vibPath)
             
             tablesData = VibTableModels.VibSummaryModels()
             for tableName in dir(tablesData):
@@ -46,13 +46,13 @@ class VibManager:
             return True
         
         except sqlite3.Error as e:
-            self._vibConnection = None
+            self.__vibConnection = None
             return False
 
     def queryVibDatabase(self, sqlQueryRequest):
 
         try:
-            vibCursor = self._vibConnection.cursor()
+            vibCursor = self.__vibConnection.cursor()
             vibCursor.execute(sqlQueryRequest)
             return vibCursor.fetchall()
        
@@ -62,27 +62,28 @@ class VibManager:
     def insertVibDatabase(self, sqlData):
 
         try:
-            vibCursor = self._vibConnection.cursor()
+            vibCursor = self.__vibConnection.cursor()
             vibCursor.execute(sqlData[0], sqlData[1])
-            self._vibConnection.commit()
+            self.__vibConnection.commit()
             return vibCursor.lastrowid
        
         except sqlite3.Error as e:
             raise e
 
-    '''#TEMPORARY
+'''    #TEMPORARY
     def vibTesting(self):
-        #return self._resetVibDatabase()
+        self._resetVibDatabase()
+        #return self.queryVibDatabase("SELECT name FROM sqlite_master WHERE type='table';")
         
-        #return self._queryVibDatabase("SELECT name FROM sqlite_master WHERE type='table';")
+        classTest = VibTableModels.VibVnfInstance("VNF01", "COO", "Regras;Ações", True)
+        self.insertVibDatabase(classTest.toSql())
+        self.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"VNF01\";")
+        
+        classTest = VibTableModels.VibAuthInstance("USER01", "VNF01", "BatataFrita", None)
+        self.insertVibDatabase(classTest.toSql())
+        return self.queryVibDatabase("SELECT * FROM AuthInstance WHERE userId = \"USER01\";")
+        return
 
-        #classTest = VibTableModels.VibVnfInstance("teste1", "teste2", "teste3", "teste4")
-        #return self.insertVibDatabase(classTest.toSql())
-        return self.queryVibDatabase("SELECT * FROM VnfInstance WHERE ID = 1;")
-
-        return'''
-'''
 vibTester = VibManager()
 ret = vibTester.vibTesting()
-print(ret)
-'''
+print(ret)'''
