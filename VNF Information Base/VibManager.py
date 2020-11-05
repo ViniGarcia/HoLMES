@@ -20,7 +20,7 @@ class VibManager:
 
         try:
             self.__vibConnection = sqlite3.connect(self.__vibPath)
-        
+
         except sqlite3.Error as e:
             self.__vibConnection = None
 
@@ -29,7 +29,7 @@ class VibManager:
         if self.__vibConnection:
             self.__vibConnection.close()
 
-    def _resetVibDatabase(self):
+    def __resetVibDatabase(self):
 
         if self.__vibConnection:
             self.__vibConnection.close()
@@ -72,18 +72,20 @@ class VibManager:
 
 '''    #TEMPORARY
     def vibTesting(self):
-        self._resetVibDatabase()
+        print(self.__resetVibDatabase())
         #return self.queryVibDatabase("SELECT name FROM sqlite_master WHERE type='table';")
         
-        classTest = VibTableModels.VibVnfInstance("VNF01", "COO", "Regras;Ações", True)
+        classTest = VibTableModels.VibPlatformInstance().fromData("COO", {"START":"/START", "STOP":"/STOP"}, {"CPU":"/CPU", "MEMORY":"/MEMORY"}, {"FUNCTION":"/FUNCTION"})
         self.insertVibDatabase(classTest.toSql())
-        self.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"VNF01\";")
+        print(self.queryVibDatabase("SELECT * FROM PLatformInstance WHERE platformId = \"COO\";"))
+
+        classTest = VibTableModels.VibVnfInstance().fromData("VNF01", "192.168.0.100:8000", "COO", ["OP01", "OP02"], True)
+        self.insertVibDatabase(classTest.toSql())
+        print(self.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"VNF01\";"))
         
-        classTest = VibTableModels.VibAuthInstance("USER01", "VNF01", "BatataFrita", None)
+        classTest = VibTableModels.VibAuthInstance().fromData("USER01", "VNF01", "BatataFrita", None)
         self.insertVibDatabase(classTest.toSql())
-        return self.queryVibDatabase("SELECT * FROM AuthInstance WHERE userId = \"USER01\";")
-        return
+        print(self.queryVibDatabase("SELECT * FROM AuthInstance WHERE userId = \"USER01\";"))
 
 vibTester = VibManager()
-ret = vibTester.vibTesting()
-print(ret)'''
+vibTester.vibTesting()'''

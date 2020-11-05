@@ -1728,7 +1728,7 @@ class VnfIndicator:
 	links = None 							#Structure (Dictionary), mandatory (1)
 
 	def linkStruct(self):
-		return {"subscription":None, 		#URI (String), mandatory (1)
+		return {"self":None, 				#URI (String), mandatory (1)
 				"vnfInstance":None}			#URI (String), mandatory (1)
 
 '''

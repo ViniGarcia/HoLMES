@@ -61,7 +61,7 @@ class VnfmDriverTemplate:
 	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId} 
 	ACTION: 	 GET
 	DESCRIPTION: Read an "Individual VNF instance" resource. Return the same
-				 information than the "//vnfInstances/" operation, but for
+				 information than the "/vnfInstances/" operation, but for
 				 a single VNF instance.
 	ARGUMENT: 	 vnfInstanceId (String)
 	RETURN: 	 - 200 (HTTP) + VnfInstance (Class) [1]
@@ -799,7 +799,7 @@ class VnfmDriverTemplate:
 				 - Integer error code (HTTP)
 	CALL: 		 EM -> VNFM
 	'''	
-	def get_vpmi_pmj_pmJobID(self, pmJobID):
+	def get_vpmi_pmj_pmJobID(self, pmJobId):
 		return 501
 
 	'''
@@ -812,7 +812,7 @@ class VnfmDriverTemplate:
 				 - Integer error code (HTTP)
 	CALL: 		 EM -> VNFM
 	'''	
-	def patch_vpmi_pmj_pmJobID(self, pmJobID, pmJobModifications):
+	def patch_vpmi_pmj_pmJobID(self, pmJobId, pmJobModifications):
 		return 501
 
 	'''
@@ -1026,7 +1026,7 @@ class VnfmDriverTemplate:
 				 The POST method enables the API consumer to escalate the
 				 perceived severity of an alarm that is represented by an
 				 individual alarm resource.
-	ARGUMENT: 	 alarmId (String), PerceivedSeverityRequest (CLass)
+	ARGUMENT: 	 alarmId (String), PerceivedSeverityRequest (Class)
 	RETURN: 	 - 204 (HTTP)
 				 - Integer error code (HTTP)
 	CALL: 		 EM -> VNFM
@@ -1220,7 +1220,7 @@ class VnfmDriverTemplate:
 				 - Integer error code (HTTP)
 	CALL: 		 VNFM -> EM
 	'''
-	def get_vii_i_indicatorID(self, indicatorID):
+	def get_vii_i_indicatorID(self, indicatorId):
 		return 501
 
 	'''
@@ -1335,7 +1335,7 @@ class VnfmDriverTemplate:
 				 - Integer error code (HTTP)
 	CALL: 		 VNFM -> EM
 	'''
-	def patch_vci_configuration(self):
+	def patch_vci_configuration(self, vnfConfigModifications):
 		return 501
 
 	'''

@@ -16,22 +16,34 @@ NOTE:				 The classes contain two "to" standard methods ("toSql"/
 #######################################################################################################
 #######################################################################################################
 
+import json
+
 '''
 CLASS: VibSummaryModels
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 30 Oct. 2020
-L. UPDATE: 04 Nov. 2020 (Fulber-Garcia; VibAuthInstance update)
+L. UPDATE: 05 Nov. 2020 (Fulber-Garcia; VibPlatformInstance creation; VibVnfInstance update)
 DESCRIPTION: This class represents the table creation rou-
 			 tines of all the tables of the VIB. Once a
 			 table is updated in its respective class, the
 			 creation routine must be updated here too.
 '''
 class VibSummaryModels:
+	VibPlatformInstance = """ CREATE TABLE IF NOT EXISTS PlatformInstance (
+                     	 platformId text PRIMARY KEY,
+                     	 basicOperations text NOT NULL,
+                     	 monitoringOperations text NOT NULL,
+                     	 configuringOperations text NOT NULL
+                    	); """
+
 	VibVnfInstance = """ CREATE TABLE IF NOT EXISTS VnfInstance (
                      vnfId text PRIMARY KEY,
+                     vnfAddress text NOT NULL,
                      vnfPlatform text NOT NULL,
                      vnfExtAgents text,
-                     vnfAuth boolean
+                     vnfAuth boolean,
+                     FOREIGN KEY (vnfPlatform)
+       					REFERENCES PlatformInstance (platformId)
                     ); """
 
 	VibAuthInstance = """ CREATE TABLE IF NOT EXISTS AuthInstance (
@@ -44,10 +56,57 @@ class VibSummaryModels:
                     ); """
 
 '''
+CLASS: VibPlatformInstance
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 05 Nov. 2020
+L. UPDATE: 05 Nov. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents the PlatformInstance table of
+			 the VIB. Note that modifications on this class, par-
+			 ticulary in the attributes, must be updated in the
+			 VibSummaryModels too.
+'''
+class VibPlatformInstance:
+	platformId = None
+	basicOperations = None
+	monitoringOperations = None
+	configuringOperations = None
+
+	def __init__(self):
+		return
+
+	def fromData(self, platformId, basicOperations, monitoringOperations, configuringOperations):
+		self.platformId = platformId
+		self.basicOperations = basicOperations
+		self.monitoringOperations = monitoringOperations
+		self.configuringOperations = configuringOperations
+		return self
+
+	def fromSql(self, sqlData):
+		self.platformId = sqlData[0]
+		self.basicOperations = json.loads(sqlData[1])
+		self.monitoringOperations = json.loads(sqlData[2])
+		self.configuringOperations = json.loads(sqlData[3])
+		return self
+
+	def fromDictionary(self, dictData):
+		self.platformId = dictData["platformId"]
+		self.basicOperations = dictData["basicOperations"]
+		self.monitoringOperations = dictData["monitoringOperations"]
+		self.configuringOperations = dictData["configuringOperations"]
+		return self
+
+	def toSql(self):
+		return ('''INSERT INTO PlatformInstance(platformId,basicOperations,monitoringOperations,configuringOperations)
+              	   VALUES(?,?,?,?)''', (self.platformId, json.dumps(self.basicOperations), json.dumps(self.monitoringOperations), json.dumps(self.configuringOperations)))
+
+	def toDictionary(self):
+		return {"platformId":self.platformId, "basicOperations":self.basicOperations, "monitoringOperations":self.monitoringOperations, "configuringOperations":self.configuringOperations}
+
+'''
 CLASS: VibVnfInstance
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 30 Oct. 2020
-L. UPDATE: 02 Nov. 2020 (Fulber-Garcia; Class methods creation)
+L. UPDATE: 05 Nov. 2020 (Fulber-Garcia; New vnfAddress attribute; Update of vnfExtAgents; fromData method)
 DESCRIPTION: This class represents the VnfInstance table of the
 			 VIB. Note that modifications on this class, parti-
 			 culary in the attributes, must be updated in the
@@ -55,40 +114,50 @@ DESCRIPTION: This class represents the VnfInstance table of the
 '''
 class VibVnfInstance:
 	vnfId = None
-	vnfPlatform = None
+	vnfAddress = None
+	vnfPlatform = None #setar chave estrangeira
 	vnfExtAgents = None			
 	vnfAuth = None
 	
-	def __init__(self, vnfId, vnfPlatform, vnfExtAgents, vnfAuth):
+	def __init__(self):
+		return
+
+	def fromData(self, vnfId, vnfAddress, vnfPlatform, vnfExtAgents, vnfAuth):
 		self.vnfId = vnfId
+		self.vnfAddress = vnfAddress
 		self.vnfPlatform = vnfPlatform
 		self.vnfExtAgents = vnfExtAgents
 		self.vnfAuth = vnfAuth
+		return self
 
 	def fromSql(self, sqlData):
 		self.vnfId = sqlData[0]
-		self.vnfPlatform = sqlData[1]
-		self.vnfExtAgents = sqlData[2]
-		self.vnfAuth = boolean(sqlData[3])
+		self.vnfAddress = sqlData[1]
+		self.vnfPlatform = sqlData[2]
+		self.vnfExtAgents = json.loads(sqlData[3])
+		self.vnfAuth = bool(sqlData[3])
+		return self
 
 	def fromDictionary(self, dictData):
 		self.vnfId = dictData["vnfId"]
+		self.vnfAddress = dictData["vnfAddress"]
 		self.vnfPlatform = dictData["vnfPlatform"]
 		self.vnfExtAgents = dictData["vnfExtAgents"]
 		self.vnfAuth = dictData["vnfAuth"]
+		return self
 
 	def toSql(self):
-		return ('''INSERT INTO VnfInstance(vnfId,vnfPlatform,vnfExtAgents,vnfAuth)
-              	   VALUES(?,?,?,?)''', (self.vnfId, self.vnfPlatform, self.vnfExtAgents, self.vnfAuth))
+		return ('''INSERT INTO VnfInstance(vnfId,vnfAddress,vnfPlatform,vnfExtAgents,vnfAuth)
+              	   VALUES(?,?,?,?,?)''', (self.vnfId, self.vnfAddress, self.vnfPlatform, json.dumps(self.vnfExtAgents), self.vnfAuth))
 
 	def toDictionary(self):
-		return {"vnfId":self.vnfId, "vnfPlatform":self.vnfPlatform, "vnfExtAgents":self.vnfExtAgents, "vnfAuth":self.vnfAuth}
+		return {"vnfId":self.vnfId, "vnfAddress":self.vnfAddress, "vnfPlatform":self.vnfPlatform, "vnfExtAgents":self.vnfExtAgents, "vnfAuth":self.vnfAuth}
 
 '''
 CLASS: VibAuthInstance
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 04 Nov. 2020
-L. UPDATE: 04 Nov. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 05 Nov. 2020 (Fulber-Garcia; fromData method)
 DESCRIPTION: This class represents the AuthInstance table of the
 			 VIB. Note that modifications on this class, parti-
 			 culary in the attributes, must be updated in the
@@ -100,22 +169,22 @@ class VibAuthInstance:
 	authData = None
 	authResource = None
 
-	def __init__(self, userId, vnfId, authData):
-		self.userId = userId
-		self.vnfId = vnfId
-		self.authData = authData
+	def __init__(self):
+		return
 
-	def __init__(self, userId, vnfId, authData, authResource):
+	def fromData(self, userId, vnfId, authData, authResource):
 		self.userId = userId
 		self.vnfId = vnfId
 		self.authData = authData
 		self.authResource = authResource
+		return self
 
 	def fromSql(self, sqlData):
 		self.userId = sqlData[0]
 		self.vnfId = sqlData[1]
 		self.authData = sqlData[2]
 		self.authResource = sqlData[3]
+		return self
 
 	def fromDictionary(self, dictData):
 		self.userId = dictData["userId"]
@@ -123,6 +192,7 @@ class VibAuthInstance:
 		self.authData = dictData["authData"]
 		if "authResource" in self.dictData:
 			self.authResource = dictData["authResource"]
+		return self
 
 	def toSql(self):
 		return ('''INSERT INTO AuthInstance(userId,vnfId,authData,authResource)

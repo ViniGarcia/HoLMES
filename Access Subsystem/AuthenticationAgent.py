@@ -2,8 +2,8 @@ import sys
 sys.path.insert(0,'../VNF Information Base/')
 
 import CommunicationModels
-import VibManager
 import VibTableModels
+import VibManager
 
 '''
 CLASS: TemplateAuthentication
