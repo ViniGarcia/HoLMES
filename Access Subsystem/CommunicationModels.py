@@ -22,7 +22,7 @@ VALIDATION ERROR CODES:
 CLASS: VnfInstanceSubscriptionFilter
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 27 Oct. 2020
-L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 10 Nov. 2020 (Fulber-Garcia; Methods implementation)
 DESCRIPTION: This type represents subscription filter cri-
 			 teria to match VNF instances.
 '''
@@ -42,6 +42,123 @@ class VnfInstanceSubscriptionFilter:
 	def versionsStruct(self):
 		return {"vnfSoftwareVersion":None,	#Version (String), mandatory (1)
 				"vnfdVersions":[]}			#Version (String), optional (0..N)
+
+	def validate(self):
+		if type(self.id) != str:
+			if self.id == None:
+				return ("0", -2)
+			else:
+				return ("0", -1)
+
+		if type(self.vnfProductsFromProviders) != list:
+			return ("1", -1)
+		for index in range(len(self.vnfProductsFromProviders)):
+			if type(self.vnfProductsFromProviders[index]) != dict:
+				return ("1." + str(index), -1)
+
+			keyList = ["vnfProducts"]
+			for key in self.vnfProductsFromProviders[index]:
+				if not type(key) == str:
+					return ("1." + str(index) + "." + str(key), -1)
+				if not key in keyList:
+					return ("1." + str(index) + "." + str(key), -3)
+				keyList.remove(key)
+
+			if not "vnfProducts" in keyList:
+				if type(self.vnfProductsFromProviders[index]["vnfProducts"]) != list:
+					return ("1." + str(index) + ".vnfProducts", -1)
+
+				for subindex in range(len(self.vnfProductsFromProviders[index]["vnfProducts"])):
+					if type(self.vnfProductsFromProviders[index]["vnfProducts"][subindex]) != dict:
+						return ("1." + str(index) + ".vnfProducts." + str(subindex), -1)
+
+					keyList = ["vnfProductName", "versions"]
+					for key in self.vnfProductsFromProviders[index]["vnfProducts"][subindex]:
+						if not type(key) == str:
+							return ("1." + str(index) + ".vnfProducts." + str(subindex) + "." + str(key), -1)
+						if not key in keyList:
+							return ("1." + str(index) + ".vnfProducts." + str(subindex) + "." + str(key), -3)
+						keyList.remove(key)
+
+					if "vnfProductName" in keyList:
+						return ("1." + str(index) + ".vnfProducts." + str(subindex) + ".vnfProductName", -2)
+					if type(self.vnfProductsFromProviders[index]["vnfProducts"][subindex]["vnfProductName"]) != str:
+						if self.vnfProductsFromProviders[index]["vnfProducts"][subindex]["vnfProductName"] == None:
+							return ("1." + str(index) + ".vnfProducts." + str(subindex) + ".vnfProductName", -2)
+						else:
+							return ("1." + str(index) + ".vnfProducts." + str(subindex) + ".vnfProductName", -1)
+
+					if not "versions" in keyList:
+						if type(self.vnfProductsFromProviders[index]["vnfProducts"][subindex]["versions"]) != list:
+							return ("1." + str(index) + ".vnfProducts." + str(subindex) + ".versions", -1)
+
+						for subsubindex in range(len(self.vnfProductsFromProviders[index]["vnfProducts"][subindex]["versions"])):
+							if type(self.vnfProductsFromProviders[index]["vnfProducts"][subindex]["versions"]) != dict:
+								return ("1." + str(index) + ".vnfProducts." + str(subindex) + ".versions." + str(subsubindex), -1)
+
+							keyList = ["vnfSoftwareVersion", "vnfdVersions"]
+							for key in self.vnfProductsFromProviders[index]["vnfProducts"][subindex]["versions"][subsubindex]:
+								if not type(key) == str:
+									return ("1." + str(index) + ".vnfProducts." + str(subindex) + ".versions." + str(subsubindex) + "." + str(key), -1)
+								if not key in keyList:
+									return ("1." + str(index) + ".vnfProducts." + str(subindex) + ".versions." + str(subsubindex) + "." + str(key), -3)
+							keyList.remove(key)
+
+							if "vnfSoftwareVersion" in keyList:
+								return ("1." + str(index) + ".vnfProducts." + str(subindex) + ".versions." + str(subsubindex) + ".vnfSoftwareVersion", -2)
+							if type(self.vnfProductsFromProviders[index]["vnfProducts"][subindex]["vnfProductName"][subsubindex]["vnfSoftwareVersion"]) != str:
+								if self.vnfProductsFromProviders[index]["vnfProducts"][subindex]["vnfProductName"][subsubindex]["vnfSoftwareVersion"] == None:
+									return ("1." + str(index) + ".vnfProducts." + str(subindex) + ".versions." + str(subsubindex) + ".vnfSoftwareVersion", -2)
+								else:
+									return ("1." + str(index) + ".vnfProducts." + str(subindex) + ".versions." + str(subsubindex) + ".vnfSoftwareVersion", -1)
+
+							if not "vnfdVersions" in keyList:
+								if type(self.vnfProductsFromProviders[index]["vnfProducts"][subindex]["vnfProductName"][subsubindex]["vnfdVersions"]) != list:
+									return ("1." + str(index) + ".vnfProducts." + str(subindex) + ".versions." + str(subsubindex) + ".vnfdVersions", -1)
+
+								for subsubsubindex in range(len(self.vnfProductsFromProviders[index]["vnfProducts"][subindex]["vnfProductName"][subsubindex]["vnfdVersions"])):
+									if type(self.vnfProductsFromProviders[index]["vnfProducts"][subindex]["vnfProductName"][subsubindex]["vnfdVersions"][subsubsubindex]) != str:
+										return ("1." + str(index) + ".vnfProducts." + str(subindex) + ".versions." + str(subsubindex) + ".vnfdVersions" + str(subsubsubindex), -1)
+
+		if type(self.vnfInstanceIds) != list:
+			return ("2", -1)
+
+		for index in range(len(self.vnfInstanceIds)):
+			if not type(self.vnfInstanceIds[index]) == str:
+				return ("2." + str(index), -1) 
+
+		if type(self.vnfInstanceNames) != list:
+			return ("3", -1)
+
+		for index in range(len(self.vnfInstanceNames)):
+			if not type(self.vnfInstanceNames[index]) == str:
+				return ("3." + str(index), -1)
+
+		return ("4", 0)
+
+	def fromData(self, vnfdIds, vnfProductsFromProviders, vnfInstanceIds, vnfInstanceNames):
+		
+		self.vnfdIds = vnfdIds
+		self.vnfProductsFromProviders = vnfProductsFromProviders
+		self.vnfInstanceIds = vnfInstanceIds
+		self.vnfInstanceNames = vnfInstanceNames
+
+		if self.validate()[1] == 0:
+			return self
+		else:
+			return False
+
+	def toDictionary(self):
+
+		return {"vnfdIds":self.vnfdIds, "vnfProductsFromProviders":self.vnfProductsFromProviders, "vnfInstanceIds":self.vnfInstanceIds, "vnfInstanceNames":self.vnfInstanceNames} 
+
+	def fromDictionary(self, dictData):
+		
+		self.vnfdIds = dictData["vnfdIds"]
+		self.vnfProductsFromProviders = dictData["vnfProductsFromProviders"]
+		self.vnfInstanceIds = dictData["vnfInstanceIds"]
+		self.vnfInstanceNames = dictData["vnfInstanceNames"]
+		return self
 
 #######################################################################################################
 #######################################################################################################
@@ -1102,16 +1219,22 @@ class VnfcSnapshotInfo:
 					return ("6." + str(index) + "." + str(key), -3)
 				keyList.remove(key)
 
+			if "storageResourceId" in keyList:
+				return ("6." + str(index) + ".storageResourceId", -2)
 			if type(self.storageSnapshotResources[index]["storageResourceId"]) != str:
 				return ("6." + str(index) + ".storageResourceId", -1)
-			if type(self.storageSnapshotResources[index]["storageSnapshotResource"]) != ResourceHandle and self.storageSnapshotResources[index]["storageSnapshotResource"] != None:
-				return ("6." + str(index) + ".storageSnapshotResource", -1)
-			if type(self.storageSnapshotResources[index]["userDefinedData"]) != dict:
-				return ("6." + str(index) + ".userDefinedData", -1)
+			if not "storageSnapshotResource" in keyList:
+				if type(self.storageSnapshotResources[index]["storageSnapshotResource"]) != ResourceHandle and self.storageSnapshotResources[index]["storageSnapshotResource"] != None:
+					return ("6." + str(index) + ".storageSnapshotResource", -1)
+			if not "userDefinedData" in keyList:
+				if type(self.storageSnapshotResources[index]["userDefinedData"]) != dict:
+					return ("6." + str(index) + ".userDefinedData", -1)
 
-			for key in self.storageSnapshotResources[index]["userDefinedData"]:
-				if not type(key) == str:
-					return ("6." + str(index) + ".userDefinedData." + str(key), -1)
+				for key in self.storageSnapshotResources[index]["userDefinedData"]:
+					if not type(key) == str:
+						return ("6." + str(index) + ".userDefinedData." + str(key), -1)
+
+		return ("7", 0)
 
 '''
 CLASS: ModificationsTriggeredByVnfPkgChange
@@ -1168,6 +1291,8 @@ class ModificationsTriggeredByVnfPkgChange:
 
 		if not type(self.vnfdVersion) == str and self.vnfdVersion != None:
 			return ("7", -1)
+
+		return ("8", 0)
 
 #######################################################################################################
 #######################################################################################################
@@ -1735,7 +1860,7 @@ class VnfIndicator:
 CLASS: VnfIndicatorSubscriptionRequest
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 27 Oct. 2020
-L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 10 Nov. 2020 (Fulber-Garcia; Methods implementation)
 DESCRIPTION: This class represents a subscription request
 			 related to VNF indicator value change noti-
 			 fications.
@@ -1745,11 +1870,59 @@ class VnfIndicatorSubscriptionRequest:
 	callbackUri = None 						#URI (String), mandatory (1)
 	authentication = None 					#SubscriptionAuthentication (String), optional (0..1)
 
+	def validate(self):
+
+		if self.filter != None:
+			if type(self.filter) != VnfIndicatorNotificationsFilter:
+				return ("0", -1)
+			filterValidation = self.filter.validate()
+			if filterValidation[1] != 0:
+				return ("0." + filterValidation[0], filterValidation[1])
+
+		if type(self.callbackUri) != str:
+			if self.callbackUri == None:
+				return ("1", -2)
+			else:
+				return ("1", -1)
+
+		if type(self.authentication) != None:
+			if type(self.authentication) != str:
+				return ("2", -1)
+
+		return ("3", 0)
+
+	def fromData(self, filter, callbackUri, authentication):
+		
+		self.filter = filter
+		self.callbackUri = callbackUri
+		self.authentication = authentication
+
+		if self.validate()[1] == 0:
+			return self
+		else:
+			return False 
+
+	def toDictionary(self):
+		
+		if self.filter != None:
+			return {"filter":self.filter.toDictionary(), "callbackUri":self.callbackUri, "authentication":self.authentication}
+		else:
+			return {"filter":self.filter, "callbackUri":self.callbackUri, "authentication":self.authentication}
+
+	def fromDictionary(self, dictData):
+		
+		if dictData["filter"] != None:
+			self.filter = VnfIndicatorNotificationsFilter().fromDictionary(dictData["filter"])
+		else:
+			self.filter = dictData["filter"]
+		self.callbackUri = dictData["callbackUri"]
+		self.authentication = dictData["authentication"]
+
 '''
 CLASS: VnfIndicatorSubscription
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 27 Oct. 2020
-L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 10 Nov. 2020 (Fulber-Garcia; fromData method implementation)
 DESCRIPTION: This class represents a subscription related
 			 to notifications about VNF indicator value
 			 changes.
@@ -1763,6 +1936,71 @@ class VnfIndicatorSubscription:
 	def linkStruct(self):
 		return {"self":None}				#URI (String), mandatory (1)
 
+	def validate(self):
+		if type(self.id) != str:
+			if self.id == None:
+				return ("0", -2)
+			else:
+				return ("0", -1)
+
+		if self.filter != None:
+			if type(self.filter) != VnfIndicatorNotificationsFilter:
+				return ("1", -1)
+			filterValidation = self.filter.validate()
+			if filterValidation[1] != 0:
+				return ("1." + filterValidation[0], filterValidation[1])
+
+		if type(self.callbackUri) != str:
+			if self.callbackUri == None:
+				return ("2", -2)
+			else:
+				return ("2", -1)
+
+		if not type(self.links) == dict:
+			return ("3", -1)
+
+		keyList = ["self"]
+		for key in self.links:
+			if not type(key) == str:
+				return ("3." + str(key), -1)
+			if not key in keyList:
+				return ("3." + str(key), -3)
+			keyList.remove(key)
+
+		if "self" in keyList:
+			return ("3." + str(index) + ".self", -2)
+		if type(self.links["self"]) != str:
+				return ("3." + str(index) + ".self", -1)
+
+		return ("4", 0)	
+
+	def fromData(self, id, filter, callbackUri, links):
+		self.id = id
+		self.filter = filter
+		self.callbackUri = callbackUri
+		self.links = links
+
+		if self.validate()[1] == 0:
+			return self
+		else:
+			return False 
+
+	def toDictionary(self):
+		if self.filter != None:
+			return {"id":self.id, "filter":self.filter.toDictionary(), "callbackUri":self.callbackUri, "links":self.links}
+		else:
+			return {"id":self.id, "filter":self.filter, "callbackUri":self.callbackUri, "links":self.links}
+
+	def fromDictionary(self, dictData):
+		self.id = dictData["id"]
+		if dictData["filter"] != None:
+			self.filter = VnfIndicatorNotificationsFilter().fromDictionary(dictData["filter"])
+		else:
+			self.filter = dictData["filter"]
+		self.callbackUri = dictData["callbackUri"]
+		self.links = dictData["links"]
+		return self
+		
 '''
 CLASS: VnfIndicatorValueChangeNotification
 AUTHOR: Vinicius Fulber-Garcia
@@ -1816,7 +2054,7 @@ class SupportedIndicatorsChangeNotification:
 CLASS: VnfIndicatorNotificationsFilter
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 27 Oct. 2020
-L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 10 Nov. 2020 (Fulber-Garcia; fromData method implementation)
 DESCRIPTION: This class represents a subscription filter
 			 for notifications related to VNF indicators.
 '''
@@ -1825,6 +2063,59 @@ class VnfIndicatorNotificationsFilter:
 	notificationTypes = []					#String (VnfIndicatorValueChangeNotification | SupportedIndicatorsChangeNotification), optional (0..N)
 	indicatorIds = []						#IdentifierInVnfd (String), optional (0..N)
 
+	def validate(self):
+
+		if self.vnfInstanceSubscriptionFilter != None:
+			if type(self.vnfInstanceSubscriptionFilter) != VnfInstanceSubscriptionFilter:
+				return ("0", -1)
+			filterValidation = self.vnfInstanceSubscriptionFilter.validate()
+			if filterValidation[1] != 0:
+				return ("0." + filterValidation[0], filterValidation[1])
+
+		if not type(self.notificationTypes) == list:
+			return ("1.", -1)
+		for index in range(len(self.notificationTypes)):
+			if type(self.notificationTypes[index]) != str:
+				return ("1." + str(index), -1)
+			if self.notificationTypes[index] in ["VnfIndicatorValueChangeNotification", "SupportedIndicatorsChangeNotification"]:
+				return ("1." + str(index), -3)
+
+		if not type(self.indicatorIds) == list:
+			return ("2", -1)
+		for index in range(len(self.indicatorIds)):
+			if type(self.indicatorIds[index]) != str:
+				return ("2." + str(index), -1)
+
+		return ("3", 0)
+
+	def fromData(self, vnfInstanceSubscriptionFilter, notificationTypes, indicatorIds):
+		
+		self.vnfInstanceSubscriptionFilter = vnfInstanceSubscriptionFilter
+		self.notificationTypes = notificationTypes
+		self.indicatorIds = indicatorIds
+
+		if self.validate()[1] == 0:
+			return self
+		else:
+			return False 
+
+	def toDictionary(self):
+
+		if self.vnfInstanceSubscriptionFilter != None:
+			return {"vnfInstanceSubscriptionFilter":self.vnfInstanceSubscriptionFilter.toDictionary(), "notificationTypes":self.notificationTypes, "indicatorIds":self.indicatorIds}
+		else:
+			return {"vnfInstanceSubscriptionFilter":self.vnfInstanceSubscriptionFilter, "notificationTypes":self.notificationTypes, "indicatorIds":self.indicatorIds}
+
+	def fromDictionary(self, dictData):
+
+		if dictData["vnfInstanceSubscriptionFilter"] != None:
+			self.filter = VnfInstanceSubscriptionFilter().fromDictionary(dictData["vnfInstanceSubscriptionFilter"])
+		else:
+			self.filter = dictData["vnfInstanceSubscriptionFilter"]
+		self.notificationTypes = dictData["notificationTypes"]
+		self.indicatorIds = dictData["indicatorIds"]
+		return self
+
 #######################################################################################################
 #######################################################################################################
 
@@ -1832,7 +2123,7 @@ class VnfIndicatorNotificationsFilter:
 CLASS: VnfConfigModifications
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 27 Oct. 2020
-L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 10 Nov. 2020 (Fulber-Garcia; Method implementation)
 DESCRIPTION: This class represents request parameters for
 			 the "Set Configuration" operation.
 '''
@@ -1841,23 +2132,117 @@ class VnfConfigModifications:
 	vnfcConfigurationData = [] 				#VnfcConfigurationData (Class), optinal (0..N)
 	vnfcConfigurationDataDeleteIds = []		#Identifier (String), optinal (0..N)
 
+	def validate(self):
+
+		if self.vnfConfigurationData != None:
+			if type(self.vnfConfigurationData) != VnfConfigurationData:
+				return ("0", -1)
+			confValidation = self.vnfConfigurationData.validate()
+			if confValidation[1] != 0:
+				return ("0." + confValidation[0], confValidation[1])
+
+		if type(self.vnfcConfigurationData) != list:
+			return ("1", -1)
+		for index in range(len(self.vnfcConfigurationData)):
+			if type(self.vnfcConfigurationData[index]) != VnfcConfigurationData:
+				return ("1." + str(index), -1)
+
+			confValidation = self.vnfcConfigurationData[index].validate()
+			if confValidation[1] != 0:
+				return ("1." + str(index) + "." + confValidation[0], confValidation[1])
+
+		if type(self.vnfcConfigurationDataDeleteIds) != list:
+			return ("2", -1)
+		for index in range(len(self.vnfcConfigurationDataDeleteIds)):
+			if type(self.vnfcConfigurationDataDeleteIds[index]) != str:
+				return ("2." + str(index), -1)
+
+		return ("3", 0)
+
+	def fromData(self, vnfConfigurationData, vnfcConfigurationData, vnfcConfigurationDataDeleteIds):
+		
+		self.vnfConfigurationData = vnfConfigurationData
+		self.vnfcConfigurationData = vnfcConfigurationData
+		self.vnfcConfigurationDataDeleteIds = vnfcConfigurationDataDeleteIds
+
+		if self.validate()[1] == 0:
+			return self
+		else:
+			return False
+
+	def toDictionary(self):
+		if self.vnfConfigurationData != None:
+			return {"vnfConfigurationData":self.vnfConfigurationData.toDictionary(), "vnfcConfigurationData":[vcd.toDictionary() for vcd in self.vnfcConfigurationData], "vnfcConfigurationDataDeleteIds":self.vnfcConfigurationDataDeleteIds}
+		else:
+			return {"vnfConfigurationData":self.vnfConfigurationData, "vnfcConfigurationData":[vcd.toDictionary() for vcd in self.vnfcConfigurationData], "vnfcConfigurationDataDeleteIds":self.vnfcConfigurationDataDeleteIds}
+
+	def fromDictionary(self, dictData):
+		
+		if dictData["vnfConfigurationData"] != None:
+			self.vnfConfigurationData = VnfConfigurationData.fromDictionary(dictData["vnfConfigurationData"])
+		else:
+			self.vnfConfigurationData = dictData["vnfConfigurationData"]
+		self.vnfcConfigurationData = [VnfcConfigurationData.fromDictionary(vcd) for vcd in dictData["vnfConfigurationData"]]
+		self.vnfcConfigurationDataDeleteIds = dictData["vnfConfigurationData"]
+		return self
+
 '''
 CLASS: VnfConfiguration
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 27 Oct. 2020
-L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 10 Nov. 2020 (Fulber-Garcia; Methods implementation)
 DESCRIPTION: This class represents configuration parameters
 			 of a VNF instance and its VNFC instances.
 '''
 class VnfConfiguration:
 	vnfConfigurationData = None 			#VnfConfigurationData, mandatory (1)
-	VnfcConfigurationData = [] 				#VnfcConfigurationData, optional (0..N)
+	vnfcConfigurationData = [] 				#VnfcConfigurationData, optional (0..N)
+
+	def validate(self):
+		
+		if type(self.vnfConfigurationData) != VnfConfigurationData:
+			return ("0", -1)
+		confValidation = self.vnfConfigurationData.validate()
+		if confValidation[1] != 0:
+			return ("0." + confValidation[0], confValidation[1])
+
+		if type(self.vnfcConfigurationData) != list:
+			return ("1", -1)
+		for index in range(len(self.vnfcConfigurationData)):
+			if type(self.vnfcConfigurationData[index]) != VnfcConfigurationData:
+				return ("1." + str(index), -1)
+
+			confValidation = self.vnfcConfigurationData[index].validate()
+			if confValidation[1] != 0:
+				return ("1." + str(index) + "." + confValidation[0], confValidation[1])
+
+		return ("2", 0)
+
+	def fromData(self, vnfConfigurationData, vnfcConfigurationData):
+		
+		self.vnfConfigurationData = vnfConfigurationData
+		self.vnfcConfigurationData = vnfcConfigurationData
+
+		if self.validate()[1] == 0:
+			return self
+		else:
+			return False
+
+	def toDictionary(self):
+		
+		return {"vnfConfigurationData":self.vnfConfigurationData.toDictionary(), "vnfcConfigurationData":[vcd.toDictionary() for vcd in self.vnfcConfigurationData]}
+
+	def fromDictionary(self, dictData):
+		
+		self.vnfConfigurationData = VnfConfigurationData.fromDictionary(dictData["vnfConfigurationData"])
+		self.vnfcConfigurationData = [VnfcConfigurationData.fromDictionary(vcd) for vcd in dictData["vnfConfigurationData"]]
+		return self
 
 '''
 CLASS: VnfConfigurationData
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 27 Oct. 2020
-L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
+L. UPDATE: 10 Nov. 2020 (Fulber-Garcia; Method implementation)
 DESCRIPTION: This class represents configuration parameters
 			 of a VNF instance.
 '''
@@ -1866,12 +2251,55 @@ class VnfConfigurationData:
 	dhcpServer = None 						#IpAddress (String), optional (0..1)
 	vnfSpecificData = None 					#KeyValuePairs (Dictionary), optional (0..1)
 
+	def validate(self):
+		
+		if type(self.extCpConfig) != list:
+			return ("0", -1)
+		for index in range(len(self.extCpConfig)):
+			if type(self.extCpConfig[index]) != CpConfiguration:
+				return ("0." + str(index), -1)
+
+			confValidation = self.extCpConfig[index].validate()
+			if confValidation[1] != 0:
+				return ("0." + str(index) + "." + confValidation[0], confValidation[1])
+
+		if self.dhcpServer != None:
+			if type(self.dhcpServer) != str:
+				return ("1", -1)
+
+		if self.vnfSpecificData != None:
+			if type(self.vnfSpecificData) != dict:
+				return ("2", -1)
+
+		return ("3", 0)
+
+	def fromData(self, extCpConfig, dhcpServer, vnfSpecificData):
+		
+		self.extCpConfig = extCpConfig
+		self.dhcpServer = dhcpServer
+		self.vnfSpecificData = vnfSpecificData
+
+		if self.validate()[1] == 0:
+			return self
+		else:
+			return False
+
+	def toDictionary(self):
+		
+		return {"extCpConfig":[ecc.toDictionary() for ecc in self.extCpConfig], "dhcpServer":self.dhcpServer, "vnfSpecificData":self.vnfSpecificData}
+
+	def fromDictionary(self, dictData):
+		
+		self.extCpConfig = [CpConfiguration().fromDictionary(ecc) for ecc in dictData["extCpConfig"]]
+		self.dhcpServer = dictData["dhcpServer"]
+		self.vnfSpecificData = dictData["vnfSpecificData"]
+		return self
 
 '''
 CLASS: VnfcConfigurationData
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 27 Oct. 2020
-L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
+L. UPDATE: 10 Nov. 2020 (Fulber-Garcia; Method implementation)
 DESCRIPTION: This class represents configuration parameters
 			 of a VNFC instance.
 '''
@@ -1881,11 +2309,60 @@ class VnfcConfigurationData:
 	dhcpServer = None 						#IpAddress (String), optional (0..1)
 	vnfcSpecificData = None 				#KeyValuePairs (Dictionary), optional (0..1)
 
+	def validate(self):
+
+		if type(self.vnfcInstanceId) != str:
+			return ("0", -1)
+
+		if type(self.intCpConfig) != list:
+			return ("1", -1)
+		for index in range(len(self.intCpConfig)):
+			if type(self.intCpConfig[index]) != CpConfiguration:
+				return ("1." + str(index), -1)
+
+			confValidation = self.intCpConfig[index].validate()
+			if confValidation[1] != 0:
+				return ("1." + str(index) + "." + confValidation[0], confValidation[1])
+
+		if self.dhcpServer != None:
+			if type(self.dhcpServer) != str:
+				return ("2", -1)
+
+		if self.vnfcSpecificData != None:
+			if type(self.vnfcSpecificData) != dict:
+				return ("3", -1)
+
+		return ("4", 0)
+
+	def fromData(self, vnfcInstanceId, intCpConfig, dhcpServer, vnfcSpecificData):
+		
+		self.vnfcInstanceId = vnfcInstanceId
+		self.intCpConfig = intCpConfig
+		self.dhcpServer = dhcpServer
+		self.vnfcSpecificData = vnfcSpecificData
+
+		if self.validate()[1] == 0:
+			return self
+		else:
+			return False
+
+	def toDictionary(self):
+		
+		return {"vnfcInstanceId":self.vnfcInstanceId, "intCpConfig":[icc.toDictionary() for icc in self.intCpConfig], "dhcpServer":self.dhcpServer, "vnfcSpecificData":self.vnfcSpecificData}
+
+	def fromDictionary(self, dictData):
+		
+		self.vnfcInstanceId = dictData["vnfcInstanceId"]
+		self.extCpConfig = [CpConfiguration().fromDictionary(icc) for icc in dictData["intCpConfig"]]
+		self.dhcpServer = dictData["dhcpServer"]
+		self.vnfcSpecificData = dictData["vnfcSpecificData"]
+		return self
+
 '''
 CLASS: CpConfiguration
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 27 Oct. 2020
-L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 10 Nov. 2020 (Fulber-Garcia; Method implementation)
 DESCRIPTION: This class represents configuration parameters
 			of a CP instance.
 '''
@@ -1894,11 +2371,53 @@ class CpConfiguration:
 	cpdId = None 							#IdentifierInVnfd (String), mandatory (1)
 	addresses = []							#CpAddress (Class), mandatory (1..N)
 
+	def validate(self):
+
+		if type(self.cpId) != str:
+			return ("0", -1)
+
+		if type(self.cpdId) != str:
+			return ("1", -1)
+
+		if type(self.addresses) != list:
+			return ("2", -1)
+		if len(self.addresses) == 0:
+			return ("2", -2)
+		for index in range(len(self.addresses)):
+			if type(self.addresses[index]) != CpAddress:
+				return ("2." + str(index), -1)
+
+			confValidation = self.addresses[index].validate()
+			if confValidation[1] != 0:
+				return ("2." + str(index) + "." + confValidation[0], confValidation[1])
+
+	def fromData(self, cpId, cpdId, addresses):
+		
+		self.cpId = cpId
+		self.cpdId = cpdId
+		self.addresses = addresses
+
+		if self.validate()[1] == 0:
+			return self
+		else:
+			return False
+
+	def toDictionary(self):
+		
+		return {"cpId":self.cpId, "cpdId":self.cpdId, "addresses":[a.toDictionary() for a in self.addresses]}
+
+	def fromDictionary(self, dictData):
+		
+		self.cpId = dictData["cpId"]
+		self.cpdId = dictData["cpdId"]
+		self.addresses = [CpAddress().fromData(a) for a in dictData["addresses"]]
+		return self
+
 '''
 CLASS: CpAddress
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 27 Oct. 2020
-L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
+L. UPDATE: 10 Nov. 2020 (Fulber-Garcia; Method implementation)
 DESCRIPTION: This class represents configuration parameters
 			 of a CP instance address.
 '''
@@ -1910,3 +2429,56 @@ class CpAddress:
 	def addressStruct(self):
 		return {"macAddress":None, 			#MacAddress (String), optional (0..1)
 				"ipAddress":None}			#IpAddress (String), optional (0..1)
+
+	def validate(self):
+		
+		if self.address != None:
+			if type(self.address) != dict:
+				return ("0", -1)
+
+			keyList = ["macAddress", "ipAddress"]
+			for key in self.address:
+				if not type(key) == str:
+					return ("0." + str(key), -1)
+				if not key in keyList:
+					return ("0." + str(key), -3)
+				keyList.remove(key)
+
+			if not "macAddress" in keyList:
+				if not self.address["macAddress"] == str:
+					return ("0.macAddress", -1)
+			if not "ipAddress" in keyList:
+				if not self.address["ipAddress"] == str:
+					return ("0.ipAddress", -1)
+
+		if self.useDynamicAddress != None:
+			if type(self.useDynamicAddress) != bool:
+				return ("1", -1)
+
+		if self.port != None:
+			if type(self.port) != int:
+				return ("2", -1)
+			if self.port < 0:
+				return ("2", -1)
+
+	def fromData(self, address, useDynamicAddress, port):
+		
+		self.address = address
+		self.useDynamicAddress = useDynamicAddress
+		self.port = port
+
+		if self.validate()[1] == 0:
+			return self
+		else:
+			return False
+
+	def toDictionary(self):
+		
+		return {"address":self.address, "useDynamicAddress":self.useDynamicAddress, "port":self.port}
+
+	def fromDictionary(self, dictData):
+		
+		self.address = dictData["address"]
+		self.useDynamicAddress = dictData["useDynamicAddress"]
+		self.port = dictData["port"]
+		return self

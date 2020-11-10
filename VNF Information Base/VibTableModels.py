@@ -16,13 +16,17 @@ NOTE:				 The classes contain two "to" standard methods ("toSql"/
 #######################################################################################################
 #######################################################################################################
 
+import sys
+sys.path.insert(0,'../Access Subsystem/')
+
 import json
+import CommunicationModels
 
 '''
 CLASS: VibSummaryModels
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 30 Oct. 2020
-L. UPDATE: 05 Nov. 2020 (Fulber-Garcia; VibPlatformInstance creation; VibVnfInstance update)
+L. UPDATE: 10 Nov. 2020 (Fulber-Garcia; VibVnfIndicatorSubscription creation)
 DESCRIPTION: This class represents the table creation rou-
 			 tines of all the tables of the VIB. Once a
 			 table is updated in its respective class, the
@@ -53,6 +57,13 @@ class VibSummaryModels:
                      authResource text,
                      FOREIGN KEY (vnfId)
        					REFERENCES VnfInstance (vnfId)
+                    ); """
+
+	VibVnfIndicatorSubscription = """ CREATE TABLE IF NOT EXISTS VnfIndicatorSubscription (
+                     visId text PRIMARY KEY,
+                     visFilter text,
+                     visCallback text NOT NULL,
+                     visLinks text NOT NULL
                     ); """
 
 '''
@@ -115,7 +126,7 @@ DESCRIPTION: This class represents the VnfInstance table of the
 class VibVnfInstance:
 	vnfId = None
 	vnfAddress = None
-	vnfPlatform = None #setar chave estrangeira
+	vnfPlatform = None #TODO: setar chave estrangeira
 	vnfExtAgents = None			
 	vnfAuth = None
 	
@@ -200,3 +211,63 @@ class VibAuthInstance:
 
 	def toDictionary(self):
 		return {"userId":self.userId, "vnfId":self.vnfId, "authData":self.authData, "authResource":self.authResource}
+
+'''
+CLASS: VibVnfIndicatorSubscription
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 06 Nov. 2020
+L. UPDATE: 10 Nov. 2020 (Fulber-Garcia; Methods creation)
+DESCRIPTION: This class represents the VnfIndicatorSubscription 
+			 table of the VIB. Note that modifications on this
+			 class, particulary in the attributes, must be upda-
+			 ted in the VibSummaryModels too.
+'''
+class VibVnfIndicatorSubscription:
+	visId = None
+	visFilter = None
+	visCallback = None
+	visLinks = None
+
+	def __init__(self):
+		return
+
+	def fromData(self, visId, visFilter, visCallback, visLinks):
+		self.visId = visId
+		self.visFilter = visFilter
+		self.visCallback = visCallback
+		self.visLinks = visLinks
+		return self
+
+	def fromSql(self, sqlData):
+		self.visId = sqlData[0]
+		if sqlData[1] != None:
+			self.visFilter = CommunicationModels.VnfIndicatorNotificationsFilter().fromDictionary(json.loads(sqlData[1]))
+		else:
+			self.visFilter = sqlData[1]
+		self.visCallback = sqlData[2]
+		self.visLinks = json.loads(sqlData[3])
+		return self
+
+	def fromDictionary(self, dictData):
+		self.visId = dictData["visId"]
+		if dictData["visFilter"] != None:
+			self.visFilter = CommunicationModels.VnfIndicatorNotificationsFilter().fromDictionary(dictData["visFilter"])
+		else:
+			self.visFilter = dictData["visFilter"]
+		self.visCallback = dictData["visCallback"]
+		self.visLinks = dictData["visLinks"]
+		return self
+
+	def toSql(self):
+		if self.visFilter != None:
+			return ('''INSERT INTO VnfIndicatorSubscription(visId,visFilter,visCallback,visLinks)
+              	   	VALUES(?,?,?,?)''', (self.visId, json.dumps(self.visFilter.toDictionary()), self.visCallback, json.dumps(self.visLinks)))
+		else:
+			return ('''INSERT INTO VnfIndicatorSubscription(visId,visFilter,visCallback,visLinks)
+              	   	VALUES(?,?,?,?)''', (self.visId, self.visFilter, self.visCallback, json.dumps(self.visLinks)))
+
+	def toDictionary(self):
+		if self.visFilter != None:
+			return {"visId":self.visId, "visFilter":self.visFilter.toDictionary(), "visCallback":self.visCallback, "visLinks":self.visLinks}
+		else:
+			return {"visId":self.visId, "visFilter":self.visFilter, "visCallback":self.visCallback, "visLinks":self.visLinks}

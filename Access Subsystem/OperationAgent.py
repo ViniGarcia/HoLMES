@@ -1,8 +1,10 @@
 import sys
 sys.path.insert(0,'../VNF Information Base/')
 
-import os.path
 import importlib
+import os.path
+import uuid
+import json
 
 import CommunicationModels
 import AuthenticationAgent
@@ -13,7 +15,7 @@ import VibManager
 CLASS: OperationAgent
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 05 Nov. 2020
-L. UPDATE: 05 Nov. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 10 Nov. 2020 (Fulber-Garcia; Implementation of get_vii_subscriptions, post_vii_subscriptions, get_vii_s_subscriptionID, delete_vii_s_subscriptionID, get_vci_configuration, patch_vci_configuration)
 DESCRIPTION: Operation agent implementation. This class
 			 has the kernel functionalites of the access
 			 subsystem. It holds the implementation of all
@@ -31,6 +33,10 @@ CODES:  -1 -> Invalid data type of __vibManager
 		-8 -> Invalid argument type received
 		-9 -> Invalid id of VNF provided
 		-10 -> Invalid id of indicator provided
+		-11 -> Error during VIB table entry creation
+		-12 -> Error on database operation
+		-13 -> Invalid id of subscription provided
+		-14 -> Error on response creation
 '''
 class OperationAgent:
 
@@ -855,6 +861,7 @@ class OperationAgent:
 	
 	# ================================ Ve-Vnfm-em Operations (VNFM -> EMS) ================================
 
+	#TODO: change operation request routine to the VNF Driver
 	def get_vii_indicators(self):
 
 		vnfIndicators = []
@@ -867,7 +874,8 @@ class OperationAgent:
 				print("TODO - Send operation to router:", vnfInstance.vnfId, vnfOperation)
 
 		return vnfIndicators
-		
+	
+	#TODO: change operation request routine to the VNF Driver
 	def get_vii_i_vnfInstanceID(self, vnfInstanceId):
 
 		if type(vnfInstanceId) != str:
@@ -884,7 +892,8 @@ class OperationAgent:
 			print("TODO - Send operation to router:", vibVnfInstance.vnfId, vnfOperation)
 
 		return vnfIndicators
-		
+	
+	#TODO: change operation request routine to the VNF Driver	
 	def get_vii_iid_indicatorID(self, vnfInstanceId, indicatorId):
 		
 		if type(vnfInstanceId) != str or type(indicatorId) != str:
@@ -901,7 +910,8 @@ class OperationAgent:
 		print("TODO - Send operation to router:", vibVnfInstance.vnfId, indicatorId)
 
 		return None
-		
+	
+	#TODO: change operation request routine to the VNF Driver
 	def get_vii_i_indicatorID(self, indicatorId):
 		
 		if type(indicatorId) != str:
@@ -916,42 +926,88 @@ class OperationAgent:
 				print("TODO - Send operation to router:", vnfInstance.vnfId, indicatorId)
 
 		return vnfIndicators
-		
+	
+	#TODO: change operation request routine to the Internal Manager
 	def get_vii_subscriptions(self):
 		
-		return
-		
+		vibIndicatorSubscriptions = [VibTableModels.VibVnfIndicatorSubscription().fromSql(vvis) for vvis in self.__vibManager.queryVibDatabase("SELECT * FROM VnfIndicatorSubscription;")]	
+		return [CommunicationModels.VnfIndicatorSubscription().fromData(vvis.visId, vvis.visFilter, vvis.visCallback, vvis.visLinks) for vvis in vibIndicatorSubscriptions]
+	
+	#TODO: change operation request routine to the Internal Manager
 	def post_vii_subscriptions(self, vnfIndicatorSubscriptionRequest):
 		
-		if type(vnfIndicatorSubscriptionRequest) != VnfIndicatorSubscriptionRequest:
+		if type(vnfIndicatorSubscriptionRequest) != CommunicationModels.VnfIndicatorSubscriptionRequest:
 			return -8
 
-		return
-		
+		if self.__oaAa.authRequest(vnfIndicatorSubscriptionRequest.authentication) == True:
+			vnfIndicatorSubscription = CommunicationModels.VnfIndicatorSubscription().fromData(str(uuid.uuid1()), vnfIndicatorSubscriptionRequest.filter, vnfIndicatorSubscriptionRequest.callbackUri, {"self":"192.168.100:8000"})
+			if not vnfIndicatorSubscription:
+				return -11
+			
+			if self.__vibManager.insertVibDatabase(VibTableModels.VibVnfIndicatorSubscription().fromData(vnfIndicatorSubscription.id, vnfIndicatorSubscription.filter, vnfIndicatorSubscription.callbackUri, vnfIndicatorSubscription.links).toSql()) > 0:
+				return 0
+			else:
+				return -12
+
+		return -7
+	
+	#TODO: change operation request routine to the Internal Manager
 	def get_vii_s_subscriptionID(self, subscriptionId):
 		
 		if type(subscriptionId) != str:
 			return -8
 
-		return
+		vibIndicatorSubscription = self.__vibManager.queryVibDatabase("SELECT * FROM VnfIndicatorSubscription WHERE visId = \"" + subscriptionId + "\";")
+		if len(vibIndicatorSubscription) == 0:
+			return -13
+
+		if vibIndicatorSubscription[0][1] == None:
+			vibIndicatorSubscription = CommunicationModels.VnfIndicatorSubscription().fromData(vibIndicatorSubscription[0][0], vibIndicatorSubscription[0][1], vibIndicatorSubscription[0][2], json.loads(vibIndicatorSubscription[0][3]))
+		else:
+			vibIndicatorSubscription = CommunicationModels.VnfIndicatorSubscription().fromData(vibIndicatorSubscription[0][0], CommunicationModels.VnfIndicatorNotificationsFilter().fromDictionary(json.loads(vibIndicatorSubscription[0][1])), vibIndicatorSubscription[0][2], json.loads(vibIndicatorSubscription[0][3]))
 		
+		if vibIndicatorSubscription:
+			return vibIndicatorSubscription
+		else:
+			return -14
+	
+	#TODO: change operation request routine to the Internal Manager
 	def delete_vii_s_subscriptionID(self, subscriptionId):
 		
 		if type(subscriptionId) != str:
 			return -8
 
-		return
+		if self.__vibManager.deleteVibDatabase("DELETE FROM VnfIndicatorSubscription WHERE visId = \"" + subscriptionId + "\""):
+			return 0
+		else:
+			return -12
+	
+	def get_vci_configuration(self, vnfId):
 		
-	def get_vci_configuration(self):
+		if type(vnfId) != str:
+			return -8
+
+		vibVnfInstance = self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"" + vnfInstanceId + "\";")
+		if len(vibVnfInstance) == 0:
+			return -9
 		
-		return
+		print("TODO - Send operation to router:", vibVnfInstance)
+		return None
 		
-	def patch_vci_configuration(self, vnfConfigModifications):
+	def patch_vci_configuration(self, vnfId, vnfConfigModifications):
+
+		if type(vnfId) != str:
+			return -8
 
 		if type(vnfConfigModifications) != VnfConfigModifications:
 			return -8
+
+		vibVnfInstance = self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"" + vnfInstanceId + "\";")
+		if len(vibVnfInstance) == 0:
+			return -9
 		
-		return
+		print("TODO - Send operation to router:", vibVnfInstance, vnfConfigModifications)
+		return None
 	
 	# ===================================== VNF Management Operations =====================================
 	#TO DO
@@ -968,4 +1024,8 @@ operationTester.setupAgent(vibTester, "VnfmDriverTemplate", None, authTester)
 #operationTester.get_vii_indicators()
 #operationTester.get_vii_i_vnfInstanceID("VNF01")
 #operationTester.get_vii_iid_indicatorID("VNF01", "CPU")
-operationTester.get_vii_i_indicatorID("CPU")'''
+#operationTester.get_vii_i_indicatorID("CPU")
+#print(operationTester.post_vii_subscriptions(CommunicationModels.VnfIndicatorSubscriptionRequest().fromData(None, "192.168.0.100:8000", "USER01;BatataFrita")))
+#print(operationTester.get_vii_subscriptions()[1].id)
+#print(operationTester.get_vii_s_subscriptionID("0a16e784-237f-11eb-b84f-782bcbee2213"))
+#print(operationTester.delete_vii_s_subscriptionID("0a16e784-237f-11eb-b84f-782bcbee2213"))'''

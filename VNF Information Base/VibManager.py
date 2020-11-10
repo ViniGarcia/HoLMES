@@ -2,12 +2,13 @@ import sqlite3
 import os
 
 import VibTableModels
+import CommunicationModels
 
 '''
 CLASS: VibManager
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 21 Oct. 2020
-L. UPDATE: 02 Nov. 2020 (Fulber-Garcia; Class updates)
+L. UPDATE: 10 Nov. 2020 (Fulber-Garcia; Delete method)
 DESCRIPTION: Implementation of the VIB manager. In summary, this class control the
              information insertion and retrieving from the VIB. It can also modify
              the VIB internally, reseting the base when necessary.
@@ -59,6 +60,17 @@ class VibManager:
         except sqlite3.Error as e:
             raise e
 
+    def deleteVibDatabase(self, sqlDeleteRequest):
+
+        try:
+            vibCursor = self.__vibConnection.cursor()
+            delResult = vibCursor.execute(sqlDeleteRequest).rowcount
+            self.__vibConnection.commit()
+            return delResult
+       
+        except sqlite3.Error as e:
+            raise e
+
     def insertVibDatabase(self, sqlData):
 
         try:
@@ -72,20 +84,24 @@ class VibManager:
 
 '''    #TEMPORARY
     def vibTesting(self):
-        print(self.__resetVibDatabase())
-        #return self.queryVibDatabase("SELECT name FROM sqlite_master WHERE type='table';")
-        
-        classTest = VibTableModels.VibPlatformInstance().fromData("COO", {"START":"/START", "STOP":"/STOP"}, {"CPU":"/CPU", "MEMORY":"/MEMORY"}, {"FUNCTION":"/FUNCTION"})
-        self.insertVibDatabase(classTest.toSql())
-        print(self.queryVibDatabase("SELECT * FROM PLatformInstance WHERE platformId = \"COO\";"))
+        if self.__resetVibDatabase():
+            #return self.queryVibDatabase("SELECT name FROM sqlite_master WHERE type='table';")
+            
+            classTest = VibTableModels.VibPlatformInstance().fromData("COO", {"START":"/START", "STOP":"/STOP"}, {"CPU":"/CPU", "MEMORY":"/MEMORY"}, {"FUNCTION":"/FUNCTION"})
+            self.insertVibDatabase(classTest.toSql())
+            print(self.queryVibDatabase("SELECT * FROM PLatformInstance WHERE platformId = \"COO\";"))
 
-        classTest = VibTableModels.VibVnfInstance().fromData("VNF01", "192.168.0.100:8000", "COO", ["OP01", "OP02"], True)
-        self.insertVibDatabase(classTest.toSql())
-        print(self.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"VNF01\";"))
-        
-        classTest = VibTableModels.VibAuthInstance().fromData("USER01", "VNF01", "BatataFrita", None)
-        self.insertVibDatabase(classTest.toSql())
-        print(self.queryVibDatabase("SELECT * FROM AuthInstance WHERE userId = \"USER01\";"))
+            classTest = VibTableModels.VibVnfInstance().fromData("VNF01", "192.168.0.100:8000", "COO", ["OP01", "OP02"], True)
+            self.insertVibDatabase(classTest.toSql())
+            print(self.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"VNF01\";"))
+            
+            classTest = VibTableModels.VibAuthInstance().fromData("USER01", "VNF01", "BatataFrita", None)
+            self.insertVibDatabase(classTest.toSql())
+            print(self.queryVibDatabase("SELECT * FROM AuthInstance WHERE userId = \"USER01\";"))
+
+            classTest = VibTableModels.VibVnfIndicatorSubscription().fromData("SUBS01", CommunicationModels.VnfIndicatorNotificationsFilter(), "192.168.0.100:8000", {"self":"192.168.0.100:8000"})
+            self.insertVibDatabase(classTest.toSql())
+            print(self.queryVibDatabase("SELECT * FROM VnfIndicatorSubscription WHERE visId = \"SUBS01\";"))
 
 vibTester = VibManager()
 vibTester.vibTesting()'''

@@ -1313,7 +1313,7 @@ class VnfmDriverTemplate:
 	#######################################################################################################
 
 	'''
-	PATH: 		 /vci/configuration
+	PATH: 		 /vci/configuration/{vnfId}
 	ACTION: 	 GET
 	DESCRIPTION: Read configuration data of a VNF instance and its VNFC
 				 instances.
@@ -1322,11 +1322,11 @@ class VnfmDriverTemplate:
 				 - Integer error code (HTTP)
 	CALL: 		 VNFM -> EM
 	'''
-	def get_vci_configuration(self):
+	def get_vci_configuration(self, vnfId):
 		return 501
 
 	'''
-	PATH: 		 /vci/configuration
+	PATH: 		 /vci/configuration/{vnfId}
 	ACTION: 	 PATCH
 	DESCRIPTION: Set configuration data of a VNF instance and/or its VNFC
 				 instances.
@@ -1335,7 +1335,7 @@ class VnfmDriverTemplate:
 				 - Integer error code (HTTP)
 	CALL: 		 VNFM -> EM
 	'''
-	def patch_vci_configuration(self, vnfConfigModifications):
+	def patch_vci_configuration(self, vnfId, vnfConfigModifications):
 		return 501
 
 	'''

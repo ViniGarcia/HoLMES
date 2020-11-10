@@ -170,7 +170,7 @@ class AuthenticationAgent:
 		if len(authSql) == 0:
 			return -4
 
-		authInstance = VibTableModels.VibAuthInstance(authSql[0][0], authSql[0][1], authSql[0][2], authSql[0][3])
+		authInstance = VibTableModels.VibAuthInstance().fromData(authSql[0][0], authSql[0][1], authSql[0][2], authSql[0][3])
 		authentication = self.__authModel.authRequest(authInstance, requestAuth)
 		if type(authentication) == int:
 			return -5
