@@ -861,21 +861,18 @@ class OperationAgent:
 	
 	# ================================ Ve-Vnfm-em Operations (VNFM -> EMS) ================================
 
-	#TODO: change operation request routine to the VNF Driver
 	def get_vii_indicators(self):
 
 		vnfIndicators = []
 		vibVnfInstances = [VibTableModels.VibVnfInstance().fromSql(vvi) for vvi in self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance;")]
-		vibPlarformInstances = {vpi[0]:VibTableModels.VibPlatformInstance().fromSql(vpi) for vpi in self.__vibManager.queryVibDatabase("SELECT * FROM PlatformInstance;")}
 		
 		for vnfInstance in vibVnfInstances:
-			vnfPlatform = vibPlarformInstances[vnfInstance.vnfPlatform]
-			for vnfOperation in vnfPlatform.monitoringOperations:
-				print("TODO - Send operation to router:", vnfInstance.vnfId, vnfOperation)
+			#print("TODO - Request the the allocation of the instance platform", vnfInstance.vnfPlatform, "driver") - Router task??
+			print("TODO - Send operation to router:", [vnfInstance], "get_vii_i_vnfInstanceID")
+			print("TODO - Check if the response is 200")
 
 		return vnfIndicators
 	
-	#TODO: change operation request routine to the VNF Driver
 	def get_vii_i_vnfInstanceID(self, vnfInstanceId):
 
 		if type(vnfInstanceId) != str:
@@ -886,14 +883,13 @@ class OperationAgent:
 		if len(vibVnfInstance) == 0:
 			return -9
 		vibVnfInstance = VibTableModels.VibVnfInstance().fromSql(vibVnfInstance[0])
-		vibPlarformInstance = VibTableModels.VibPlatformInstance().fromSql(self.__vibManager.queryVibDatabase("SELECT * FROM PlatformInstance WHERE platformId = \"" + vibVnfInstance.vnfPlatform + "\";")[0])
 
-		for vnfOperation in vibPlarformInstance.monitoringOperations:
-			print("TODO - Send operation to router:", vibVnfInstance.vnfId, vnfOperation)
+		#print("TODO - Request the the allocation of the instance platform", vnfInstance.vnfPlatform, "driver") - Router task??
+		print("TODO - Send operation to router:", [vibVnfInstance], "get_vii_i_vnfInstanceID")
+		print("TODO - Check if the response is 200")
 
 		return vnfIndicators
-	
-	#TODO: change operation request routine to the VNF Driver	
+		
 	def get_vii_iid_indicatorID(self, vnfInstanceId, indicatorId):
 		
 		if type(vnfInstanceId) != str or type(indicatorId) != str:
@@ -903,15 +899,13 @@ class OperationAgent:
 		if len(vibVnfInstance) == 0:
 			return -9
 		vibVnfInstance = VibTableModels.VibVnfInstance().fromSql(vibVnfInstance[0])
-		vibPlarformInstance = VibTableModels.VibPlatformInstance().fromSql(self.__vibManager.queryVibDatabase("SELECT * FROM PlatformInstance WHERE platformId = \"" + vibVnfInstance.vnfPlatform + "\";")[0])
-		if not indicatorId in vibPlarformInstance.monitoringOperations:
-			return -10
-
-		print("TODO - Send operation to router:", vibVnfInstance.vnfId, indicatorId)
+		
+		#print("TODO - Request the the allocation of the instance platform", vnfInstance.vnfPlatform, "driver") - Router task??
+		print("TODO - Send operation to router:", [vibVnfInstance, indicatorId], "get_vii_iid_indicatorID")
+		print("TODO - Check if the response is 200")
 
 		return None
 	
-	#TODO: change operation request routine to the VNF Driver
 	def get_vii_i_indicatorID(self, indicatorId):
 		
 		if type(indicatorId) != str:
@@ -919,11 +913,11 @@ class OperationAgent:
 
 		vnfIndicators = []
 		vibVnfInstances = [VibTableModels.VibVnfInstance().fromSql(vvi) for vvi in self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance;")]
-		vibPlarformInstances = {vpi[0]:VibTableModels.VibPlatformInstance().fromSql(vpi) for vpi in self.__vibManager.queryVibDatabase("SELECT * FROM PlatformInstance;")}
 		
 		for vnfInstance in vibVnfInstances:
-			if indicatorId in vibPlarformInstances[vnfInstance.vnfPlatform].monitoringOperations:
-				print("TODO - Send operation to router:", vnfInstance.vnfId, indicatorId)
+			#print("TODO - Request the the allocation of the instance platform", vnfInstance.vnfPlatform, "driver") - Router task??
+			print("TODO - Send operation to router:", [vnfInstance, indicatorId], "get_vii_iid_indicatorID")
+			print("TODO - Check if the response is 200")
 
 		return vnfIndicators
 	
