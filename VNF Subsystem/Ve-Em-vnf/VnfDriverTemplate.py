@@ -1,9 +1,11 @@
 import sys
 sys.path.insert(0,'../../VNF Information Base/')
 sys.path.insert(0,'../../Access Subsystem/')
+sys.path.insert(0,'../')
 
 import CommunicationModels
 import VibTableModels
+import VsModels
 
 '''
 CLASS: VnfDriverTemplate
@@ -16,9 +18,12 @@ DESCRIPTION: Template for the implementation of VNF drivers that run in the "VNF
 '''
 class VnfDriverTemplate:
 	className = None
+	standardOperations = None
 
 	def __init__(self, className):
 		self.className = className
+		self.standardOperations = {"get_vii_i_vnfInstanceID":VsModels.PlatformOperation().fromData("get_vii_i_vnfInstanceID", self.get_vii_i_vnfInstanceID, {}),
+						  		   "get_vii_iid_indicatorID":VsModels.PlatformOperation().fromData("get_vii_iid_indicatorID", self.get_vii_iid_indicatorID, {"indicatorId":""})}
 
 	'''
 	PATH: 		 Internal EMS Method
@@ -26,8 +31,7 @@ class VnfDriverTemplate:
 	DESCRIPTION: Query the subsystem for the standard management operations
 				 of the VNF platform which the driver is developed for.
 	ARGUMENT: 	 --
-	RETURN: 	 - 200 (HTTP) + PlatformOperation (Class) [0..N]
-	 			 - Integer error code (HTTP)
+	RETURN: 	 - Dict{OperationId (String):PlatformOperation (Class) [0..N]} [1]
 	'''
 	def get_p_operations(self):
 		return 501
@@ -39,8 +43,7 @@ class VnfDriverTemplate:
 				 that return indicators (metrics) values of the VNF platform
 				 which the driver is developed for.
 	ARGUMENT: 	 --
-	RETURN: 	 - 200 (HTTP) + PlatformOperation (Class) [0..N]
-	 			 - Integer error code (HTTP)
+	RETURN: 	 - Dict{OperationId (String):PlatformOperation (Class) [0..N]} [1]
 	'''
 	def get_po_monitoring(self):
 		return 501
@@ -52,8 +55,7 @@ class VnfDriverTemplate:
 				 that modify the operational behaviour of the VNF platform which
 				 the driver is developed for.
 	ARGUMENT: 	 --
-	RETURN: 	 - 200 (HTTP) + PlatformOperation (Class) [0..N]
-	 			 - Integer error code (HTTP)
+	RETURN: 	 - Dict{OperationId (String):PlatformOperation (Class) [0..N]} [1]
 	'''
 	def get_po_modification(self):
 		return 501
@@ -65,8 +67,7 @@ class VnfDriverTemplate:
 				 categorized neither as monitoring nor modification of the VNF
 				 ehich the driver is developed for.
 	ARGUMENT: 	 --
-	RETURN: 	 - 200 (HTTP) + PlatformOperation (Class) [0..N]
-	 			 - Integer error code (HTTP)
+	RETURN: 	 - Dict{OperationId (String):PlatformOperation (Class) [0..N]} [1]
 	'''
 	def get_po_other(self):
 		return 501
@@ -94,19 +95,18 @@ class VnfDriverTemplate:
 	RETURN: 	 - 200 (HTTP) + VnfIndicator (Class) [0..N]
 				 - Integer error code (HTTP)
 	'''
-	def get_vii_i_vnfInstanceID(self, vibVnfInstance):
+	def get_vii_i_vnfInstanceID(self, vibVnfInstance, operationArguments):
 
 		vnfIndicators = []
 		vnfMonitoring = self.get_po_monitoring()
 		
 		for vnfOperation in vnfMonitoring:
-			if vnfOperation.arguments == {}:
-				indicatorValue = vnfOperation.method(vibInstance)
-				#TODO: check if indicatorValue is 200
-				vnfIndicators.append(indicatorValue)
+			if vnfMonitoring[vnfOperation].arguments == {}:
+				indicatorValue = vnfMonitoring[vnfOperation].method(vibVnfInstance, {})
+				if indicatorValue.status_code == 200:
+					vnfIndicators.append(CommunicationModels.VnfIndicator.fromData(vnfOperation, vnfOperation, indicatorValue.content, vibVnfInstance.vnfId, {"self":"http://" + vibInstance.vnfAddress, "vnfInstance":vnfOperation}))
 
 		return vnfIndicators
-
 
 	'''
 	PATH: 		 /vii/indicators/{vnfInstanceId}/{indicatorId}
@@ -116,18 +116,21 @@ class VnfDriverTemplate:
 	RETURN: 	 - 200 (HTTP) + VnfIndicator (Class) [1]
 				 - Integer error code (HTTP)
 	'''
-	def get_vii_iid_indicatorID(self, vibVnfInstance, indicatorId):
+	def get_vii_iid_indicatorID(self, vibVnfInstance, operationArguments):
 
 		vnfMonitoring = self.get_po_monitoring()
-		vnfMonitoringIds = [vm.id for vm in vnfMonitoring]
 
-		if not indicatorId in vnfMonitoringIds:
-			return 405
-
-		index = vnfMonitoringIds.index(indicatorId)
-		if vnfMonitoring[index].arguments != {}:
+		if not "indicatorId" in operationArguments:
 			return 406
 
-		indicatorValue = vnfMonitoring.method(vibVnfInstance)
-		#TODO: check if indicatorValue is 200
-		return indicatorValue
+		if not operationArguments["indicatorId"] in vnfMonitoring:
+			return 405
+
+		if vnfMonitoring[operationArguments["indicatorId"]].arguments != {}:
+			return 406
+
+		indicatorValue = vnfMonitoring[operationArguments["indicatorId"]].method(vibVnfInstance, {})
+		if indicatorValue.status_code != 200:
+			return indicatorValue.status_code
+
+		return CommunicationModels.VnfIndicator.fromData(vnfOperation, vnfOperation, indicatorValue.content, vibVnfInstance.vnfId, {"self":"http://" + vibInstance.vnfAddress, "vnfInstance":vnfOperation})

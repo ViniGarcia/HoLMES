@@ -1842,7 +1842,7 @@ class FaultyResourceType(enum.Enum):
 CLASS: VnfIndicator
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 27 Oct. 2020
-L. UPDATE: 27 Oct. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 17 Nov. 2020 (Fulber-Garcia; Methods implementation)
 DESCRIPTION: This class represents a VNF indicator value.
 '''
 class VnfIndicator:
@@ -1855,6 +1855,81 @@ class VnfIndicator:
 	def linkStruct(self):
 		return {"self":None, 				#URI (String), mandatory (1)
 				"vnfInstance":None}			#URI (String), mandatory (1)
+
+	def validate(self):
+		
+		if self.id != None:
+			if type(self.id) != str:
+				return ("0", -1)
+		else:
+			return ("0", -2)
+
+		if self.name != None:
+			if type(self.name) != str:
+				return ("1", -1)
+
+		if self.value != None:
+			if type(self.value) != str:
+				return ("2", -1)
+		else:
+			return ("2", -2)
+
+		if self.vnfInstanceId != None:
+			if type(self.vnfInstanceId) != str:
+				return ("3", -1)
+		else:
+			return ("3", -2)
+
+		if self.links != None:
+			if type(self.links) != dict:
+				return ("4", -1)
+
+			keyList = ["self", "vnfInstance"]
+			for key in self.links:
+				if not type(key) == str:
+					return ("4." + str(key), -1)
+				if not key in keyList:
+					return ("4." + str(key), -3)
+				keyList.remove(key)
+
+			if "self" in keyList:
+				return ("4.self", -2)
+			if type(self.links["self"]) != str:
+				return ("4.self", -1)
+
+			if "vnfInstance" in keyList:
+				return ("4.vnfInstance", -2)
+			if type(self.links["vnfInstance"]) != str:
+				return ("4.vnfInstance", -1)
+		else:
+			return ("4", -2)
+
+		return ("5", 0)
+
+	def fromData(self, id, name, value, vnfInstanceId, links):
+		
+		self.id = id
+		self.name = name
+		self.value = value
+		self.vnfInstanceId = vnfInstanceId
+		self.links = links
+
+		if self.validate()[1] == 0:
+			return self
+		else:
+			return False
+
+	def toDictionary(self):
+		
+		return {"id":self.id, "name":self.name, "value":self.value, "vnfInstanceId":self.vnfInstanceId, "links":self.links}
+
+	def fromDictionary(self, dictData):
+		
+		self.id = dictData["id"]
+		self.name = dictData["name"]
+		self.value = dictData["value"]
+		self.vnfInstanceId = dictData["vnfInstanceId"]
+		self.links = dictData["links"]
 
 '''
 CLASS: VnfIndicatorSubscriptionRequest

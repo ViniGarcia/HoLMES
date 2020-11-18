@@ -89,9 +89,9 @@ class VibManager:
             
             classTest = VibTableModels.VibPlatformInstance().fromData("COO", {"START":"/START", "STOP":"/STOP"}, {"CPU":"/CPU", "MEMORY":"/MEMORY"}, {"FUNCTION":"/FUNCTION"})
             self.insertVibDatabase(classTest.toSql())
-            print(self.queryVibDatabase("SELECT * FROM PLatformInstance WHERE platformId = \"COO\";"))
+            print(self.queryVibDatabase("SELECT * FROM PlatformInstance WHERE platformId = \"COO\";"))
 
-            classTest = VibTableModels.VibVnfInstance().fromData("VNF01", "192.168.0.100:8000", "COO", ["OP01", "OP02"], True)
+            classTest = VibTableModels.VibVnfInstance().fromData("VNF01", "127.0.0.1:5000", "COO", ["OP01", "OP02"], True)
             self.insertVibDatabase(classTest.toSql())
             print(self.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"VNF01\";"))
             
