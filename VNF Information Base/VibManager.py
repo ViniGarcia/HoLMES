@@ -1,8 +1,8 @@
 import sqlite3
 import os
 
-import VibTableModels
-import CommunicationModels
+import VibModels
+import AsModels
 
 '''
 CLASS: VibManager
@@ -39,7 +39,7 @@ class VibManager:
         try:
             self.__vibConnection = sqlite3.connect(self.__vibPath)
             
-            tablesData = VibTableModels.VibSummaryModels()
+            tablesData = VibModels.VibSummaryModels()
             for tableName in dir(tablesData):
                 if not tableName.startswith("_"):
                     self.queryVibDatabase(getattr(tablesData, tableName))
@@ -87,19 +87,19 @@ class VibManager:
         if self.__resetVibDatabase():
             #return self.queryVibDatabase("SELECT name FROM sqlite_master WHERE type='table';")
             
-            classTest = VibTableModels.VibPlatformInstance().fromData("COO", {"START":"/START", "STOP":"/STOP"}, {"CPU":"/CPU", "MEMORY":"/MEMORY"}, {"FUNCTION":"/FUNCTION"})
+            classTest = VibModels.VibPlatformInstance().fromData("COO", {"START":"/START", "STOP":"/STOP"}, {"CPU":"/CPU", "MEMORY":"/MEMORY"}, {"FUNCTION":"/FUNCTION"})
             self.insertVibDatabase(classTest.toSql())
             print(self.queryVibDatabase("SELECT * FROM PlatformInstance WHERE platformId = \"COO\";"))
 
-            classTest = VibTableModels.VibVnfInstance().fromData("VNF01", "127.0.0.1:5000", "COO", ["OP01", "OP02"], True)
+            classTest = VibModels.VibVnfInstance().fromData("VNF01", "127.0.0.1:5000", "COO", ["OP01", "OP02"], True)
             self.insertVibDatabase(classTest.toSql())
             print(self.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"VNF01\";"))
             
-            classTest = VibTableModels.VibAuthInstance().fromData("USER01", "VNF01", "BatataFrita", None)
+            classTest = VibModels.VibAuthInstance().fromData("USER01", "VNF01", "BatataFrita", None)
             self.insertVibDatabase(classTest.toSql())
             print(self.queryVibDatabase("SELECT * FROM AuthInstance WHERE userId = \"USER01\";"))
 
-            classTest = VibTableModels.VibVnfIndicatorSubscription().fromData("SUBS01", CommunicationModels.VnfIndicatorNotificationsFilter(), "192.168.0.100:8000", {"self":"192.168.0.100:8000"})
+            classTest = VibModels.VibVnfIndicatorSubscription().fromData("SUBS01", AsModels.VnfIndicatorNotificationsFilter(), "192.168.0.100:8000", {"self":"192.168.0.100:8000"})
             self.insertVibDatabase(classTest.toSql())
             print(self.queryVibDatabase("SELECT * FROM VnfIndicatorSubscription WHERE visId = \"SUBS01\";"))
 

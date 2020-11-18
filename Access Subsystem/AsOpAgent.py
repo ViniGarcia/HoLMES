@@ -1,15 +1,16 @@
 import sys
 sys.path.insert(0,'../VNF Information Base/')
 
-import importlib
-import os.path
 import uuid
 import json
+import os.path
+import importlib
 
-import CommunicationModels
-import AuthenticationAgent
-import VibTableModels
+import AsModels
+import VibModels
+
 import VibManager
+import AsAuthAgent
 
 '''
 CLASS: OperationAgent
@@ -66,7 +67,7 @@ class OperationAgent:
 		#TODO: class check
 		self.__aiAs = aiAs
 
-		if type(oaAa) != AuthenticationAgent.AuthenticationAgent:
+		if type(oaAa) != AsAuthAgent.AuthenticationAgent:
 			return -5
 		self.__oaAa = oaAa
 
@@ -864,7 +865,7 @@ class OperationAgent:
 	def get_vii_indicators(self):
 
 		vnfIndicators = []
-		vibVnfInstances = [VibTableModels.VibVnfInstance().fromSql(vvi) for vvi in self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance;")]
+		vibVnfInstances = [VibModels.VibVnfInstance().fromSql(vvi) for vvi in self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance;")]
 		
 		for vnfInstance in vibVnfInstances:
 			#print("TODO - Request the the allocation of the instance platform", vnfInstance.vnfPlatform, "driver") - Router task??
@@ -882,7 +883,7 @@ class OperationAgent:
 		vibVnfInstance = self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"" + vnfInstanceId + "\";")
 		if len(vibVnfInstance) == 0:
 			return -9
-		vibVnfInstance = VibTableModels.VibVnfInstance().fromSql(vibVnfInstance[0])
+		vibVnfInstance = VibModels.VibVnfInstance().fromSql(vibVnfInstance[0])
 
 		#print("TODO - Request the the allocation of the instance platform", vnfInstance.vnfPlatform, "driver") - Router task??
 		print("TODO - Send operation to router:", [vibVnfInstance], "get_vii_i_vnfInstanceID")
@@ -898,7 +899,7 @@ class OperationAgent:
 		vibVnfInstance = self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"" + vnfInstanceId + "\";")
 		if len(vibVnfInstance) == 0:
 			return -9
-		vibVnfInstance = VibTableModels.VibVnfInstance().fromSql(vibVnfInstance[0])
+		vibVnfInstance = VibModels.VibVnfInstance().fromSql(vibVnfInstance[0])
 		
 		#print("TODO - Request the the allocation of the instance platform", vnfInstance.vnfPlatform, "driver") - Router task??
 		print("TODO - Send operation to router:", [vibVnfInstance, indicatorId], "get_vii_iid_indicatorID")
@@ -912,7 +913,7 @@ class OperationAgent:
 			return -8
 
 		vnfIndicators = []
-		vibVnfInstances = [VibTableModels.VibVnfInstance().fromSql(vvi) for vvi in self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance;")]
+		vibVnfInstances = [VibModels.VibVnfInstance().fromSql(vvi) for vvi in self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance;")]
 		
 		for vnfInstance in vibVnfInstances:
 			#print("TODO - Request the the allocation of the instance platform", vnfInstance.vnfPlatform, "driver") - Router task??
@@ -924,21 +925,21 @@ class OperationAgent:
 	#TODO: change operation request routine to the Internal Manager
 	def get_vii_subscriptions(self):
 		
-		vibIndicatorSubscriptions = [VibTableModels.VibVnfIndicatorSubscription().fromSql(vvis) for vvis in self.__vibManager.queryVibDatabase("SELECT * FROM VnfIndicatorSubscription;")]	
-		return [CommunicationModels.VnfIndicatorSubscription().fromData(vvis.visId, vvis.visFilter, vvis.visCallback, vvis.visLinks) for vvis in vibIndicatorSubscriptions]
+		vibIndicatorSubscriptions = [VibModels.VibVnfIndicatorSubscription().fromSql(vvis) for vvis in self.__vibManager.queryVibDatabase("SELECT * FROM VnfIndicatorSubscription;")]	
+		return [AsModels.VnfIndicatorSubscription().fromData(vvis.visId, vvis.visFilter, vvis.visCallback, vvis.visLinks) for vvis in vibIndicatorSubscriptions]
 	
 	#TODO: change operation request routine to the Internal Manager
 	def post_vii_subscriptions(self, vnfIndicatorSubscriptionRequest):
 		
-		if type(vnfIndicatorSubscriptionRequest) != CommunicationModels.VnfIndicatorSubscriptionRequest:
+		if type(vnfIndicatorSubscriptionRequest) != AsModels.VnfIndicatorSubscriptionRequest:
 			return -8
 
 		if self.__oaAa.authRequest(vnfIndicatorSubscriptionRequest.authentication) == True:
-			vnfIndicatorSubscription = CommunicationModels.VnfIndicatorSubscription().fromData(str(uuid.uuid1()), vnfIndicatorSubscriptionRequest.filter, vnfIndicatorSubscriptionRequest.callbackUri, {"self":"192.168.100:8000"})
+			vnfIndicatorSubscription = AsModels.VnfIndicatorSubscription().fromData(str(uuid.uuid1()), vnfIndicatorSubscriptionRequest.filter, vnfIndicatorSubscriptionRequest.callbackUri, {"self":"192.168.100:8000"})
 			if not vnfIndicatorSubscription:
 				return -11
 			
-			if self.__vibManager.insertVibDatabase(VibTableModels.VibVnfIndicatorSubscription().fromData(vnfIndicatorSubscription.id, vnfIndicatorSubscription.filter, vnfIndicatorSubscription.callbackUri, vnfIndicatorSubscription.links).toSql()) > 0:
+			if self.__vibManager.insertVibDatabase(VibModels.VibVnfIndicatorSubscription().fromData(vnfIndicatorSubscription.id, vnfIndicatorSubscription.filter, vnfIndicatorSubscription.callbackUri, vnfIndicatorSubscription.links).toSql()) > 0:
 				return 0
 			else:
 				return -12
@@ -956,9 +957,9 @@ class OperationAgent:
 			return -13
 
 		if vibIndicatorSubscription[0][1] == None:
-			vibIndicatorSubscription = CommunicationModels.VnfIndicatorSubscription().fromData(vibIndicatorSubscription[0][0], vibIndicatorSubscription[0][1], vibIndicatorSubscription[0][2], json.loads(vibIndicatorSubscription[0][3]))
+			vibIndicatorSubscription = AsModels.VnfIndicatorSubscription().fromData(vibIndicatorSubscription[0][0], vibIndicatorSubscription[0][1], vibIndicatorSubscription[0][2], json.loads(vibIndicatorSubscription[0][3]))
 		else:
-			vibIndicatorSubscription = CommunicationModels.VnfIndicatorSubscription().fromData(vibIndicatorSubscription[0][0], CommunicationModels.VnfIndicatorNotificationsFilter().fromDictionary(json.loads(vibIndicatorSubscription[0][1])), vibIndicatorSubscription[0][2], json.loads(vibIndicatorSubscription[0][3]))
+			vibIndicatorSubscription = AsModels.VnfIndicatorSubscription().fromData(vibIndicatorSubscription[0][0], AsModels.VnfIndicatorNotificationsFilter().fromDictionary(json.loads(vibIndicatorSubscription[0][1])), vibIndicatorSubscription[0][2], json.loads(vibIndicatorSubscription[0][3]))
 		
 		if vibIndicatorSubscription:
 			return vibIndicatorSubscription
@@ -1012,14 +1013,14 @@ class OperationAgent:
 
 '''#TEMPORARY
 vibTester = VibManager.VibManager()
-authTester = AuthenticationAgent.AuthenticationAgent("PlainText", vibTester)
+authTester = AsAuthAgent.AuthenticationAgent("PlainText", vibTester)
 operationTester = OperationAgent()
 operationTester.setupAgent(vibTester, "VnfmDriverTemplate", None, authTester)
 #operationTester.get_vii_indicators()
 #operationTester.get_vii_i_vnfInstanceID("VNF01")
 #operationTester.get_vii_iid_indicatorID("VNF01", "CPU")
 #operationTester.get_vii_i_indicatorID("CPU")
-#print(operationTester.post_vii_subscriptions(CommunicationModels.VnfIndicatorSubscriptionRequest().fromData(None, "192.168.0.100:8000", "USER01;BatataFrita")))
+#print(operationTester.post_vii_subscriptions(AsModels.VnfIndicatorSubscriptionRequest().fromData(None, "192.168.0.100:8000", "USER01;BatataFrita")))
 #print(operationTester.get_vii_subscriptions()[1].id)
 #print(operationTester.get_vii_s_subscriptionID("0a16e784-237f-11eb-b84f-782bcbee2213"))
 #print(operationTester.delete_vii_s_subscriptionID("0a16e784-237f-11eb-b84f-782bcbee2213"))'''

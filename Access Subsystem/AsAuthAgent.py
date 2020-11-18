@@ -1,8 +1,7 @@
 import sys
 sys.path.insert(0,'../VNF Information Base/')
 
-import CommunicationModels
-import VibTableModels
+import VibModels
 import VibManager
 
 '''
@@ -100,7 +99,7 @@ class PlainTextAuthentication(TemplateAuthentication):
 
 	def authRequest(self, authInstance, requestAuth):
 
-		if type(authInstance) != VibTableModels.VibAuthInstance:
+		if type(authInstance) != VibModels.VibAuthInstance:
 			return -5
 
 		if type(requestAuth) != str:
@@ -170,7 +169,7 @@ class AuthenticationAgent:
 		if len(authSql) == 0:
 			return -4
 
-		authInstance = VibTableModels.VibAuthInstance().fromData(authSql[0][0], authSql[0][1], authSql[0][2], authSql[0][3])
+		authInstance = VibModels.VibAuthInstance().fromData(authSql[0][0], authSql[0][1], authSql[0][2], authSql[0][3])
 		authentication = self.__authModel.authRequest(authInstance, requestAuth)
 		if type(authentication) == int:
 			return -5

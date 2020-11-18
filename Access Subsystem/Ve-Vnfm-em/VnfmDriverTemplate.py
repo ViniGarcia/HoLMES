@@ -1,8 +1,3 @@
-import sys
-sys.path.insert(0,'..')
-
-import CommunicationModels
-
 '''
 CLASS: VnfmDriverTemplate
 AUTHOR: Vinicius Fulber-Garcia

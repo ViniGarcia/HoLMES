@@ -3,10 +3,10 @@ sys.path.insert(0,'../')
 sys.path.insert(0,'../../VNF Information Base/')
 sys.path.insert(0,'../../Access Subsystem/')
 
-import CommunicationModels
-import VibTableModels
-import VnfDriverTemplate
+import AsModels
 import VsModels
+import VibModels
+import VnfDriverTemplate
 
 import requests
 

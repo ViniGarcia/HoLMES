@@ -3,9 +3,8 @@ sys.path.insert(0,'../VNF Information Base/')
 sys.path.insert(0,'../Access Subsystem/')
 sys.path.insert(0,'Ve-Em-vnf/')
 
-import CommunicationModels
-import VibTableModels
-import VnfDriverTemplate
+import AsModels
+import VibModels
 
 import os
 import importlib
@@ -14,7 +13,7 @@ import importlib
 CLASS: VnfAgent
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 16 Nov. 2020
-L. UPDATE: 16 Nov. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 18 Nov. 2020 (Fulber-Garcia; Methods update/creation)
 DESCRIPTION: VNF agent implementation. This class has the
 			 most important functionalites of the VNF sub-
 			 system. It holds the implementation of all
@@ -32,7 +31,7 @@ class VnfAgent:
 	def __init__(self):
 		return
 
-	def setupAgent(self, veEmVnf):
+	def setup(self, veEmVnf):
 
 		if type(veEmVnf) != str:
 			return -1
@@ -46,20 +45,31 @@ class VnfAgent:
 
 		return self
 
-	def requestOperations(self):
+	def get_p_operations(self):
 
 		return self.__veEmVnf.get_p_operations()
 
-	def requestAgent(self, vibVnfInstance, platformOperation):
+	def get_po_monitoring(self):
+
+		return self.__veEmVnf.get_po_monitoring()
+
+	def get_po_modification(self):
+
+		return self.__veEmVnf.get_po_modification()
+
+	def get_po_other(self):
+
+		return self.__veEmVnf.get_po_other()
+
+	def exec_p_operation(self, vibVnfInstance, platformOperation):
 
 		return platformOperation.method(vibVnfInstance, platformOperation.arguments)
 
-
 '''#TEMPORARY
-vnfAgent = VnfAgent().setupAgent("CooDriver")
-vnfOperations = vnfAgent.requestOperations()
-vnfAgent.requestAgent(VibTableModels.VibVnfInstance().fromData("VNF01", "127.0.0.1:5000", "COO", ["OP01", "OP02"], True), vnfOperations["get_click_version"])
-vnfAgent.requestAgent(VibTableModels.VibVnfInstance().fromData("VNF01", "127.0.0.1:5000", "COO", ["OP01", "OP02"], True), vnfOperations["get_vii_i_vnfInstanceID"])
+vnfAgent = VnfAgent().setup("CooDriver")
+vnfOperations = vnfAgent.get_p_operations()
+vnfAgent.exec_p_operation(VibTableModels.VibVnfInstance().fromData("VNF01", "127.0.0.1:5000", "COO", ["OP01", "OP02"], True), vnfOperations["get_click_version"])
+vnfAgent.exec_p_operation(VibTableModels.VibVnfInstance().fromData("VNF01", "127.0.0.1:5000", "COO", ["OP01", "OP02"], True), vnfOperations["get_vii_i_vnfInstanceID"])
 vnfOperations["get_vii_iid_indicatorID"].arguments["indicatorId"] = "get_click_running"
-vnfAgent.requestAgent(VibTableModels.VibVnfInstance().fromData("VNF01", "127.0.0.1:5000", "COO", ["OP01", "OP02"], True), vnfOperations["get_vii_iid_indicatorID"])
+vnfAgent.exec_p_operation(VibTableModels.VibVnfInstance().fromData("VNF01", "127.0.0.1:5000", "COO", ["OP01", "OP02"], True), vnfOperations["get_vii_iid_indicatorID"])
 '''

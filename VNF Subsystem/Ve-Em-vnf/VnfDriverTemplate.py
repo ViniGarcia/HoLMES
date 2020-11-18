@@ -1,10 +1,8 @@
 import sys
-sys.path.insert(0,'../../VNF Information Base/')
 sys.path.insert(0,'../../Access Subsystem/')
 sys.path.insert(0,'../')
 
-import CommunicationModels
-import VibTableModels
+import AsModels
 import VsModels
 
 '''
@@ -104,7 +102,7 @@ class VnfDriverTemplate:
 			if vnfMonitoring[vnfOperation].arguments == {}:
 				indicatorValue = vnfMonitoring[vnfOperation].method(vibVnfInstance, {})
 				if indicatorValue.status_code == 200:
-					vnfIndicators.append(CommunicationModels.VnfIndicator.fromData(vnfOperation, vnfOperation, indicatorValue.content, vibVnfInstance.vnfId, {"self":"http://" + vibInstance.vnfAddress, "vnfInstance":vnfOperation}))
+					vnfIndicators.append(AsModels.VnfIndicator.fromData(vnfOperation, vnfOperation, indicatorValue.content, vibVnfInstance.vnfId, {"self":"http://" + vibInstance.vnfAddress, "vnfInstance":vnfOperation}))
 
 		return vnfIndicators
 
@@ -133,4 +131,4 @@ class VnfDriverTemplate:
 		if indicatorValue.status_code != 200:
 			return indicatorValue.status_code
 
-		return CommunicationModels.VnfIndicator.fromData(vnfOperation, vnfOperation, indicatorValue.content, vibVnfInstance.vnfId, {"self":"http://" + vibInstance.vnfAddress, "vnfInstance":vnfOperation})
+		return AsModels.VnfIndicator.fromData(vnfOperation, vnfOperation, indicatorValue.content, vibVnfInstance.vnfId, {"self":"http://" + vibInstance.vnfAddress, "vnfInstance":vnfOperation})
