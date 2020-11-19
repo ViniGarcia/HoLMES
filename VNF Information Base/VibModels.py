@@ -15,12 +15,9 @@ NOTE:				 The classes contain two "to" standard methods ("toSql"/
 
 #######################################################################################################
 #######################################################################################################
-
-import sys
-sys.path.insert(0,'../Access Subsystem/')
+import AsModels
 
 import json
-import CommunicationModels
 
 '''
 CLASS: VibSummaryModels
@@ -241,7 +238,7 @@ class VibVnfIndicatorSubscription:
 	def fromSql(self, sqlData):
 		self.visId = sqlData[0]
 		if sqlData[1] != None:
-			self.visFilter = CommunicationModels.VnfIndicatorNotificationsFilter().fromDictionary(json.loads(sqlData[1]))
+			self.visFilter = AsModels.VnfIndicatorNotificationsFilter().fromDictionary(json.loads(sqlData[1]))
 		else:
 			self.visFilter = sqlData[1]
 		self.visCallback = sqlData[2]
@@ -251,7 +248,7 @@ class VibVnfIndicatorSubscription:
 	def fromDictionary(self, dictData):
 		self.visId = dictData["visId"]
 		if dictData["visFilter"] != None:
-			self.visFilter = CommunicationModels.VnfIndicatorNotificationsFilter().fromDictionary(dictData["visFilter"])
+			self.visFilter = AsModels.VnfIndicatorNotificationsFilter().fromDictionary(dictData["visFilter"])
 		else:
 			self.visFilter = dictData["visFilter"]
 		self.visCallback = dictData["visCallback"]

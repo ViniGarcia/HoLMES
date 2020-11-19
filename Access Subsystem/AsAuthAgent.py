@@ -1,6 +1,3 @@
-import sys
-sys.path.insert(0,'../VNF Information Base/')
-
 import VibModels
 import VibManager
 
@@ -175,9 +172,3 @@ class AuthenticationAgent:
 			return -5
 
 		return authentication
-
-'''#TEMPORARY
-vibTester = VibManager.VibManager()
-authTester = AuthenticationAgent("PlainText", vibTester)
-authentication = authTester.authRequest("USER01;BatataFrita")
-print(authentication)'''

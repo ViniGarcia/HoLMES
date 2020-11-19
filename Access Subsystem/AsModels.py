@@ -27,7 +27,7 @@ DESCRIPTION: This type represents subscription filter cri-
 			 teria to match VNF instances.
 '''
 class VnfInstanceSubscriptionFilter:
-	vnfdIds = None 							#Identifier (String), mandatory (1)
+	vnfdIds = None 							#Identifier (String), optional (0..N)
 	vnfProductsFromProviders = []			#Structure (Dictionary), optional (0..N)
 	vnfInstanceIds = []						#Identifier (String), optional (0..N)
 	vnfInstanceNames = []					#String, optional (0..N)

@@ -1,8 +1,3 @@
-import sys
-sys.path.insert(0,'../')
-sys.path.insert(0,'../../VNF Information Base/')
-sys.path.insert(0,'../../Access Subsystem/')
-
 import AsModels
 import VsModels
 import VibModels
@@ -20,7 +15,7 @@ class CooDriver(VnfDriverTemplate.VnfDriverTemplate):
 		opDict = {"get_nf":VsModels.PlatformOperation().fromData("get_nf", self.get_coo_nf, {}),
 				  "post_nf":VsModels.PlatformOperation().fromData("post_nf", self.post_coo_nf, {"path":"", "content":""}),
 				  "get_nf_id":VsModels.PlatformOperation().fromData("get_id_nf", self.get_coo_nf_id, {}),
-				  "get_click_version":VsModels.PlatformOperation().fromData("get_click_version", self.get_coo_click_version, {"path":""}),
+				  "get_click_version":VsModels.PlatformOperation().fromData("get_click_version", self.get_coo_click_version, {}),
 				  "get_click_running":VsModels.PlatformOperation().fromData("get_click_running", self.get_coo_click_running, {}),
 				  "get_click_metrics":VsModels.PlatformOperation().fromData("get_click_metrics", self.get_coo_click_metrics, {}),
 				  "get_click_log":VsModels.PlatformOperation().fromData("get_click_log", self.get_coo_click_log, {}),
@@ -51,36 +46,72 @@ class CooDriver(VnfDriverTemplate.VnfDriverTemplate):
 
 	def get_coo_nf(self, vibVnfInstance, cooOperationArguments):
 
-		return requests.get("http://" + vibVnfInstance.vnfAddress + "/click_plugin/read_file")
+		responseData = requests.get("http://" + vibVnfInstance.vnfAddress + "/click_plugin/read_file")
+		if responseData.status_code >= 200 and responseData.status_code < 300:
+			return str(responseData.content)
+		else:
+			return responseData.status_code
 
 	def post_coo_nf(self, vibVnfInstance, cooOperationArguments):
 
-		return requests.post("http://" + vibVnfInstance.vnfAddress + "/click_plugin/write_file", params=cooOperationArguments)
+		responseData = requests.post("http://" + vibVnfInstance.vnfAddress + "/click_plugin/write_file", params=cooOperationArguments)
+		if responseData.status_code >= 200 and responseData.status_code < 300:
+			return str(responseData.content)
+		else:
+			return responseData.status_code
 
 	def get_coo_nf_id(self, vibVnfInstance, cooOperationArguments):
 
-		return requests.get("http://" + vibVnfInstance.vnfAddress + "/click_plugin/vnf_identification")
+		responseData = requests.get("http://" + vibVnfInstance.vnfAddress + "/click_plugin/vnf_identification")
+		if responseData.status_code >= 200 and responseData.status_code < 300:
+			return str(responseData.content)
+		else:
+			return responseData.status_code
 
 	def get_coo_click_version(self, vibVnfInstance, cooOperationArguments):
 		
-		return requests.get("http://" + vibVnfInstance.vnfAddress + "/click_plugin/version")
+		responseData = requests.get("http://" + vibVnfInstance.vnfAddress + "/click_plugin/version")
+		if responseData.status_code >= 200 and responseData.status_code < 300:
+			return str(responseData.content)
+		else:
+			return responseData.status_code
 
 	def get_coo_click_running(self, vibVnfInstance, cooOperationArguments):
 
-		return requests.get("http://" + vibVnfInstance.vnfAddress + "/click_plugin/running")
+		responseData = requests.get("http://" + vibVnfInstance.vnfAddress + "/click_plugin/running")
+		if responseData.status_code >= 200 and responseData.status_code < 300:
+			return str(responseData.content)
+		else:
+			return responseData.status_code
 
 	def get_coo_click_metrics(self, vibVnfInstance, cooOperationArguments):
 
-		return requests.get("http://" + vibVnfInstance.vnfAddress + "/click_plugin/metrics")
+		responseData = requests.get("http://" + vibVnfInstance.vnfAddress + "/click_plugin/metrics")
+		if responseData.status_code >= 200 and responseData.status_code < 300:
+			return str(responseData.content)
+		else:
+			return responseData.status_code
 
 	def get_coo_click_log(self, vibVnfInstance, cooOperationArguments):
 
-		return requests.get("http://" + vibVnfInstance.vnfAddress + "/click_plugin/log")
+		responseData = requests.get("http://" + vibVnfInstance.vnfAddress + "/click_plugin/log")
+		if responseData.status_code >= 200 and responseData.status_code < 300:
+			return str(responseData.content)
+		else:
+			return responseData.status_code
 
 	def post_coo_click_start(self, vibVnfInstance, cooOperationArguments):
 
-		return requests.post("http://" + vibVnfInstance.vnfAddress + "/click_plugin/start")
+		responseData = requests.post("http://" + vibVnfInstance.vnfAddress + "/click_plugin/start")
+		if responseData.status_code >= 200 and responseData.status_code < 300:
+			return str(responseData.content)
+		else:
+			return responseData.status_code
 
 	def post_coo_click_stop(self, vibVnfInstance, cooOperationArguments):
 
-		return requests.post("http://" + vibVnfInstance.vnfAddress + "/click_plugin/stop")
+		responseData = requests.post("http://" + vibVnfInstance.vnfAddress + "/click_plugin/stop")
+		if responseData.status_code >= 200 and responseData.status_code < 300:
+			return str(responseData.content)
+		else:
+			return responseData.status_code

@@ -1,6 +1,3 @@
-import sys
-sys.path.insert(0,'../VNF Information Base/')
-
 import uuid
 import json
 import os.path
@@ -1009,18 +1006,3 @@ class OperationAgent:
 
 	# ===================================== EMS Management Operations =====================================
 	#TO DO
-
-
-'''#TEMPORARY
-vibTester = VibManager.VibManager()
-authTester = AsAuthAgent.AuthenticationAgent("PlainText", vibTester)
-operationTester = OperationAgent()
-operationTester.setupAgent(vibTester, "VnfmDriverTemplate", None, authTester)
-#operationTester.get_vii_indicators()
-#operationTester.get_vii_i_vnfInstanceID("VNF01")
-#operationTester.get_vii_iid_indicatorID("VNF01", "CPU")
-#operationTester.get_vii_i_indicatorID("CPU")
-#print(operationTester.post_vii_subscriptions(AsModels.VnfIndicatorSubscriptionRequest().fromData(None, "192.168.0.100:8000", "USER01;BatataFrita")))
-#print(operationTester.get_vii_subscriptions()[1].id)
-#print(operationTester.get_vii_s_subscriptionID("0a16e784-237f-11eb-b84f-782bcbee2213"))
-#print(operationTester.delete_vii_s_subscriptionID("0a16e784-237f-11eb-b84f-782bcbee2213"))'''
