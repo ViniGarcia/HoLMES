@@ -1,6 +1,8 @@
+import AsModels
 import VibModels
 
 import time
+import json
 import psutil
 import requests
 import multiprocessing
@@ -27,39 +29,42 @@ ERROR CODES:
 '''
 class MonitoringAgentTemplate:
 	monitoredInstances = [] 	  #VibPlatformInstance (Class), optional [0..N]
-	monitoringOperation = None    #PlatformOperation (Class), mandatory [1]
+	monitoringOperation = None    #PlatformOperation (Dictionary), mandatory [1]
 	monitoringSubscribers = []    #VibVnfIndicatorSubscription (Class), optional [0..N]
 
-	__monitoringProcess = None	#Subprocess, internal usage
+	__asMs = None				  #AsOpAgent (Class), internal [1]
+	__running = False			  #Boolean, internal [1]
+	__processInstance = None	  #Process (Class), internal [1]			
 
-	def __init__(self, monitoringOperation):
+	def __init__(self, monitoringOperation, asMs):
 
 		self.monitoringOperation = monitoringOperation
+		self.__asMs = asMs
+
+	def monitoringRoutine(self, resourceData):
+		return 501
 
 	def monitoringProcess(self, resourceData, monitoredInstances, monitoringSubscribers):
 
-		while True:
-			print(monitoredInstances, monitoringSubscribers)
-			print(self.__executeOperation({}, monitoredInstances, monitoringSubscribers))
-			time.sleep(3)
+		self.monitoringOperation = self.__asMs.get_p_operations()[self.monitoringOperation]
+		self.monitoredInstances = monitoredInstances
+		self.monitoringSubscribers = monitoringSubscribers
+		self.monitoringRoutine(resourceData)
 
-		return 501
-
-	def __executeOperation(self, operationArguments, monitoredInstances, monitoringSubscribers):
+	def __executeOperation(self, operationArguments):
 		
 		if type(operationArguments) != dict:
 			return -1
 
-		print(self.monitoringOperation.arguments.keys())
 		if set(self.monitoringOperation.arguments.keys()) != set(operationArguments.keys()):
 			return -2
 
-		instanceIndicators = []
-		for requestInstance in monitoredInstances:
+		instancesIndicator = []
+		for requestInstance in self.monitoredInstances:
 			indicatorValue = self.monitoringOperation.method(requestInstance, operationArguments)
 			if type(indicatorValue) != str:
 				indicatorValue = "!EMS Error Message: " + str(indicatorValue)
-			instancesIndicator.append(AsModels.VnfIndicator.fromData(self.monitoringOperation.id, self.monitoringOperation.id, indicatorValue, requestInstance.vnfId, {"self":self.monitoringOperation.id, "vnfInstance":requestInstance.vnfAddress}))
+			instancesIndicator.append(AsModels.VnfIndicator().fromData(self.monitoringOperation.id, self.monitoringOperation.id, indicatorValue, requestInstance.vnfId, {"self":self.monitoringOperation.id, "vnfInstance":requestInstance.vnfAddress}))
 
 		return instancesIndicator
 
@@ -124,11 +129,24 @@ class MonitoringAgentTemplate:
 		self.monitoringSubscribers.remove(vibVnfIndicatorSubscription)
 
 	def monitoringStart(self, resourceData):
-		
-		self.__monitoringProcess = multiprocessing.Process(target=self.monitoringProcess, args=(resourceData, self.monitoredInstances, self.monitoringSubscribers))
-		self.__monitoringProcess.start()
+
+		self.__processInstance = multiprocessing.Process(target=self.monitoringProcess, args=(resourceData, self.monitoredInstances, self.monitoringSubscribers, ))
+		self.__processInstance.start()
+		self.__running = True
 
 	def monitoringStop(self):
 		
-		killProcess(self.__monitoringProcess.pid)
-		self.__monitoringProcess = None
+		killProcess(self.__processInstance.pid)
+		self.__processInstance = None
+		self.__running = False
+
+	def monitoringRefresh(self):
+
+		self.monitoringStop()
+		self.__running = False
+		self.monitoringStart()
+		self.__running = True
+
+	def getRunning(self):
+
+		return self.__running

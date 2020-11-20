@@ -27,7 +27,7 @@ DESCRIPTION: This type represents subscription filter cri-
 			 teria to match VNF instances.
 '''
 class VnfInstanceSubscriptionFilter:
-	vnfdIds = None 							#Identifier (String), optional (0..N)
+	vnfdIds = [] 							#Identifier (String), optional (0..N)
 	vnfProductsFromProviders = []			#Structure (Dictionary), optional (0..N)
 	vnfInstanceIds = []						#Identifier (String), optional (0..N)
 	vnfInstanceNames = []					#String, optional (0..N)
@@ -44,11 +44,12 @@ class VnfInstanceSubscriptionFilter:
 				"vnfdVersions":[]}			#Version (String), optional (0..N)
 
 	def validate(self):
-		if type(self.id) != str:
-			if self.id == None:
-				return ("0", -2)
-			else:
-				return ("0", -1)
+		if type(self.vnfdIds) != list:
+			for id in self.vnfdIds:
+				if type(id) != str:
+					return ("0", -1)
+		else:
+			return ("0", -1)
 
 		if type(self.vnfProductsFromProviders) != list:
 			return ("1", -1)

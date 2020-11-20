@@ -35,7 +35,6 @@ class VsAgent:
 		try:
 			self.__veEmVnf = getattr(importlib.import_module("Ve-Em-vnf." + veEmVnf), veEmVnf)()
 		except Exception as e:
-			print(e)
 			return -3
 
 		return self

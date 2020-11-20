@@ -62,10 +62,8 @@ import multiprocessing
 
 def main():
 	vsAgent = VsAgent.VsAgent().setup("CooDriver")
-	vnfOperations = vsAgent.get_p_operations()
-	mat = MonitoringAgentTemplate.MonitoringAgentTemplate(vnfOperations["get_click_version"])
+	mat = MonitoringAgentTemplate.MonitoringAgentTemplate("get_click_version", vsAgent)
 	mat.includeInstance(VibModels.VibVnfInstance().fromData("VNF01", "127.0.0.1:5000", "COO", ["OP01", "OP02"], True))
-	print(mat.monitoredInstances)
 	mat.monitoringStart([])
 	time.sleep(4)
 	mat.monitoringStop()
