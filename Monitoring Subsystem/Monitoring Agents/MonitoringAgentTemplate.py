@@ -7,6 +7,9 @@ import psutil
 import requests
 import multiprocessing
 
+import pickle
+import base64
+
 def killProcess(pid):
     mainProcess = psutil.Process(pid)
     for process in mainProcess.children(recursive=True):
@@ -42,16 +45,18 @@ class MonitoringAgentTemplate:
 		self.__asMs = asMs
 
 	def monitoringRoutine(self, resourceData):
+
 		return 501
 
 	def monitoringProcess(self, resourceData, monitoredInstances, monitoringSubscribers):
 
-		self.monitoringOperation = self.__asMs.get_p_operations()[self.monitoringOperation]
+		self.monitoringOperation = self.__asMs.get_p_operations()[self.monitoringOperation.id]
 		self.monitoredInstances = monitoredInstances
 		self.monitoringSubscribers = monitoringSubscribers
 		self.monitoringRoutine(resourceData)
 
-	def __executeOperation(self, operationArguments):
+	#PRIVATE METHOD, SET PUBLIC ONLY TO PROCESS STARTING
+	def executeOperation(self, operationArguments):
 		
 		if type(operationArguments) != dict:
 			return -1
@@ -68,7 +73,8 @@ class MonitoringAgentTemplate:
 
 		return instancesIndicator
 
-	def __executeNotification(self, vibVnfIndicatorSubscription, notificationData):
+	#PRIVATE METHOD, SET PUBLIC ONLY TO PROCESS STARTING
+	def executeNotification(self, vibVnfIndicatorSubscription, notificationData):
 		
 		if type(vibVnfIndicatorSubscription) != VibModels.vibVnfIndicatorSubscription:
 			return -1
@@ -130,6 +136,7 @@ class MonitoringAgentTemplate:
 
 	def monitoringStart(self, resourceData):
 
+		
 		self.__processInstance = multiprocessing.Process(target=self.monitoringProcess, args=(resourceData, self.monitoredInstances, self.monitoringSubscribers, ))
 		self.__processInstance.start()
 		self.__running = True

@@ -58,7 +58,6 @@ class PlatformOperation:
 		if self.validate()[1] == 0:
 			return self
 		else:
-			print(self.validate())
 			return False
 
 	def toDictionary(self):

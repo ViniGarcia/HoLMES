@@ -44,7 +44,7 @@ class VnfInstanceSubscriptionFilter:
 				"vnfdVersions":[]}			#Version (String), optional (0..N)
 
 	def validate(self):
-		if type(self.vnfdIds) != list:
+		if type(self.vnfdIds) == list:
 			for id in self.vnfdIds:
 				if type(id) != str:
 					return ("0", -1)
@@ -147,6 +147,7 @@ class VnfInstanceSubscriptionFilter:
 		if self.validate()[1] == 0:
 			return self
 		else:
+			print(self.validate())
 			return False
 
 	def toDictionary(self):
@@ -1961,7 +1962,7 @@ class VnfIndicatorSubscriptionRequest:
 			else:
 				return ("1", -1)
 
-		if type(self.authentication) != None:
+		if type(self.authentication) != type(None):
 			if type(self.authentication) != str:
 				return ("2", -1)
 

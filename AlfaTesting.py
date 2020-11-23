@@ -17,12 +17,14 @@ import VibManager
 import AsAuthAgent
 import AsOpAgent
 import VsAgent
+import MsManager
 
 import VnfDriverTemplate
 import VnfmDriverTemplate
 import MonitoringAgentTemplate
 
 import CooDriver
+import CooRunningAgent
 
 '''#AS OP AGENT TESTING
 vibTester = VibManager.VibManager()
@@ -56,9 +58,9 @@ vnfAgent.exec_p_operation(VibTableModels.VibVnfInstance().fromData("VNF01", "127
 mat = MonitoringAgentTemplate.MonitoringAgentTemplate(vnfOperations["get_click_version"])
 mat.monitoringStart("oi")'''
 
+'''
 import time
 import multiprocessing
-
 
 def main():
 	vsAgent = VsAgent.VsAgent().setup("CooDriver")
@@ -67,6 +69,31 @@ def main():
 	mat.monitoringStart([])
 	time.sleep(4)
 	mat.monitoringStop()
+
+if __name__ == '__main__':
+    main()
+'''
+
+import time
+
+def main():
+	vibManager = VibManager.VibManager()
+	msManager = MsManager.MsManager(vibManager)
+
+	#vnfInstanceSubscriptionFilter = AsModels.VnfInstanceSubscriptionFilter().fromData([], [], ["VNF01"], [])
+	#print(vnfInstanceSubscriptionFilter)
+	#vnfIndicatorNotificationsFilter = AsModels.VnfIndicatorNotificationsFilter().fromData(vnfInstanceSubscriptionFilter, [], ["CooRunningAgent"])
+	#print(vnfIndicatorNotificationsFilter)
+	#vnfIndicatorSubscriptionRequest = AsModels.VnfIndicatorSubscriptionRequest().fromData(vnfIndicatorNotificationsFilter, "127.0.0.1:5000/response", None)
+	#print(vnfIndicatorSubscriptionRequest)
+	#subscription = msManager.requestAgent(vnfIndicatorSubscriptionRequest)
+	#print(subscription)
+
+	visSql = vibManager.queryVibDatabase("SELECT * FROM VnfIndicatorSubscription WHERE visId = \"421e1951-2b34-11eb-9d16-782bcbee2213\";")
+	vibVnfIndicatorSubscription = VibModels.VibVnfIndicatorSubscription().fromSql(visSql[0])
+	asSubscription = msManager.setupAgent(vibVnfIndicatorSubscription)
+	msManager.startAgent(vibVnfIndicatorSubscription, [{}])
+	time.sleep(2)
 
 if __name__ == '__main__':
     main()
