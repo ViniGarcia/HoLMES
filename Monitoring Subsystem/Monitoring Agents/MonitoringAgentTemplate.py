@@ -20,7 +20,7 @@ def killProcess(pid):
 CLASS: MonitoringAgentTemplate
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 18 Nov. 2020
-L. UPDATE: 18 Nov. 2020 (Fulber-Garcia; Template creation)
+L. UPDATE: 24 Nov. 2020 (Fulber-Garcia; Testing methods and bug corrections)
 DESCRIPTION: Template for the implementation of monitoring agents that run in the "Monitoring Sub-
 			 system" internal module. The drivers must inhert this class and overload the functions
 			 that return the HTTP code 501 (Not Implemented).
@@ -76,17 +76,11 @@ class MonitoringAgentTemplate:
 	#PRIVATE METHOD, SET PUBLIC ONLY TO PROCESS STARTING
 	def executeNotification(self, vibVnfIndicatorSubscription, notificationData):
 		
-		if type(vibVnfIndicatorSubscription) != VibModels.vibVnfIndicatorSubscription:
+		if type(vibVnfIndicatorSubscription) != VibModels.VibVnfIndicatorSubscription:
 			return -1
 
-		if type(notificationData) != dict:
+		if type(notificationData) != str:
 			return -1
-
-		for key in notificationData.keys():
-			if type(key) != str:
-				return -1
-			if type(notificationData[key]) != str:
-				return -1 
 
 		responseData = requests.post(vibVnfIndicatorSubscription.visCallback, params=notificationData)
 		if responseData.status_code >= 200 and responseData.status_code < 300:
@@ -116,7 +110,7 @@ class MonitoringAgentTemplate:
 
 	def includeSubscriber(self, vibVnfIndicatorSubscription):
 		
-		if type(self.vibVnfIndicatorSubscription) != VibModels.VibVnfIndicatorSubscription:
+		if type(vibVnfIndicatorSubscription) != VibModels.VibVnfIndicatorSubscription:
 			return -1
 
 		if vibVnfIndicatorSubscription in self.monitoringSubscribers:

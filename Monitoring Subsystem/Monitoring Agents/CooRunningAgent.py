@@ -17,5 +17,5 @@ class CooRunningAgent(MonitoringAgentTemplate.MonitoringAgentTemplate):
 		while True:
 			runningInfo = self.executeOperation({})
 			for subscriber in self.monitoringSubscribers:
-				self.executeNotification(subscriber, json.dumps(runningInfo))
-			time.sleep(1)
+				self.executeNotification(subscriber, json.dumps([ri.toDictionary() for ri in runningInfo]))
+			time.sleep(2)

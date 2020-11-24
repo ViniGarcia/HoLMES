@@ -74,8 +74,8 @@ if __name__ == '__main__':
     main()
 '''
 
+'''
 import time
-
 def main():
 	vibManager = VibManager.VibManager()
 	msManager = MsManager.MsManager(vibManager)
@@ -84,12 +84,19 @@ def main():
 	#print(vnfInstanceSubscriptionFilter)
 	#vnfIndicatorNotificationsFilter = AsModels.VnfIndicatorNotificationsFilter().fromData(vnfInstanceSubscriptionFilter, [], ["CooRunningAgent"])
 	#print(vnfIndicatorNotificationsFilter)
-	#vnfIndicatorSubscriptionRequest = AsModels.VnfIndicatorSubscriptionRequest().fromData(vnfIndicatorNotificationsFilter, "127.0.0.1:5000/response", None)
+	#vnfIndicatorSubscriptionRequest = AsModels.VnfIndicatorSubscriptionRequest().fromData(vnfIndicatorNotificationsFilter, "http://127.0.0.1:5000/response", None)
 	#print(vnfIndicatorSubscriptionRequest)
 	#subscription = msManager.requestAgent(vnfIndicatorSubscriptionRequest)
 	#print(subscription)
 
-	visSql = vibManager.queryVibDatabase("SELECT * FROM VnfIndicatorSubscription WHERE visId = \"421e1951-2b34-11eb-9d16-782bcbee2213\";")
+	#visSql = vibManager.queryVibDatabase("SELECT * FROM VnfIndicatorSubscription WHERE visId = \"421e1951-2b34-11eb-9d16-782bcbee2213\";")
+	#vibVnfIndicatorSubscription = VibModels.VibVnfIndicatorSubscription().fromSql(visSql[0])
+	#asSubscription = msManager.setupAgent(vibVnfIndicatorSubscription)
+	#print(msManager.deleteAgent(vibVnfIndicatorSubscription))
+
+	#print(vibManager.queryVibDatabase("SELECT * FROM VnfIndicatorSubscription;"))
+
+	visSql = vibManager.queryVibDatabase("SELECT * FROM VnfIndicatorSubscription WHERE visId = \"e89b2fa3-2e44-11eb-8908-782bcbee2213\";")
 	vibVnfIndicatorSubscription = VibModels.VibVnfIndicatorSubscription().fromSql(visSql[0])
 	asSubscription = msManager.setupAgent(vibVnfIndicatorSubscription)
 	msManager.startAgent(vibVnfIndicatorSubscription, [{}])
@@ -97,3 +104,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+'''

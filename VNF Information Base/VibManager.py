@@ -69,6 +69,7 @@ class VibManager:
             return delResult
        
         except sqlite3.Error as e:
+            print(e)
             raise e
 
     def insertVibDatabase(self, sqlData):

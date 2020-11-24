@@ -10,7 +10,7 @@ import importlib
 CLASS: MonitoringAgentTemplate
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 19 Nov. 2020
-L. UPDATE: 19 Nov. 2020 (Fulber-Garcia; SetupAgent, StopAgent and DeletAgent implementation; )
+L. UPDATE: 24 Nov. 2020 (Fulber-Garcia; Testing methods and bug corrections)
 DESCRIPTION: Implementation of the monitoring susbsytem manager.
 			 This class abstracts the operation of every monitoring
 			 agent. Furthermore, it deals with the models from the
@@ -81,6 +81,9 @@ class MsManager:
 			for agent in agentInstances:
 				agent.includeInstance(VibModels.VibVnfInstance().fromSql(vibVnfInstance[0]))
 
+		for agent in agentInstances:
+			agent.includeSubscriber(vibVnfIndicatorSubscription)
+
 		vnfIndicatorSubscription = AsModels.VnfIndicatorSubscription().fromData(vibVnfIndicatorSubscription.visId, vibVnfIndicatorSubscription.visFilter, vibVnfIndicatorSubscription.visCallback, vibVnfIndicatorSubscription.visLinks)
 		self.__monitoringAgents[vnfIndicatorSubscription.id] = agentInstances
 
@@ -106,25 +109,25 @@ class MsManager:
 
 	def stopAgent(self, vibVnfIndicatorSubscription):
 
-		if not vibVnfIndicatorSubscription.id in self.__vibManager:
+		if not vibVnfIndicatorSubscription.visId in self.__monitoringAgents:
 			return -4
 
-		for index in range(len(self.__monitoringAgents[vibVnfIndicatorSubscription.id])):
-			if not self.__monitoringAgents[vibVnfIndicatorSubscription.id][index].getRunning(self):
-				self.__monitoringAgents[vibVnfIndicatorSubscription.id][index].monitoringStop()
+		for index in range(len(self.__monitoringAgents[vibVnfIndicatorSubscription.visId])):
+			if self.__monitoringAgents[vibVnfIndicatorSubscription.visId][index].getRunning():
+				self.__monitoringAgents[vibVnfIndicatorSubscription.visId][index].monitoringStop()
 
 		return 0
 
 	def deleteAgent(self, vibVnfIndicatorSubscription):
 
-		if not vibVnfIndicatorSubscription.id in self.__vibManager:
+		if not vibVnfIndicatorSubscription.visId in self.__monitoringAgents:
 			return -4
 
-		for index in range(len(self.__monitoringAgents[vibVnfIndicatorSubscription.id])):
-			if not self.__monitoringAgents[vibVnfIndicatorSubscription.id][index].getRunning(self):
-				self.__monitoringAgents[vibVnfIndicatorSubscription.id][index].monitoringStop()
+		for index in range(len(self.__monitoringAgents[vibVnfIndicatorSubscription.visId])):
+			if self.__monitoringAgents[vibVnfIndicatorSubscription.visId][index].getRunning():
+				self.__monitoringAgents[vibVnfIndicatorSubscription.visId][index].monitoringStop()
 
-		self.__monitoringAgents.pop(self.__monitoringAgents[vibVnfIndicatorSubscription.id])
-		self.__vibManager.deleteVibDatabase("DELETE FROM VnfIndicatorSubscription WHERE id=\"" + vibVnfIndicatorSubscription.id + "\"")
+		self.__monitoringAgents.pop(vibVnfIndicatorSubscription.visId)
+		self.__vibManager.deleteVibDatabase("DELETE FROM VnfIndicatorSubscription WHERE visId=\"" + vibVnfIndicatorSubscription.visId + "\";")
 
 		return 0
