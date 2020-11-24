@@ -86,23 +86,21 @@ class VibManager:
 '''    #TEMPORARY
     def vibTesting(self):
         if self.__resetVibDatabase():
-            #return self.queryVibDatabase("SELECT name FROM sqlite_master WHERE type='table';")
+            return self.queryVibDatabase("SELECT name FROM sqlite_master WHERE type='table';")
             
-            classTest = VibModels.VibPlatformInstance().fromData("COO", {"START":"/START", "STOP":"/STOP"}, {"CPU":"/CPU", "MEMORY":"/MEMORY"}, {"FUNCTION":"/FUNCTION"})
-            self.insertVibDatabase(classTest.toSql())
-            print(self.queryVibDatabase("SELECT * FROM PlatformInstance WHERE platformId = \"COO\";"))
+            #classTest = VibModels.VibPlatformInstance().fromData("COO", {"START":"/START", "STOP":"/STOP"}, {"CPU":"/CPU", "MEMORY":"/MEMORY"}, {"FUNCTION":"/FUNCTION"})
+            #self.insertVibDatabase(classTest.toSql())
+            #print(self.queryVibDatabase("SELECT * FROM PlatformInstance WHERE platformId = \"COO\";"))
 
-            classTest = VibModels.VibVnfInstance().fromData("VNF01", "127.0.0.1:5000", "COO", ["OP01", "OP02"], True)
-            self.insertVibDatabase(classTest.toSql())
-            print(self.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"VNF01\";"))
+            #classTest = VibModels.VibVnfInstance().fromData("VNF01", "127.0.0.1:5000", "Click-On-OSv", ["OP01", "OP02"], True)
+            #self.insertVibDatabase(classTest.toSql())
+            #print(self.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"VNF01\";"))
             
-            classTest = VibModels.VibAuthInstance().fromData("USER01", "VNF01", "BatataFrita", None)
-            self.insertVibDatabase(classTest.toSql())
-            print(self.queryVibDatabase("SELECT * FROM AuthInstance WHERE userId = \"USER01\";"))
+            #classTest = VibModels.VibAuthInstance().fromData("USER01", "VNF01", "BatataFrita", None)
+            #self.insertVibDatabase(classTest.toSql())
+            #print(self.queryVibDatabase("SELECT * FROM AuthInstance WHERE userId = \"USER01\";"))
 
-            classTest = VibModels.VibVnfIndicatorSubscription().fromData("SUBS01", AsModels.VnfIndicatorNotificationsFilter(), "192.168.0.100:8000", {"self":"192.168.0.100:8000"})
-            self.insertVibDatabase(classTest.toSql())
-            print(self.queryVibDatabase("SELECT * FROM VnfIndicatorSubscription WHERE visId = \"SUBS01\";"))
-
-vibTester = VibManager()
-vibTester.vibTesting()'''
+            #classTest = VibModels.VibVnfIndicatorSubscription().fromData("SUBS01", AsModels.VnfIndicatorNotificationsFilter(), "192.168.0.100:8000", {"self":"192.168.0.100:8000"})
+            #self.insertVibDatabase(classTest.toSql())
+            #print(self.queryVibDatabase("SELECT * FROM VnfIndicatorSubscription WHERE visId = \"SUBS01\";"))
+'''

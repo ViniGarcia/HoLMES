@@ -1,6 +1,7 @@
 import sys
 
 sys.path.insert(0,'VNF Subsystem/')
+sys.path.insert(0,'Internal Router/')
 sys.path.insert(0,'Access Subsystem/')
 sys.path.insert(0,'VNF Information Base/')
 sys.path.insert(0,'Monitoring Subsystem/')
@@ -12,12 +13,14 @@ sys.path.insert(0,'Monitoring Subsystem/Monitoring Agents/')
 import AsModels
 import VibModels
 import VsModels
+import IrModels
 
 import VibManager
 import AsAuthAgent
 import AsOpAgent
 import VsAgent
 import MsManager
+import IrAgent
 
 import VnfDriverTemplate
 import VnfmDriverTemplate
@@ -105,3 +108,36 @@ def main():
 if __name__ == '__main__':
     main()
 '''
+
+'''
+#VIB RESET AND TESTING
+vibManager = VibManager.VibManager()
+print(vibManager.vibTesting())
+'''
+
+'''vibManager = VibManager.VibManager()
+#classTest = VibModels.VibVnfInstance().fromData("VNF01", "127.0.0.1:5000", "Click-On-OSv", [], True)
+#vibManager.insertVibDatabase(classTest.toSql())
+#print(vibManager.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"VNF01\";"))
+
+#classTest = VibModels.VibPlatformInstance().fromData("Click-On-OSv", "CooDriver")
+#vibManager.insertVibDatabase(classTest.toSql())
+#print(vibManager.queryVibDatabase("SELECT * FROM PlatformInstance WHERE platformId = \"Click-On-OSv\";"))'''
+
+
+vibManager = VibManager.VibManager()
+asAuthAgent = AsAuthAgent.AuthenticationAgent("PlainText", vibManager)
+operationAgent = AsOpAgent.OperationAgent().setupAgent(vibManager, "VnfmDriverTemplate", None, asAuthAgent)
+msManager = MsManager.MsManager(vibManager)
+vsAgent = VsAgent.VsAgent()
+
+irAgent = IrAgent.IrAgent().setupAgent(operationAgent, msManager, None, vsAgent)
+
+vibPlatformInstance = VibModels.VibPlatformInstance().fromSql(vibManager.queryVibDatabase("SELECT * FROM PlatformInstance WHERE platformId = \"Click-On-OSv\";")[0])
+vibVnfInstance = VibModels.VibVnfInstance().fromSql(vibManager.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"VNF01\";")[0])
+
+requestData = IrModels.VsData().fromData(vibVnfInstance, vibPlatformInstance, "get_click_running", {})
+requestMessage = IrModels.IrMessage().fromData(requestData, "AS", "VS")
+
+print(requestMessage)
+irAgent.sendMessage(requestMessage)

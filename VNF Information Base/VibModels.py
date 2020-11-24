@@ -32,9 +32,7 @@ DESCRIPTION: This class represents the table creation rou-
 class VibSummaryModels:
 	VibPlatformInstance = """ CREATE TABLE IF NOT EXISTS PlatformInstance (
                      	 platformId text PRIMARY KEY,
-                     	 basicOperations text NOT NULL,
-                     	 monitoringOperations text NOT NULL,
-                     	 configuringOperations text NOT NULL
+                     	 platformDriver text NOT NULL
                     	); """
 
 	VibVnfInstance = """ CREATE TABLE IF NOT EXISTS VnfInstance (
@@ -67,7 +65,7 @@ class VibSummaryModels:
 CLASS: VibPlatformInstance
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 05 Nov. 2020
-L. UPDATE: 05 Nov. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 24 Nov. 2020 (Fulber-Garcia; Class modification to the new model)
 DESCRIPTION: This class represents the PlatformInstance table of
 			 the VIB. Note that modifications on this class, par-
 			 ticulary in the attributes, must be updated in the
@@ -75,40 +73,32 @@ DESCRIPTION: This class represents the PlatformInstance table of
 '''
 class VibPlatformInstance:
 	platformId = None
-	basicOperations = None
-	monitoringOperations = None
-	configuringOperations = None
+	platformDriver = None
 
 	def __init__(self):
 		return
 
-	def fromData(self, platformId, basicOperations, monitoringOperations, configuringOperations):
+	def fromData(self, platformId, platformDriver):
 		self.platformId = platformId
-		self.basicOperations = basicOperations
-		self.monitoringOperations = monitoringOperations
-		self.configuringOperations = configuringOperations
+		self.platformDriver = platformDriver
 		return self
 
 	def fromSql(self, sqlData):
 		self.platformId = sqlData[0]
-		self.basicOperations = json.loads(sqlData[1])
-		self.monitoringOperations = json.loads(sqlData[2])
-		self.configuringOperations = json.loads(sqlData[3])
+		self.platformDriver = sqlData[1]
 		return self
 
 	def fromDictionary(self, dictData):
 		self.platformId = dictData["platformId"]
-		self.basicOperations = dictData["basicOperations"]
-		self.monitoringOperations = dictData["monitoringOperations"]
-		self.configuringOperations = dictData["configuringOperations"]
+		self.platformDriver = dictData["platformDriver"]
 		return self
 
 	def toSql(self):
-		return ('''INSERT INTO PlatformInstance(platformId,basicOperations,monitoringOperations,configuringOperations)
-              	   VALUES(?,?,?,?)''', (self.platformId, json.dumps(self.basicOperations), json.dumps(self.monitoringOperations), json.dumps(self.configuringOperations)))
+		return ('''INSERT INTO PlatformInstance(platformId,platformDriver)
+              	   VALUES(?,?)''', (self.platformId, self.platformDriver))
 
 	def toDictionary(self):
-		return {"platformId":self.platformId, "basicOperations":self.basicOperations, "monitoringOperations":self.monitoringOperations, "configuringOperations":self.configuringOperations}
+		return {"platformId":self.platformId, "platformDriver":self.platformDriver}
 
 '''
 CLASS: VibVnfInstance
@@ -123,7 +113,7 @@ DESCRIPTION: This class represents the VnfInstance table of the
 class VibVnfInstance:
 	vnfId = None
 	vnfAddress = None
-	vnfPlatform = None #TODO: setar chave estrangeira
+	vnfPlatform = None
 	vnfExtAgents = None			
 	vnfAuth = None
 	

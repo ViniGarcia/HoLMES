@@ -54,7 +54,7 @@ class OperationAgent:
 
 		if type(veVnfmEm) != str:
 			return -2
-		if not os.path.isfile("Ve-Vnfm-em/" + veVnfmEm + ".py"):
+		if not os.path.isfile("Access Subsystem/Ve-Vnfm-em/" + veVnfmEm + ".py"):
 			return -3
 		try:
 			self.__veVnfmEm = getattr(importlib.import_module("Ve-Vnfm-em." + veVnfmEm), veVnfmEm)(veVnfmEm)
@@ -68,7 +68,7 @@ class OperationAgent:
 			return -5
 		self.__oaAa = oaAa
 
-		return 0
+		return self
 
 	def __authenticateRequest(self, operationRequest):
 		
