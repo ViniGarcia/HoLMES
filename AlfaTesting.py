@@ -3,6 +3,7 @@ import sys
 sys.path.insert(0,'VNF Subsystem/')
 sys.path.insert(0,'Internal Router/')
 sys.path.insert(0,'Access Subsystem/')
+sys.path.insert(0,'Internal Manager/')
 sys.path.insert(0,'VNF Information Base/')
 sys.path.insert(0,'Monitoring Subsystem/')
 
@@ -21,6 +22,7 @@ import AsOpAgent
 import VsAgent
 import MsManager
 import IrAgent
+import ImAgent
 
 import VnfDriverTemplate
 import VnfmDriverTemplate
@@ -124,7 +126,8 @@ print(vibManager.vibTesting())
 #vibManager.insertVibDatabase(classTest.toSql())
 #print(vibManager.queryVibDatabase("SELECT * FROM PlatformInstance WHERE platformId = \"Click-On-OSv\";"))'''
 
-
+'''
+#IR TESTING
 vibManager = VibManager.VibManager()
 asAuthAgent = AsAuthAgent.AuthenticationAgent("PlainText", vibManager)
 operationAgent = AsOpAgent.OperationAgent().setupAgent(vibManager, "VnfmDriverTemplate", None, asAuthAgent)
@@ -140,4 +143,80 @@ requestData = IrModels.VsData().fromData(vibVnfInstance, vibPlatformInstance, "g
 requestMessage = IrModels.IrMessage().fromData(requestData, "AS", "VS")
 
 print(requestMessage)
-irAgent.sendMessage(requestMessage)
+print(irAgent.sendMessage(requestMessage).messageData)
+'''
+
+##############################################################################################################################################################
+
+'''
+#-->> MANAGEMENT TESTING ROUTINE #1 - INTERNAL MANAGER ACTING OVER THE VIB MODULE (CREDENTIAL TABLE) <<--#
+vibManager = VibManager.VibManager()
+imAgent = ImAgent.ImAgent().setupAgent(None, None, None, vibManager)
+
+#GETTING FULL CREDENTIAL TABLE
+vibManagement = IrModels.VibManagement().fromData("get_vib_credentials", None)
+credentialTable = imAgent.executeVibOperation(vibManagement)
+print(credentialTable)
+
+#CREATE A CREDENTIAL INSTANCE WITH THE FIRST CREDENTIAL
+vibCredentialInstance = VibModels.VibCredentialInstance().fromSql(credentialTable[0])
+
+#TRYING TO INSERT AN ALREADY EXISTING CREDENTIAL
+vibManagement = IrModels.VibManagement().fromData("post_vib_credentials", vibCredentialInstance)
+print(imAgent.executeVibOperation(vibManagement))
+vibCredentialInstance.vnfId = "NONE"
+vibManagement = IrModels.VibManagement().fromData("post_vib_credentials", vibCredentialInstance)
+print(imAgent.executeVibOperation(vibManagement))
+vibCredentialInstance.vnfId = "VNF01"
+
+#CONSULTING THE SAME CREDENTIAL PARTICULARY
+vibManagement = IrModels.VibManagement().fromData("get_vib_c_credentialId", (vibCredentialInstance.userId, vibCredentialInstance.vnfId))
+print(imAgent.executeVibOperation(vibManagement))
+
+#UPDATING THE NON-KEY VALUES OF THE CREDENTIAL
+vibCredentialInstance.authData = "PolentaFrita"
+vibCredentialInstance.authResource = "BatataFrita"
+vibManagement = IrModels.VibManagement().fromData("patch_vib_c_credentialId", vibCredentialInstance)
+print(imAgent.executeVibOperation(vibManagement))
+
+#DELETING THE CREDENTIAL FROM TABLE
+vibManagement = IrModels.VibManagement().fromData("delete_vib_c_credentialId", (vibCredentialInstance.userId, vibCredentialInstance.vnfId))
+print(imAgent.executeVibOperation(vibManagement))
+
+#CHECKING IF THE DELETE OPERATION WAS SUCCESSFUL
+vibManagement = IrModels.VibManagement().fromData("get_vib_credentials", None)
+print(imAgent.executeVibOperation(vibManagement))
+
+#INSERTING THE DELETED CREDENTIAL BACK
+vibManagement = IrModels.VibManagement().fromData("post_vib_credentials", vibCredentialInstance)
+print(imAgent.executeVibOperation(vibManagement))
+
+#CHECK IF THE INSERT OPERATION WAS SUCCESSFUL
+vibManagement = IrModels.VibManagement().fromData("get_vib_credentials", None)
+print(imAgent.executeVibOperation(vibManagement))
+'''
+
+#-->> MANAGEMENT TESTING ROUTINE #2 - INTERNAL MANAGER ACTING OVER THE VIB MODULE (SUBSCRIPTION TABLE) <<--#
+vibManager = VibManager.VibManager()
+imAgent = ImAgent.ImAgent().setupAgent(None, None, None, vibManager)
+
+#INSERTING AN TESTING SUBSCRIPTION
+#vnfIndicatorNotificationsFilter = AsModels.VnfIndicatorNotificationsFilter().fromData(AsModels.VnfInstanceSubscriptionFilter().fromData([], [], ["VNF01"], []), [], ["CooRunningAgent"])
+#vibSubscriptionInstance = VibModels.VibSubscriptionInstance().fromData("1234567890", vnfIndicatorNotificationsFilter, "http://127.0.0.1:5000/response", {"self":"127.0.0.1"})
+#vibManagement = IrModels.VibManagement().fromData("post_vib_subscriptions", vibSubscriptionInstance)
+#print(imAgent.executeVibOperation(vibManagement))
+
+#GETTING FULL SUBSCRIPTION TABLE
+vibManagement = IrModels.VibManagement().fromData("get_vib_subscriptions", None)
+print(imAgent.executeVibOperation(vibManagement), "\n")
+
+#GETTING THE RECENTLY INSERTED SUBSCRIPTION
+vibManagement = IrModels.VibManagement().fromData("get_vib_s_subscriptionId", "1234567890")
+vibSubscriptionInstance = imAgent.executeVibOperation(vibManagement)
+print(vibSubscriptionInstance, "\n")
+vibSubscriptionInstance = VibModels.VibSubscriptionInstance().fromSql(vibSubscriptionInstance[0])
+
+#INVALID UPDATING THE NON-KEY VALUES OF THE SUBSCRIPTION
+vibSubscriptionInstance.visFilter.filter.vnfInstanceIds.append("VNF02")
+vibManagement = IrModels.VibManagement().fromData("patch_vib_s_subscriptionId", vibSubscriptionInstance)
+print(imAgent.executeVibOperation(vibManagement), "\n")

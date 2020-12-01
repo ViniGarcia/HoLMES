@@ -1,6 +1,7 @@
 import VibModels
 
 import uuid
+import json
 
 '''
 GENERAL INFORMATION: This file contains classes regarding the communication
@@ -10,6 +11,7 @@ VALIDATION ERROR CODES:
 					 -2: No data was provided to be sent
 					 -3: Invalid data type
 					 -4: Invalid member in the structure
+					 -5: Invalid data format
 '''
 
 #######################################################################################################
@@ -64,7 +66,7 @@ AUTHOR: Vinicius Fulber-Garcia
 CREATION: 24 Nov. 2020
 L. UPDATE: 24 Nov. 2020 (Fulber-Garcia; Class creation)
 DESCRIPTION: This class is the standard communication model
-			 to request an operation to VNF subsystem.
+			 to request an operation to the VNF subsystem.
 '''
 class VsData:
 
@@ -111,3 +113,35 @@ class VsData:
 		else:
 			return False
 
+'''
+CLASS: VibManagement
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 01 Dez. 2020
+L. UPDATE: 01 Dez. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class is the standard communication model
+			 to request an operation to the VIB manager.
+'''
+class VibManagement:
+
+	operationId = None
+	operationArgs = None
+
+	def __init__(self):
+		return
+
+	def validate(self):
+
+		if type(self.operationId) != str:
+			return ("0", -3)
+
+		return ("2", 0)
+
+	def fromData(self, operationId, operationArgs):
+
+		self.operationId = operationId
+		self.operationArgs = operationArgs
+
+		if self.validate()[1] == 0:
+			return self
+		else:
+			return False

@@ -23,13 +23,31 @@ import json
 CLASS: VibSummaryModels
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 30 Oct. 2020
-L. UPDATE: 10 Nov. 2020 (Fulber-Garcia; VibVnfIndicatorSubscription creation)
+L. UPDATE: 01 Dez. 2020 (Fulber-Garcia; VibAuthInstance changed to VibCredentialInstance; new primary key of VibCredentialInstance;
+						 created VibVnfmInstance)
 DESCRIPTION: This class represents the table creation rou-
 			 tines of all the tables of the VIB. Once a
 			 table is updated in its respective class, the
 			 creation routine must be updated here too.
 '''
 class VibSummaryModels:
+	VibCredentialInstance = """ CREATE TABLE IF NOT EXISTS CredentialInstance (
+                     userId text NOT NULL,
+                     vnfId text NOT NULL,
+                     authData text NOT NULL,
+                     authResource text,
+                     FOREIGN KEY (vnfId)
+       					REFERENCES VnfInstance (vnfId)
+       				 PRIMARY KEY (userId, vnfId)
+                    ); """
+
+	VibSubscriptionInstance = """ CREATE TABLE IF NOT EXISTS SubscriptionInstance (
+                     visId text PRIMARY KEY,
+                     visFilter text,
+                     visCallback text NOT NULL,
+                     visLinks text NOT NULL
+                    ); """
+
 	VibPlatformInstance = """ CREATE TABLE IF NOT EXISTS PlatformInstance (
                      	 platformId text PRIMARY KEY,
                      	 platformDriver text NOT NULL
@@ -45,22 +63,119 @@ class VibSummaryModels:
        					REFERENCES PlatformInstance (platformId)
                     ); """
 
-	VibAuthInstance = """ CREATE TABLE IF NOT EXISTS AuthInstance (
-                     userId text PRIMARY KEY,
-                     vnfId text NOT NULL,
-                     authData text NOT NULL,
-                     authResource text,
-                     FOREIGN KEY (vnfId)
-       					REFERENCES VnfInstance (vnfId)
-                    ); """
+	VibVnfmInstance = """ CREATE TABLE IF NOT EXISTS VnfmInstance (
+                     	 vnfmId text PRIMARY KEY,
+                     	 vnfmDriver text NOT NULL
+                    	); """
 
-	VibVnfIndicatorSubscription = """ CREATE TABLE IF NOT EXISTS VnfIndicatorSubscription (
-                     visId text PRIMARY KEY,
-                     visFilter text,
-                     visCallback text NOT NULL,
-                     visLinks text NOT NULL
-                    ); """
+'''
+CLASS: VibCredentialInstance
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 04 Nov. 2020
+L. UPDATE: 01 Dez. 2020 (Fulber-Garcia; Class name changed)
+DESCRIPTION: This class represents the AuthInstance table of the
+			 VIB. Note that modifications on this class, parti-
+			 culary in the attributes, must be updated in the
+			 VibSummaryModels too.
+'''
+class VibCredentialInstance:
+	userId = None
+	vnfId = None
+	authData = None
+	authResource = None
 
+	def __init__(self):
+		return
+
+	def fromData(self, userId, vnfId, authData, authResource):
+		self.userId = userId
+		self.vnfId = vnfId
+		self.authData = authData
+		self.authResource = authResource
+		return self
+
+	def fromSql(self, sqlData):
+		self.userId = sqlData[0]
+		self.vnfId = sqlData[1]
+		self.authData = sqlData[2]
+		self.authResource = sqlData[3]
+		return self
+
+	def fromDictionary(self, dictData):
+		self.userId = dictData["userId"]
+		self.vnfId = dictData["vnfId"]
+		self.authData = dictData["authData"]
+		if "authResource" in self.dictData:
+			self.authResource = dictData["authResource"]
+		return self
+
+	def toSql(self):
+		return ('''INSERT INTO CredentialInstance(userId,vnfId,authData,authResource)
+              	   VALUES(?,?,?,?)''', (self.userId, self.vnfId, self.authData, self.authResource))
+
+	def toDictionary(self):
+		return {"userId":self.userId, "vnfId":self.vnfId, "authData":self.authData, "authResource":self.authResource}
+
+'''
+CLASS: VibSubscriptionInstance
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 06 Nov. 2020
+L. UPDATE: 01 Dez. 2020 (Fulber-Garcia; Class name changed)
+DESCRIPTION: This class represents the VnfIndicatorSubscription 
+			 table of the VIB. Note that modifications on this
+			 class, particulary in the attributes, must be upda-
+			 ted in the VibSummaryModels too.
+'''
+class VibSubscriptionInstance:
+	visId = None
+	visFilter = None
+	visCallback = None
+	visLinks = None
+
+	def __init__(self):
+		return
+
+	def fromData(self, visId, visFilter, visCallback, visLinks):
+		self.visId = visId
+		self.visFilter = visFilter
+		self.visCallback = visCallback
+		self.visLinks = visLinks
+		return self
+
+	def fromSql(self, sqlData):
+		self.visId = sqlData[0]
+		if sqlData[1] != None:
+			self.visFilter = AsModels.VnfIndicatorNotificationsFilter().fromDictionary(json.loads(sqlData[1]))
+		else:
+			self.visFilter = sqlData[1]
+		self.visCallback = sqlData[2]
+		self.visLinks = json.loads(sqlData[3])
+		return self
+
+	def fromDictionary(self, dictData):
+		self.visId = dictData["visId"]
+		if dictData["visFilter"] != None:
+			self.visFilter = AsModels.VnfIndicatorNotificationsFilter().fromDictionary(dictData["visFilter"])
+		else:
+			self.visFilter = dictData["visFilter"]
+		self.visCallback = dictData["visCallback"]
+		self.visLinks = dictData["visLinks"]
+		return self
+
+	def toSql(self):
+		if self.visFilter != None:
+			return ('''INSERT INTO SubscriptionInstance(visId,visFilter,visCallback,visLinks)
+              	   	VALUES(?,?,?,?)''', (self.visId, json.dumps(self.visFilter.toDictionary()), self.visCallback, json.dumps(self.visLinks)))
+		else:
+			return ('''INSERT INTO SubscriptionInstance(visId,visFilter,visCallback,visLinks)
+              	   	VALUES(?,?,?,?)''', (self.visId, self.visFilter, self.visCallback, json.dumps(self.visLinks)))
+
+	def toDictionary(self):
+		if self.visFilter != None:
+			return {"visId":self.visId, "visFilter":self.visFilter.toDictionary(), "visCallback":self.visCallback, "visLinks":self.visLinks}
+		else:
+			return {"visId":self.visId, "visFilter":self.visFilter, "visCallback":self.visCallback, "visLinks":self.visLinks}
+	
 '''
 CLASS: VibPlatformInstance
 AUTHOR: Vinicius Fulber-Garcia
@@ -152,109 +267,41 @@ class VibVnfInstance:
 		return {"vnfId":self.vnfId, "vnfAddress":self.vnfAddress, "vnfPlatform":self.vnfPlatform, "vnfExtAgents":self.vnfExtAgents, "vnfAuth":self.vnfAuth}
 
 '''
-CLASS: VibAuthInstance
+CLASS: VibVnfmInstance
 AUTHOR: Vinicius Fulber-Garcia
-CREATION: 04 Nov. 2020
-L. UPDATE: 05 Nov. 2020 (Fulber-Garcia; fromData method)
-DESCRIPTION: This class represents the AuthInstance table of the
-			 VIB. Note that modifications on this class, parti-
-			 culary in the attributes, must be updated in the
-			 VibSummaryModels too.
+CREATION: 01 Dez. 2020
+L. UPDATE: 01 Dez. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents the VnfmInstance table of the
+			 VIB. Note that modifications on this class, particu-
+			 lary in the attributes, must be updated in the Vib-
+			 SummaryModels too.
 '''
-class VibAuthInstance:
-	userId = None
-	vnfId = None
-	authData = None
-	authResource = None
+class VibVnfmInstance:
+	vnfmId = None
+	vnfmDriver = None
 
 	def __init__(self):
 		return
 
-	def fromData(self, userId, vnfId, authData, authResource):
-		self.userId = userId
-		self.vnfId = vnfId
-		self.authData = authData
-		self.authResource = authResource
+	def fromData(self, vnfmId, vnfmDriver):
+		self.vnfmId = vnfmId
+		self.vnfmDriver = vnfmDriver
 		return self
 
 	def fromSql(self, sqlData):
-		self.userId = sqlData[0]
-		self.vnfId = sqlData[1]
-		self.authData = sqlData[2]
-		self.authResource = sqlData[3]
+		self.vnfmId = sqlData[0]
+		self.vnfmDriver = sqlData[1]
 		return self
 
 	def fromDictionary(self, dictData):
-		self.userId = dictData["userId"]
-		self.vnfId = dictData["vnfId"]
-		self.authData = dictData["authData"]
-		if "authResource" in self.dictData:
-			self.authResource = dictData["authResource"]
+		self.vnfmId = dictData["vnfmId"]
+		self.vnfmDriver = dictData["vnfmDriver"]
 		return self
 
 	def toSql(self):
-		return ('''INSERT INTO AuthInstance(userId,vnfId,authData,authResource)
-              	   VALUES(?,?,?,?)''', (self.userId, self.vnfId, self.authData, self.authResource))
+		return ('''INSERT INTO VnfmInstance(vnfmId,vnfmDriver)
+              	   VALUES(?,?)''', (self.vnfmId, self.vnfmDriver))
 
 	def toDictionary(self):
-		return {"userId":self.userId, "vnfId":self.vnfId, "authData":self.authData, "authResource":self.authResource}
+		return {"vnfmId":self.platformId, "vnfmDriver":self.platformDriver}
 
-'''
-CLASS: VibVnfIndicatorSubscription
-AUTHOR: Vinicius Fulber-Garcia
-CREATION: 06 Nov. 2020
-L. UPDATE: 10 Nov. 2020 (Fulber-Garcia; Methods creation)
-DESCRIPTION: This class represents the VnfIndicatorSubscription 
-			 table of the VIB. Note that modifications on this
-			 class, particulary in the attributes, must be upda-
-			 ted in the VibSummaryModels too.
-'''
-class VibVnfIndicatorSubscription:
-	visId = None
-	visFilter = None
-	visCallback = None
-	visLinks = None
-
-	def __init__(self):
-		return
-
-	def fromData(self, visId, visFilter, visCallback, visLinks):
-		self.visId = visId
-		self.visFilter = visFilter
-		self.visCallback = visCallback
-		self.visLinks = visLinks
-		return self
-
-	def fromSql(self, sqlData):
-		self.visId = sqlData[0]
-		if sqlData[1] != None:
-			self.visFilter = AsModels.VnfIndicatorNotificationsFilter().fromDictionary(json.loads(sqlData[1]))
-		else:
-			self.visFilter = sqlData[1]
-		self.visCallback = sqlData[2]
-		self.visLinks = json.loads(sqlData[3])
-		return self
-
-	def fromDictionary(self, dictData):
-		self.visId = dictData["visId"]
-		if dictData["visFilter"] != None:
-			self.visFilter = AsModels.VnfIndicatorNotificationsFilter().fromDictionary(dictData["visFilter"])
-		else:
-			self.visFilter = dictData["visFilter"]
-		self.visCallback = dictData["visCallback"]
-		self.visLinks = dictData["visLinks"]
-		return self
-
-	def toSql(self):
-		if self.visFilter != None:
-			return ('''INSERT INTO VnfIndicatorSubscription(visId,visFilter,visCallback,visLinks)
-              	   	VALUES(?,?,?,?)''', (self.visId, json.dumps(self.visFilter.toDictionary()), self.visCallback, json.dumps(self.visLinks)))
-		else:
-			return ('''INSERT INTO VnfIndicatorSubscription(visId,visFilter,visCallback,visLinks)
-              	   	VALUES(?,?,?,?)''', (self.visId, self.visFilter, self.visCallback, json.dumps(self.visLinks)))
-
-	def toDictionary(self):
-		if self.visFilter != None:
-			return {"visId":self.visId, "visFilter":self.visFilter.toDictionary(), "visCallback":self.visCallback, "visLinks":self.visLinks}
-		else:
-			return {"visId":self.visId, "visFilter":self.visFilter, "visCallback":self.visCallback, "visLinks":self.visLinks}

@@ -7,7 +7,7 @@ import uuid
 import importlib
 
 '''
-CLASS: MonitoringAgentTemplate
+CLASS: MsManager
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 19 Nov. 2020
 L. UPDATE: 24 Nov. 2020 (Fulber-Garcia; Testing methods and bug corrections)
@@ -22,7 +22,6 @@ ERROR CODES:
 			-4: Key is not in the dictionary
 			-5: Argument missing
 '''	
-
 class MsManager:
 
 	__vibManager = None
