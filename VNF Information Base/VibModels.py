@@ -120,7 +120,7 @@ class VibCredentialInstance:
 CLASS: VibSubscriptionInstance
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 06 Nov. 2020
-L. UPDATE: 01 Dez. 2020 (Fulber-Garcia; Class name changed)
+L. UPDATE: 02 Dez. 2020 (Fulber-Garcia; Filter error adjusted)
 DESCRIPTION: This class represents the VnfIndicatorSubscription 
 			 table of the VIB. Note that modifications on this
 			 class, particulary in the attributes, must be upda-
@@ -175,45 +175,6 @@ class VibSubscriptionInstance:
 			return {"visId":self.visId, "visFilter":self.visFilter.toDictionary(), "visCallback":self.visCallback, "visLinks":self.visLinks}
 		else:
 			return {"visId":self.visId, "visFilter":self.visFilter, "visCallback":self.visCallback, "visLinks":self.visLinks}
-	
-'''
-CLASS: VibPlatformInstance
-AUTHOR: Vinicius Fulber-Garcia
-CREATION: 05 Nov. 2020
-L. UPDATE: 24 Nov. 2020 (Fulber-Garcia; Class modification to the new model)
-DESCRIPTION: This class represents the PlatformInstance table of
-			 the VIB. Note that modifications on this class, par-
-			 ticulary in the attributes, must be updated in the
-			 VibSummaryModels too.
-'''
-class VibPlatformInstance:
-	platformId = None
-	platformDriver = None
-
-	def __init__(self):
-		return
-
-	def fromData(self, platformId, platformDriver):
-		self.platformId = platformId
-		self.platformDriver = platformDriver
-		return self
-
-	def fromSql(self, sqlData):
-		self.platformId = sqlData[0]
-		self.platformDriver = sqlData[1]
-		return self
-
-	def fromDictionary(self, dictData):
-		self.platformId = dictData["platformId"]
-		self.platformDriver = dictData["platformDriver"]
-		return self
-
-	def toSql(self):
-		return ('''INSERT INTO PlatformInstance(platformId,platformDriver)
-              	   VALUES(?,?)''', (self.platformId, self.platformDriver))
-
-	def toDictionary(self):
-		return {"platformId":self.platformId, "platformDriver":self.platformDriver}
 
 '''
 CLASS: VibVnfInstance
@@ -265,6 +226,45 @@ class VibVnfInstance:
 
 	def toDictionary(self):
 		return {"vnfId":self.vnfId, "vnfAddress":self.vnfAddress, "vnfPlatform":self.vnfPlatform, "vnfExtAgents":self.vnfExtAgents, "vnfAuth":self.vnfAuth}
+	
+'''
+CLASS: VibPlatformInstance
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 05 Nov. 2020
+L. UPDATE: 24 Nov. 2020 (Fulber-Garcia; Class modification to the new model)
+DESCRIPTION: This class represents the PlatformInstance table of
+			 the VIB. Note that modifications on this class, par-
+			 ticulary in the attributes, must be updated in the
+			 VibSummaryModels too.
+'''
+class VibPlatformInstance:
+	platformId = None
+	platformDriver = None
+
+	def __init__(self):
+		return
+
+	def fromData(self, platformId, platformDriver):
+		self.platformId = platformId
+		self.platformDriver = platformDriver
+		return self
+
+	def fromSql(self, sqlData):
+		self.platformId = sqlData[0]
+		self.platformDriver = sqlData[1]
+		return self
+
+	def fromDictionary(self, dictData):
+		self.platformId = dictData["platformId"]
+		self.platformDriver = dictData["platformDriver"]
+		return self
+
+	def toSql(self):
+		return ('''INSERT INTO PlatformInstance(platformId,platformDriver)
+              	   VALUES(?,?)''', (self.platformId, self.platformDriver))
+
+	def toDictionary(self):
+		return {"platformId":self.platformId, "platformDriver":self.platformDriver}
 
 '''
 CLASS: VibVnfmInstance

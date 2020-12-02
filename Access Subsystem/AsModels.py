@@ -2186,9 +2186,9 @@ class VnfIndicatorNotificationsFilter:
 	def fromDictionary(self, dictData):
 
 		if dictData["vnfInstanceSubscriptionFilter"] != None:
-			self.filter = VnfInstanceSubscriptionFilter().fromDictionary(dictData["vnfInstanceSubscriptionFilter"])
+			self.vnfInstanceSubscriptionFilter = VnfInstanceSubscriptionFilter().fromDictionary(dictData["vnfInstanceSubscriptionFilter"])
 		else:
-			self.filter = dictData["vnfInstanceSubscriptionFilter"]
+			self.vnfInstanceSubscriptionFilter = dictData["vnfInstanceSubscriptionFilter"]
 		self.notificationTypes = dictData["notificationTypes"]
 		self.indicatorIds = dictData["indicatorIds"]
 		return self

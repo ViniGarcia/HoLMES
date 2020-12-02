@@ -60,24 +60,13 @@ class VibManager:
         except sqlite3.Error as e:
             raise e
 
-    def operateVibDatabase(self, sqlDeleteRequest):
+    def operateVibDatabase(self, sqlData):
 
         try:
             vibCursor = self.__vibConnection.cursor()
-            delResult = vibCursor.execute(sqlDeleteRequest).rowcount
+            opResult = vibCursor.execute(sqlData[0], sqlData[1])
             self.__vibConnection.commit()
-            return delResult
-       
-        except sqlite3.Error as e:
-            raise e
-
-    def insertVibDatabase(self, sqlData):
-
-        try:
-            vibCursor = self.__vibConnection.cursor()
-            vibCursor.execute(sqlData[0], sqlData[1])
-            self.__vibConnection.commit()
-            return vibCursor.lastrowid
+            return opResult
        
         except sqlite3.Error as e:
             raise e
