@@ -45,21 +45,47 @@ class VsAgent:
 
 		return self
 
+	def detach(self):
+
+		if self.__veEmVnf != None:
+			self.__veEmVnf = None
+
+		return None
+
+	def get_p_id(self):
+
+		if self.__veEmVnf != None:
+			return self.__veEmVnf.className
+
+		return None
+
 	def get_p_operations(self):
 
-		return self.__veEmVnf.get_p_operations()
+		if self.__veEmVnf != None:
+			return self.__veEmVnf.get_p_operations()
+
+		return None
 
 	def get_po_monitoring(self):
 
-		return self.__veEmVnf.get_po_monitoring()
+		if self.__veEmVnf != None:
+			return self.__veEmVnf.get_po_monitoring()
+
+		return None
 
 	def get_po_modification(self):
 
-		return self.__veEmVnf.get_po_modification()
+		if self.__veEmVnf != None:
+			return self.__veEmVnf.get_po_modification()
+
+		return None
 
 	def get_po_other(self):
 
-		return self.__veEmVnf.get_po_other()
+		if self.__veEmVnf != None:
+			return self.__veEmVnf.get_po_other()
+
+		return None
 
 	def exec_p_operation(self, vsData):
 

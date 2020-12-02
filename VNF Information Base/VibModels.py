@@ -194,7 +194,7 @@ class VibVnfInstance:
 	vnfAuth = None
 	
 	def __init__(self):
-		return
+		return	
 
 	def fromData(self, vnfId, vnfAddress, vnfPlatform, vnfExtAgents, vnfAuth):
 		self.vnfId = vnfId
@@ -231,7 +231,7 @@ class VibVnfInstance:
 CLASS: VibPlatformInstance
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 05 Nov. 2020
-L. UPDATE: 24 Nov. 2020 (Fulber-Garcia; Class modification to the new model)
+L. UPDATE: 02 Dez. 2020 (Fulber-Garcia; Implemetation of "validate" method)
 DESCRIPTION: This class represents the PlatformInstance table of
 			 the VIB. Note that modifications on this class, par-
 			 ticulary in the attributes, must be updated in the
@@ -243,6 +243,14 @@ class VibPlatformInstance:
 
 	def __init__(self):
 		return
+
+	def validate(self):
+		if type(platformId) != str:
+			return ("0", -1)
+		if type(platformDriver) != str:
+			return ("1", -1)
+
+		return ("2", 0)
 
 	def fromData(self, platformId, platformDriver):
 		self.platformId = platformId

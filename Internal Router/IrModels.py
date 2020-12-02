@@ -61,6 +61,46 @@ class IrMessage:
 			return False
 
 '''
+CLASS: IrManagement
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 02 Dez. 2020
+L. UPDATE: 02 Dez. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: Standard message model to be included in the
+			 "messageData" of an "IrMessage" when operat-
+			 ions are requested to the Internal Manager. 
+'''
+class IrManagement:
+
+	moduleId = None
+	operationId = None
+	operationArgs = None
+
+	def __init__(self):
+		return
+
+	def validate(self):
+
+		if type(self.moduleId) != str:
+			return ("0", -3)
+		if not self.moduleId in ["AS", "VIB", "MS", "VS"]:
+			return ("0", -1)
+		if type(self.operationId) != str:
+			return ("1", -3)
+
+		return ("3", 0)
+
+	def fromData(self, moduleId, operationId, operationArgs):
+
+		self.moduleId = moduleId
+		self.operationId = operationId
+		self.operationArgs = operationArgs
+
+		if self.validate()[1] == 0:
+			return self
+		else:
+			return False
+
+'''
 CLASS: VsData
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 24 Nov. 2020
@@ -104,39 +144,6 @@ class VsData:
 
 		self.vibVnfInstance = vibVnfInstance
 		self.vibPlatformInstance = vibPlatformInstance
-
-		self.operationId = operationId
-		self.operationArgs = operationArgs
-
-		if self.validate()[1] == 0:
-			return self
-		else:
-			return False
-
-'''
-CLASS: VibManagement
-AUTHOR: Vinicius Fulber-Garcia
-CREATION: 01 Dez. 2020
-L. UPDATE: 01 Dez. 2020 (Fulber-Garcia; Class creation)
-DESCRIPTION: This class is the standard communication model
-			 to request an operation to the VIB manager.
-'''
-class VibManagement:
-
-	operationId = None
-	operationArgs = None
-
-	def __init__(self):
-		return
-
-	def validate(self):
-
-		if type(self.operationId) != str:
-			return ("0", -3)
-
-		return ("2", 0)
-
-	def fromData(self, operationId, operationArgs):
 
 		self.operationId = operationId
 		self.operationArgs = operationArgs
