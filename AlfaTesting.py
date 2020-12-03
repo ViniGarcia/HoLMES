@@ -150,8 +150,9 @@ print(irAgent.sendMessage(requestMessage).messageData)
 
 '''
 #-->> MANAGEMENT TESTING ROUTINE #1 - INTERNAL MANAGER ACTING OVER THE VIB MODULE (CREDENTIAL TABLE) <<--#
+vsAgent = VsAgent.VsAgent()
 vibManager = VibManager.VibManager()
-imAgent = ImAgent.ImAgent().setupAgent(None, None, None, vibManager)
+imAgent = ImAgent.ImAgent().setupAgent(None, vsAgent, None, vibManager)
 
 #INSERTING AN TESTING CREDENTIAL
 vibCredentialInstance = VibModels.VibCredentialInstance().fromData("USER02", "VNF01", "BatataFrita", None)
@@ -185,8 +186,9 @@ print(imAgent.executeVibOperation(irManagement), "\n")
 
 '''
 #-->> MANAGEMENT TESTING ROUTINE #2 - INTERNAL MANAGER ACTING OVER THE VIB MODULE (SUBSCRIPTION TABLE) <<--#
+vsAgent = VsAgent.VsAgent()
 vibManager = VibManager.VibManager()
-imAgent = ImAgent.ImAgent().setupAgent(None, None, None, vibManager)
+imAgent = ImAgent.ImAgent().setupAgent(None, vsAgent, None, vibManager)
 
 #INSERTING AN TESTING SUBSCRIPTION
 vnfIndicatorNotificationsFilter = AsModels.VnfIndicatorNotificationsFilter().fromData(AsModels.VnfInstanceSubscriptionFilter().fromData([], [], ["VNF01"], []), [], ["CooRunningAgent"])
@@ -227,8 +229,9 @@ print(imAgent.executeVibOperation(irManagement))
 
 '''
 #-->> MANAGEMENT TESTING ROUTINE #3 - INTERNAL MANAGER ACTING OVER THE VIB MODULE (VNF INSTANCE TABLE) <<--#
+vsAgent = VsAgent.VsAgent()
 vibManager = VibManager.VibManager()
-imAgent = ImAgent.ImAgent().setupAgent(None, None, None, vibManager)
+imAgent = ImAgent.ImAgent().setupAgent(None, vsAgent, None, vibManager)
 
 #INSERTING AN TESTING VNF INSTANCE
 vibVnfInstance = VibModels.VibVnfInstance().fromData("VNF02", "127.0.0.1", "Click-On-OSv", [], None)
@@ -271,8 +274,9 @@ print(imAgent.executeVibOperation(irManagement), "\n")
 
 '''
 #-->> MANAGEMENT TESTING ROUTINE #4 - INTERNAL MANAGER ACTING OVER THE VIB MODULE (PLATFORM TABLE) <<--#
+vsAgent = VsAgent.VsAgent()
 vibManager = VibManager.VibManager()
-imAgent = ImAgent.ImAgent().setupAgent(None, None, None, vibManager)
+imAgent = ImAgent.ImAgent().setupAgent(None, vsAgent, None, vibManager)
 
 #INSERTING AN TESTING PLATFORM INSTANCE
 vibPlatformInstance = VibModels.VibPlatformInstance().fromData("Coven-On-OSv", "COO2Driver")
@@ -309,8 +313,9 @@ print(imAgent.executeVibOperation(irManagement), "\n")
 
 '''
 #-->> MANAGEMENT TESTING ROUTINE #5 - INTERNAL MANAGER ACTING OVER THE VIB MODULE (PLATFORM TABLE) <<--#
+vsAgent = VsAgent.VsAgent()
 vibManager = VibManager.VibManager()
-imAgent = ImAgent.ImAgent().setupAgent(None, None, None, vibManager)
+imAgent = ImAgent.ImAgent().setupAgent(None, vsAgent, None, vibManager)
 
 #INSERTING AN TESTING MANAGER INSTANCE
 vibVnfmInstance = VibModels.VibVnfmInstance().fromData("Vines", "VinesDriver")
@@ -341,3 +346,53 @@ irManagement = IrModels.IrManagement().fromData("VIB", "delete_vib_vnfm_managerI
 print(imAgent.executeVibOperation(irManagement), "\n")
 '''
 
+'''
+#-->> MANAGEMENT TESTING ROUTINE #6 - INTERNAL MANAGER ACTING OVER THE VS MODULE <<--#
+vsAgent = VsAgent.VsAgent()
+vibManager = VibManager.VibManager()
+imAgent = ImAgent.ImAgent().setupAgent(None, vsAgent, None, vibManager)
+
+#CHECK THE RUNNING VS DRIVER - NONE IS EXPECTED
+irManagement = IrModels.IrManagement().fromData("VS", "get_vs_running_driver", None)
+print(imAgent.executeVsOperation(irManagement), "\n")
+
+#INSERT A RUNNING VS DRIVER - CLICK-ON-OSV
+irManagement = IrModels.IrManagement().fromData("VS", "post_vs_running_driver", "Click-On-OSv")
+print(imAgent.executeVsOperation(irManagement), "\n")
+
+#CHECK THE RUNING VS DRIVER - CLICK-ON-OSV IS EXPECTED
+irManagement = IrModels.IrManagement().fromData("VS", "get_vs_running_driver", None)
+print(imAgent.executeVsOperation(irManagement), "\n")
+
+#CHECK ALL THE OPERATION OF THE RUNING VS DRIVER
+irManagement = IrModels.IrManagement().fromData("VS", "get_vs_rd_operations", None)
+print(imAgent.executeVsOperation(irManagement), "\n")
+
+#CHECK MONITORING OPERATIONS OF THE RUNING VS DRIVER
+irManagement = IrModels.IrManagement().fromData("VS", "get_vs_rdo_monitoring", None)
+print(imAgent.executeVsOperation(irManagement), "\n")
+
+#CHECK MODIFICATION OPERATIONS OF THE RUNING VS DRIVER
+irManagement = IrModels.IrManagement().fromData("VS", "get_vs_rdo_modification", None)
+print(imAgent.executeVsOperation(irManagement), "\n")
+
+#CHECK OTHER OPERATIONS OF THE RUNING VS DRIVER
+irManagement = IrModels.IrManagement().fromData("VS", "get_vs_rdo_other", None)
+print(imAgent.executeVsOperation(irManagement), "\n")
+
+#INSERT A NEW PLATFORM DRIVER INTO THE VS
+vibPlatformInstance = VibModels.VibPlatformInstance().fromData("DummyPlatform", "C:\\Users\\55559\\Desktop\\EMSPlatformTesting\\DummyPlatformDriver.py")
+irManagement = IrModels.IrManagement().fromData("VS", "post_vs_driver", vibPlatformInstance)
+print(imAgent.executeVsOperation(irManagement), "\n")
+
+#PATCH THE RECENTLY INSERTED PLATFORM DRIVER
+vibPlatformInstance = VibModels.VibPlatformInstance().fromData("DummyPlatform", "C:\\Users\\55559\\Desktop\\EMSPlatformTesting\\DummyPlatformDriver.py")
+irManagement = IrModels.IrManagement().fromData("VS", "patch_vs_driver", vibPlatformInstance)
+print(imAgent.executeVsOperation(irManagement), "\n")
+
+#DELETE THE RECENTLY INSERTED PLATFORM DRIVER
+irManagement = IrModels.IrManagement().fromData("VS", "delete_vs_driver", "DummyPlatform")
+print(imAgent.executeVsOperation(irManagement), "\n")
+'''
+
+#-->> MANAGEMENT TESTING ROUTINE #7 - INTERNAL MANAGER ACTING OVER THE MS MODULE <<--#

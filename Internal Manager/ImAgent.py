@@ -15,10 +15,9 @@ import os
 CLASS: ImAgent
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 01 Dez. 2020
-L. UPDATE: 02 Dez. 2020 (Fulber-Garcia; Subscription table methods adjustments; VNF instance table
-						 management implementation; platform table management implementation; VNF 
-						 managers table management implementation; entire VNF subsystem management
-						 implementation (not tested yet))
+L. UPDATE: 03 Dez. 2020 (Fulber-Garcia; Entire monitoring subsystem management im-
+						 plementation (not tested yet) -- agent database management
+						 is not implemented yet)
 DESCRIPTION: Implementation of the internal manager agent of the EMS.
 			 This class provides the configuration ans mantaining o-
 			 perations of the other internal modules of the EMS.
@@ -53,8 +52,8 @@ class ImAgent:
 		#	return -1
 		if type(vsAgent) != VsAgent.VsAgent:
 			return -2
-		#if type(msManager) != MsManager.MsManager:
-		#	return -3
+		if type(msManager) != MsManager.MsManager:
+			return -3
 		if type(vibManager) != VibManager.VibManager:
 			return -4
 
@@ -88,6 +87,34 @@ class ImAgent:
 			return self.__patch_vs_driver(irManagement)
 		elif irManagement.operationId == "delete_vs_driver":
 			return self.__delete_vs_driver(irManagement)
+		else:
+			return -5
+
+	def executeMsOperation(self, irManagement):
+
+		if type(irManagement) != IrModels.IrManagement:
+			return -6
+
+		if irManagement.operationId == "get_ms_running_agent":
+			return self.__get_ms_running_agent(irManagement)
+		if irManagement.operationId == "post_ms_running_agent":
+			return self.__post_ms_running_agent(irManagement)
+		if irManagement.operationId == "get_msra_agentId":
+			return self.__get_msra_agentId(irManagement)
+		if irManagement.operationId == "patch_msra_agentId":
+			return self.__patch_msra_agentId(irManagement)
+		if irManagement.operationId == "delete_msra_agentId":
+			return self.__delete_msra_agentId(irManagement)
+		if irManagement.operationId == "get_ms_agent":
+			return self.__get_ms_agent(irManagement)
+		if irManagement.operationId == "post_ms_agent":
+			return self.__post_ms_agent(irManagement)
+		if irManagement.operationId == "get_msa_agentId":
+			return self.__get_msa_agentId(irManagement)
+		if irManagement.operationId == "patch_msa_agentId":
+			return 
+		if irManagement.operationId == "delete_msa_agentId":
+			return self.__delete_msa_agentId(irManagement)
 
 	def executeVibOperation(self, irManagement):
 
@@ -167,9 +194,8 @@ class ImAgent:
 		else:
 			return -5
 
-
-
-
+################################################################################################################################################################
+################################################################################################################################################################
 
 	def __get_vs_running_driver(self, irManagement):
 
@@ -201,32 +227,32 @@ class ImAgent:
 		if irManagement.operationArgs != None:
 			return "ERROR CODE #1: INVALID ARGUMENTS PROVIDED (None is expected)"
 
-		return self.vsAgent.get_p_operations()
+		return list(self.vsAgent.get_p_operations().keys())
 
 	def __get_vs_rdo_monitoring(self, irManagement):
 
 		if irManagement.operationArgs != None:
 			return "ERROR CODE #1: INVALID ARGUMENTS PROVIDED (None is expected)"
 
-		return self.vsAgent.get_po_monitoring()
+		return list(self.vsAgent.get_po_monitoring().keys())
 
 	def __get_vs_rdo_modification(self, irManagement):
 
 		if irManagement.operationArgs != None:
 			return "ERROR CODE #1: INVALID ARGUMENTS PROVIDED (None is expected)"
 
-		return self.vsAgent.get_po_modification()
+		return list(self.vsAgent.get_po_modification().keys())
 
 	def __get_vs_rdo_other(self, irManagement):
 
 		if irManagement.operationArgs != None:
 			return "ERROR CODE #1: INVALID ARGUMENTS PROVIDED (None is expected)"
 
-		return self.vsAgent.get_po_other()
+		return list(self.vsAgent.get_po_other().keys())
 
 	def __post_vs_driver(self, irManagement):
 
-		if type(irManagement.operationArgs) != VibPlatformInstance:
+		if type(irManagement.operationArgs) != VibModels.VibPlatformInstance:
 			return "ERROR CODE #1: INVALID ARGUMENTS PROVIDED (VibPlatformInstance is expected)"
 		if irManagement.operationArgs.validate()[1] != 0:
 			return "ERROR CODE #1: INVALID VibPlatformInstance PROVIDED"
@@ -239,13 +265,13 @@ class ImAgent:
 		result = self.__post_vib_platforms(irManagement)
 		if type(result) == str:
 			return result
-		shutil.copyfile(irManagement.operationArgs.platformDriver, "VNF Subsystem/Ve-Em-vnf/" + kernel + ".py")
+		shutil.copyfile(original, "VNF Subsystem/Ve-Em-vnf/" + irManagement.operationArgs.platformDriver + ".py")
 
 		return 1
 
 	def __patch_vs_driver(self, irManagement):
 
-		if type(irManagement.operationArgs) != VibPlatformInstance:
+		if type(irManagement.operationArgs) != VibModels.VibPlatformInstance:
 			return "ERROR CODE #1: INVALID ARGUMENTS PROVIDED (VibPlatformInstance is expected)"
 		if irManagement.operationArgs.validate()[1] != 0:
 			return "ERROR CODE #1: INVALID VibPlatformInstance PROVIDED"
@@ -254,29 +280,196 @@ class ImAgent:
 
 		original = irManagement.operationArgs.platformDriver
 		irManagement.operationArgs.platformDriver = irManagement.operationArgs.platformDriver.replace("\\", "/").split("/")[-1][:-3]
-		
+
 		result = self.__patch_vib_p_platformId(irManagement)
-		if type(result) == str:
-			return result
-		shutil.copyfile(irManagement.operationArgs.platformDriver, "VNF Subsystem/Ve-Em-vnf/" + kernel + ".py")
-
-		return 1
-
-	def __delete_vs_driver(self, irManagement):
-
-		if type(irManagement.operationArgs) != str:
-			return "ERROR CODE #1: INVALID ARGUMENTS PROVIDED (platformId is expected)"
-
-		result = self.__delete_vib_p_platformId(irManagement)
 		if type(result) == str:
 			return result
 
 		if self.vsAgent.get_p_id() == irManagement.operationArgs:
 			self.vsAgent.detach()
 
-		os.remove("VNF Subsystem/Ve-Em-vnf/" + irManagement.operationArgs + ".py")
+		shutil.copyfile(original, "VNF Subsystem/Ve-Em-vnf/" + irManagement.operationArgs.platformDriver + ".py")
 
-	############################################################################################################################################################
+		return 1
+
+	def __delete_vs_driver(self, irManagement):
+
+		if type(irManagement.operationArgs) != str:
+			return "ERROR CODE #1: INVALID ARGUMENTS PROVIDED (platformId is expected)"	
+
+		result = self.__delete_vib_p_platformId(irManagement)
+		if type(result) == str:
+			return result
+
+		if self.vsAgent.get_p_id() == result[0][1]:
+			self.vsAgent.detach()
+
+		os.remove("VNF Subsystem/Ve-Em-vnf/" + result[0][1] + ".py")
+
+		return 1
+
+################################################################################################################################################################
+################################################################################################################################################################
+
+	def __get_ms_running_agent(self, irManagement):
+
+		if irManagement.operationArgs != None:
+			return "ERROR CODE #1: INVALID ARGUMENTS PROVIDED (None is expected)"
+
+		return self.msManager.getAgents()
+
+	def __post_ms_running_agent(self, irManagement):
+
+		if type(irManagement.operationArgs) != str:
+			return "ERROR CODE #1: INVALID ARGUMENTS PROVIDED (subscriptionId is expected)"
+
+		subscription = self.__get_vib_s_subscriptionId(irManagement)
+		if type(subscription) == str:
+			return subscription
+		if len(subscription) == 0:
+			return "ERROR CODE #4: THE REQUIRED AGENT DOES NOT EXIST"
+		subscription = VibModels.VibSubscriptionInstance().fromSql(subscription[0])
+
+		if subscription.visFilter == None or subscription.visFilter.vnfInstanceSubscriptionFilter == None:
+			return "ERROR CODE #1: THE REQUIRED AGENT IS NOT SUPPORTED BY THE MONITORING SUBSYSTEM"
+
+		vnfInstances = []
+		for instanceId in subscription.visFilter.vnfInstanceSubscriptionFilter.vnfInstanceIds:
+			instance = self.__get_vib_i_instanceId(IrModels.IrManagement("get_vib_i_instanceId", instanceId))
+			if type(instance) == str:
+				return instance
+			if len(instance) == 0:
+				return "ERROR CODE #4: THE REQUIRED VNF INSTANCE DOES NOT EXIST"
+			vnfInstances.append(VibModels.VibVnfInstance().fromSql(instance[0]))
+
+		result = self.msManager.setupAgent(subscription, vnfInstances)
+		if type(result) == int:
+			return "ERROR CODE #6: AN ERROR OCCURED WHEN SETUPING THE MONITORING AGENT (" + str(result) + ")"
+
+		return result
+
+	def __get_msra_agentId(self, irManagement):
+
+		if type(irManagement.operationArgs) != str:
+			return "ERROR CODE #1: INVALID ARGUMENTS PROVIDED (subscriptionId is expected)"
+
+		if not irManagement.operationArgs in self.msManager.getAgents():
+			return False
+
+		return True
+
+	def __patch_msra_agentId(self, irManagement):
+
+		if type(irManagement.operationArgs) != tuple:
+			return "ERROR CODE #1: INVALID ARGUMENTS PROVIDED ((subscriptionId, ) or (subscriptionId, resourcesData) is expected)"
+		if type(irManagement.operationArgs[0]) != str:
+			return "ERROR CODE #1: INVALID subscriptionId PROVIDED (str is expected)" 
+
+		subscription = self.__get_vib_s_subscriptionId(IrModels.IrManagement().fromData("get_vib_s_subscriptionId", irManagement.operationArgs[0]))
+		if type(subscription) == str:
+			return subscription
+		if len(subscription) == 0:
+			return "ERROR CODE #4: THE REQUIRED AGENT DOES NOT EXIST"
+		subscription = VibModels.VibSubscriptionInstance().fromSql(subscription[0])
+
+		if len(irManagement.operationArgs) == 1:
+			result = self.msManager.stopAgent(subscription)
+			if result != 0:
+				return "ERROR CODE #6: AN ERROR OCCURED WHEN STOPPING THE MONITORING AGENT (" + str(result) + ")"
+		else:
+			result = self.msManager.startAgent(subscription, irManagement.operationArgs[1])
+			if result != 0:
+				return "ERROR CODE #6: AN ERROR OCCURED WHEN STARTING THE MONITORING AGENT (" + str(result) + ")"
+
+		return 1
+
+	def __delete_msra_agentId(self, irManagement):
+
+		if type(irManagement.operationArgs) != str:
+			return "ERROR CODE #1: INVALID ARGUMENTS PROVIDED (subscriptionId is expected)"
+		if not irManagement.operationArgs in self.msManager.getAgents():
+			return "ERROR CODE #1: subscriptionId IS NOT A RUNNING AGENT"
+
+		subscription = self.__get_vib_s_subscriptionId(irManagement)
+		result = self.msManager.stopAgent(subscription)
+			if result != 0:
+				return "ERROR CODE #6: AN ERROR OCCURED WHEN STOPPING THE MONITORING AGENT (" + str(result) + ")"
+
+		self.msManager.removeAgent(irManagement.operationArgs)
+
+		return subscription
+
+	def __get_ms_agent(self, irManagement):
+		
+		if irManagement.operationArgs != None:
+			return "ERROR CODE #1: INVALID ARGUMENTS PROVIDED (None is expected)"
+
+		return self.__get_vib_subscriptions(irManagement)
+
+	def __post_ms_agent(self, irManagement):
+		
+		if type(irManagement.operationArgs) != AsModels.VnfIndicatorSubscriptionRequest:
+			return "ERROR CODE #1: INVALID ARGUMENTS PROVIDED (VnfIndicatorSubscriptionRequest is expected)"
+		if irManagement.operationArgs.validate()[1] != 0:
+			return "ERROR CODE #1: INVALID VnfIndicatorSubscriptionRequest PROVIDED"
+		if irManagement.operationArgs.filter == None or irManagement.operationArgs.filter.vnfInstanceSubscriptionFilter == None:
+			return "ERROR CODE #1: THE REQUIRED AGENT IS NOT SUPPORTED BY THE MONITORING SUBSYSTEM"
+
+		for instanceId in irManagement.operationArgs.filter.vnfInstanceSubscriptionFilter.vnfInstanceIds:
+			instance = self.__get_vib_i_instanceId(IrModels.IrManagement("get_vib_i_instanceId", instanceId))
+			if type(instance) == str:
+				return instance
+			if len(instance) == 0:
+				return "ERROR CODE #4: THE REQUIRED VNF INSTANCE DOES NOT EXIST"
+
+		result = self.msManager.requestAgent(irManagement.operationArgs)
+		if type(result) == int:
+			return "ERROR CODE #6: AN ERROR OCCURED WHEN CREATING THE AGENT (" + str(result) + ")"
+
+		self.vibManager.operateVibDatabase(VibModels.VibVnfIndicatorSubscription().fromData(result.id, result.filter, result.callbackUri, result.links).toSql())
+		
+		return result
+
+	def __get_msa_agentId(self, irManagement):
+		
+		if type(irManagement.operationArgs) != str:
+			return "ERROR CODE #1: INVALID ARGUMENTS PROVIDED (subscriptionId is expected)"
+
+		return self.__get_vib_s_subscriptionId(irManagement)
+
+	def __patch_msa_agentId(self, irManagement):
+		
+		if type(irManagement.operationArgs) != AsModels.VnfIndicatorSubscription:
+			return "ERROR CODE #1: INVALID ARGUMENTS PROVIDED (VnfIndicatorSubscription is expected)"
+		if irManagement.operationArgs.validate()[1] != 0:
+			return "ERROR CODE #1: INVALID VnfIndicatorSubscription PROVIDED"
+		if self.__get_msra_agentId(IrModels.IrManagement("get_msra_agentId", irManagement.operationArgs.id)):
+			return "ERROR CODE #1: PROVIDED VnfIndicatorSubscription IS A RUNNING AGENT"
+		if irManagement.operationArgs.filter == None or irManagement.operationArgs.filter.vnfInstanceSubscriptionFilter == None:
+			return "ERROR CODE #1: THE REQUIRED AGENT IS NOT SUPPORTED BY THE MONITORING SUBSYSTEM"
+
+		for monitoringAgent in irManagement.operationArgs.filter.indicatorIds:
+			if not os.path.isfile("Monitoring Subsystem/Monitoring Agents/" + monitoringAgent + ".py"):
+				return "ERROR CODE #4: THE REQUIRED AGENT DOES NOT EXIST"
+
+		subscription = VibModels.VibSubscriptionInstance().fromData(irManagement.operationArgs.id, irManagement.operationArgs.filter, irManagement.operationArgs.callbackUri, irManagement.operationArgs.links)
+		result = self.__patch_vib_s_subscriptionId(IrModels.IrManagement("patch_vib_s_subscriptionId", subscription))
+
+		return result
+
+	def __delete_msa_agentId(self, irManagement)
+		
+		if type(irManagement.operationArgs) != str:
+			return "ERROR CODE #1: INVALID ARGUMENTS PROVIDED (subscriptionId is expected)"
+		if self.__get_msra_agentId(irManagement):
+			return "ERROR CODE #1: PROVIDED subscriptionId IS A RUNNING AGENT"
+
+		subscription = self.__delete_vib_s_subscriptionId(irManagement)
+		if type(subscription) == str:
+			return subscription
+
+################################################################################################################################################################
+################################################################################################################################################################
 
 	def __get_vib_credentials(self, irManagement):
 
@@ -699,4 +892,3 @@ class ImAgent:
 			return "ERROR CODE #2: SQL ERROR DURING VNFM MANAGER DELETING"
 
 		return delete.rowcount
-

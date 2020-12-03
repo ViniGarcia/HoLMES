@@ -120,11 +120,13 @@ class VibCredentialInstance:
 CLASS: VibSubscriptionInstance
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 06 Nov. 2020
-L. UPDATE: 02 Dez. 2020 (Fulber-Garcia; Filter error adjusted)
+L. UPDATE: 03 Dez. 2020 (Fulber-Garcia; Validate method implementation)
 DESCRIPTION: This class represents the VnfIndicatorSubscription 
 			 table of the VIB. Note that modifications on this
 			 class, particulary in the attributes, must be upda-
 			 ted in the VibSummaryModels too.
+ERROR CODES: -1 -> Invalid data type
+			 -2 -> Missing mandatory information
 '''
 class VibSubscriptionInstance:
 	visId = None
@@ -134,6 +136,23 @@ class VibSubscriptionInstance:
 
 	def __init__(self):
 		return
+
+	def validate(self):
+
+		if type(self.visId) != str:
+			return ("0", -1)
+		if self.visFilter != None and type(self.visFilter) != AsModels.VnfIndicatorSubscription:
+			return ("1", -1)
+		if type(self.visCallback) != str:
+			return ("2", -1)
+		if type(self.visLinks) != dict:
+			return ("3", -1)
+		if not "self" in self.visLinks:
+			return ("3", -2)
+		if type(self.visLinks["self"]) != str:
+			return ("3.self", -1)
+
+		return ("4", 0)
 
 	def fromData(self, visId, visFilter, visCallback, visLinks):
 		self.visId = visId
@@ -236,6 +255,7 @@ DESCRIPTION: This class represents the PlatformInstance table of
 			 the VIB. Note that modifications on this class, par-
 			 ticulary in the attributes, must be updated in the
 			 VibSummaryModels too.
+ERROR CODES: -1 -> Invalid data type
 '''
 class VibPlatformInstance:
 	platformId = None
@@ -245,9 +265,9 @@ class VibPlatformInstance:
 		return
 
 	def validate(self):
-		if type(platformId) != str:
+		if type(self.platformId) != str:
 			return ("0", -1)
-		if type(platformDriver) != str:
+		if type(self.platformDriver) != str:
 			return ("1", -1)
 
 		return ("2", 0)

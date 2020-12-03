@@ -21,6 +21,7 @@ ERROR CODES:
 			-3: Error during importing module
 			-4: Key is not in the dictionary
 			-5: Argument missing
+			-6: Agent is already setup
 '''	
 class MsManager:
 
@@ -31,6 +32,15 @@ class MsManager:
 		
 		self.__vibManager = vibManager
 
+	def getAgents(self):
+
+		return self.__monitoringAgents
+
+	def removeAgent(self, visId):
+
+		if visId in self.__monitoringAgents:
+			self.__monitoringAgents.pop(visId)
+
 	def requestAgent(self, vnfIndicatorSubscriptionRequest):
 
 		agentInstances = []
@@ -39,27 +49,15 @@ class MsManager:
 				return -1
 			if not os.path.isfile("Monitoring Subsystem/Monitoring Agents/" + monitoringAgent + ".py"):
 				return -2
-			try:
-				agentInstances.append(getattr(importlib.import_module("Monitoring Agents." + monitoringAgent), monitoringAgent)())
-			except Exception as e:
-				print(e)
-				return -3
-
-		vibVnfInstances = []
-		for vnfId in vnfIndicatorSubscriptionRequest.filter.vnfInstanceSubscriptionFilter.vnfInstanceIds:
-			vibVnfInstance = self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"" + vnfId + "\";")
-
-			for agent in agentInstances:
-				agent.includeInstance(vibVnfInstance)
 
 		vnfIndicatorSubscription = AsModels.VnfIndicatorSubscription().fromData(str(uuid.uuid1()), vnfIndicatorSubscriptionRequest.filter, vnfIndicatorSubscriptionRequest.callbackUri, {"self":"127.0.0.1"})
-		vibVnfIndicatorSubscription = VibModels.VibVnfIndicatorSubscription().fromData(vnfIndicatorSubscription.id, vnfIndicatorSubscription.filter, vnfIndicatorSubscription.callbackUri, vnfIndicatorSubscription.links)
-		self.__vibManager.insertVibDatabase(vibVnfIndicatorSubscription.toSql())
-		self.__monitoringAgents[vnfIndicatorSubscription.id] = agentInstances
 
 		return vnfIndicatorSubscription
 
-	def setupAgent(self, vibVnfIndicatorSubscription):
+	def setupAgent(self, vibVnfIndicatorSubscription, vibVnfInstances):
+
+		if vibVnfIndicatorSubscription.visId in self.__monitoringAgents:
+			return -6
 
 		agentInstances = []
 		for monitoringAgent in vibVnfIndicatorSubscription.visFilter.indicatorIds:
@@ -73,14 +71,9 @@ class MsManager:
 				print(e)
 				return -3
 
-		vibVnfInstances = []
-		for vnfId in vibVnfIndicatorSubscription.visFilter.filter.vnfInstanceIds:
-			vibVnfInstance = self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"" + vnfId + "\";")
-
-			for agent in agentInstances:
-				agent.includeInstance(VibModels.VibVnfInstance().fromSql(vibVnfInstance[0]))
-
 		for agent in agentInstances:
+			for instance in vibVnfInstances:
+				agent.includeInstance(instance)			
 			agent.includeSubscriber(vibVnfIndicatorSubscription)
 
 		vnfIndicatorSubscription = AsModels.VnfIndicatorSubscription().fromData(vibVnfIndicatorSubscription.visId, vibVnfIndicatorSubscription.visFilter, vibVnfIndicatorSubscription.visCallback, vibVnfIndicatorSubscription.visLinks)
