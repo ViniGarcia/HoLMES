@@ -77,22 +77,26 @@ class VibManager:
         if self.__resetVibDatabase():
             
             classTest = VibModels.VibPlatformInstance().fromData("Click-On-OSv", "CooDriver")
-            self.insertVibDatabase(classTest.toSql())
+            self.operateVibDatabase(classTest.toSql())
             print(self.queryVibDatabase("SELECT * FROM PlatformInstance WHERE platformId = \"Click-On-OSv\";"))
 
             classTest = VibModels.VibVnfInstance().fromData("VNF01", "127.0.0.1:5000", "Click-On-OSv", ["OP01", "OP02"], True)
-            self.insertVibDatabase(classTest.toSql())
+            self.operateVibDatabase(classTest.toSql())
             print(self.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"VNF01\";"))
             
             classTest = VibModels.VibCredentialInstance().fromData("USER01", "VNF01", "BatataFrita", None)
-            self.insertVibDatabase(classTest.toSql())
+            self.operateVibDatabase(classTest.toSql())
             print(self.queryVibDatabase("SELECT * FROM CredentialInstance WHERE userId = \"USER01\";"))
 
-            classTest = VibModels.VibSubscriptionInstance().fromData("SUBS01", AsModels.VnfIndicatorNotificationsFilter(), "192.168.0.100:8000", {"self":"192.168.0.100:8000"})
-            self.insertVibDatabase(classTest.toSql())
+            classTest = VibModels.VibMaInstance().fromData("CooRunning", "CooRunningAgent")
+            self.operateVibDatabase(classTest.toSql())
+            print(self.queryVibDatabase("SELECT * FROM MaInstance WHERE maId = \"CooRunning\";"))
+
+            vnfIndicatorNotificationsFilter = AsModels.VnfIndicatorNotificationsFilter().fromData(AsModels.VnfInstanceSubscriptionFilter().fromData([], [], ["VNF01"], []), [], ["CooRunningAgent"])
+            classTest = VibModels.VibSubscriptionInstance().fromData("SUBS01", vnfIndicatorNotificationsFilter, "http://127.0.0.1:5000/response", {"self":"127.0.0.1:5000"})
+            self.operateVibDatabase(classTest.toSql())
             print(self.queryVibDatabase("SELECT * FROM SubscriptionInstance WHERE visId = \"SUBS01\";"))
 
             classTest = VibModels.VibVnfmInstance().fromData("VNFM01", "VnfmDriverTemplate")
-            self.insertVibDatabase(classTest.toSql())
-            print(self.queryVibDatabase("SELECT * FROM VnfmInstance WHERE vnfmId = \"VNFM01\";"))
-'''
+            self.operateVibDatabase(classTest.toSql())
+            print(self.queryVibDatabase("SELECT * FROM VnfmInstance WHERE vnfmId = \"VNFM01\";"))'''

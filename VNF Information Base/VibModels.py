@@ -23,8 +23,7 @@ import json
 CLASS: VibSummaryModels
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 30 Oct. 2020
-L. UPDATE: 01 Dez. 2020 (Fulber-Garcia; VibAuthInstance changed to VibCredentialInstance; new primary key of VibCredentialInstance;
-						 created VibVnfmInstance)
+L. UPDATE: 04 Dez. 2020 (Fulber-Garcia; Included VibMaInstance)
 DESCRIPTION: This class represents the table creation rou-
 			 tines of all the tables of the VIB. Once a
 			 table is updated in its respective class, the
@@ -46,6 +45,11 @@ class VibSummaryModels:
                      visFilter text,
                      visCallback text NOT NULL,
                      visLinks text NOT NULL
+                    ); """
+
+	VibMaInstance = """ CREATE TABLE IF NOT EXISTS MaInstance (
+                     maId text PRIMARY KEY,
+                     maSource text NOT NULL
                     ); """
 
 	VibPlatformInstance = """ CREATE TABLE IF NOT EXISTS PlatformInstance (
@@ -194,6 +198,54 @@ class VibSubscriptionInstance:
 			return {"visId":self.visId, "visFilter":self.visFilter.toDictionary(), "visCallback":self.visCallback, "visLinks":self.visLinks}
 		else:
 			return {"visId":self.visId, "visFilter":self.visFilter, "visCallback":self.visCallback, "visLinks":self.visLinks}
+
+'''
+CLASS: VibMaInstance
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 05 Nov. 2020
+L. UPDATE: 04 Dez. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents the MaInstance table of the VIB.
+			 Note that modifications on this class, particulary in
+			 the attributes, must be updated in the VibSummaryModels
+			 too.
+ERROR CODES: -1 -> Invalid data type
+'''
+class VibMaInstance:
+	maId = None
+	maSource = None
+
+	def __init__(self):
+		return
+
+	def validate(self):
+		if type(self.maId) != str:
+			return ("0", -1)
+		if type(self.maSource) != str:
+			return ("1", -1)
+
+		return ("2", 0)
+
+	def fromData(self, maId, maSource):
+		self.maId = maId
+		self.maSource = maSource
+		return self
+
+	def fromSql(self, sqlData):
+		self.maId = sqlData[0]
+		self.maSource = sqlData[1]
+		return self
+
+	def fromDictionary(self, dictData):
+		self.maId = dictData["maId"]
+		self.maSource = dictData["maSource"]
+		return self
+
+	def toSql(self):
+		return ('''INSERT INTO MaInstance(maId,maSource)
+              	   VALUES(?,?)''', (self.maId, self.maSource))
+
+	def toDictionary(self):
+		return {"maId":self.maId, "maSource":self.maSource}
 
 '''
 CLASS: VibVnfInstance

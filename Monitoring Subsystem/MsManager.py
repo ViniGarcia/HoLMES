@@ -10,7 +10,7 @@ import importlib
 CLASS: MsManager
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 19 Nov. 2020
-L. UPDATE: 24 Nov. 2020 (Fulber-Garcia; Testing methods and bug corrections)
+L. UPDATE: 04 Dez. 2020 (Fulber-Garcia; Removed VibManager from MsManager)
 DESCRIPTION: Implementation of the monitoring susbsytem manager.
 			 This class abstracts the operation of every monitoring
 			 agent. Furthermore, it deals with the models from the
@@ -25,21 +25,14 @@ ERROR CODES:
 '''	
 class MsManager:
 
-	__vibManager = None
 	__monitoringAgents = {}
 	
-	def __init__(self, vibManager):
-		
-		self.__vibManager = vibManager
+	def __init__(self):
+		return
 
 	def getAgents(self):
 
 		return self.__monitoringAgents
-
-	def removeAgent(self, visId):
-
-		if visId in self.__monitoringAgents:
-			self.__monitoringAgents.pop(visId)
 
 	def requestAgent(self, vnfIndicatorSubscriptionRequest):
 
@@ -110,7 +103,7 @@ class MsManager:
 
 		return 0
 
-	def deleteAgent(self, vibVnfIndicatorSubscription):
+	def removeAgent(self, vibVnfIndicatorSubscription):
 
 		if not vibVnfIndicatorSubscription.visId in self.__monitoringAgents:
 			return -4
@@ -120,6 +113,5 @@ class MsManager:
 				self.__monitoringAgents[vibVnfIndicatorSubscription.visId][index].monitoringStop()
 
 		self.__monitoringAgents.pop(vibVnfIndicatorSubscription.visId)
-		self.__vibManager.deleteVibDatabase("DELETE FROM VnfIndicatorSubscription WHERE visId=\"" + vibVnfIndicatorSubscription.visId + "\";")
 
 		return 0
