@@ -10,7 +10,7 @@ import importlib
 CLASS: MsManager
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 19 Nov. 2020
-L. UPDATE: 04 Dez. 2020 (Fulber-Garcia; Removed VibManager from MsManager)
+L. UPDATE: 06 Dez. 2020 (Fulber-Garcia; Receiving vibPlatformInstance in the setup operation)
 DESCRIPTION: Implementation of the monitoring susbsytem manager.
 			 This class abstracts the operation of every monitoring
 			 agent. Furthermore, it deals with the models from the
@@ -47,19 +47,19 @@ class MsManager:
 
 		return vnfIndicatorSubscription
 
-	def setupAgent(self, vibVnfIndicatorSubscription, vibVnfInstances):
+	def setupAgent(self, vibSubscriptionInstance, vibVnfInstances, vibPlatformInstance):
 
-		if vibVnfIndicatorSubscription.visId in self.__monitoringAgents:
+		if vibSubscriptionInstance.visId in self.__monitoringAgents:
 			return -6
 
 		agentInstances = []
-		for monitoringAgent in vibVnfIndicatorSubscription.visFilter.indicatorIds:
+		for monitoringAgent in vibSubscriptionInstance.visFilter.indicatorIds:
 			if type(monitoringAgent) != str:
 				return -1
 			if not os.path.isfile("Monitoring Subsystem/Monitoring Agents/" + monitoringAgent + ".py"):
 				return -2
 			try:
-				agentInstances.append(getattr(importlib.import_module("Monitoring Agents." + monitoringAgent), monitoringAgent)())
+				agentInstances.append(getattr(importlib.import_module("Monitoring Agents." + monitoringAgent), monitoringAgent)(vibPlatformInstance))
 			except Exception as e:
 				print(e)
 				return -3
@@ -67,9 +67,9 @@ class MsManager:
 		for agent in agentInstances:
 			for instance in vibVnfInstances:
 				agent.includeInstance(instance)			
-			agent.includeSubscriber(vibVnfIndicatorSubscription)
+			agent.includeSubscriber(vibSubscriptionInstance)
 
-		vnfIndicatorSubscription = AsModels.VnfIndicatorSubscription().fromData(vibVnfIndicatorSubscription.visId, vibVnfIndicatorSubscription.visFilter, vibVnfIndicatorSubscription.visCallback, vibVnfIndicatorSubscription.visLinks)
+		vnfIndicatorSubscription = AsModels.VnfIndicatorSubscription().fromData(vibSubscriptionInstance.visId, vibSubscriptionInstance.visFilter, vibSubscriptionInstance.visCallback, vibSubscriptionInstance.visLinks)
 		self.__monitoringAgents[vnfIndicatorSubscription.id] = agentInstances
 
 		return vnfIndicatorSubscription

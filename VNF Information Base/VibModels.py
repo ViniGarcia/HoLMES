@@ -23,7 +23,7 @@ import json
 CLASS: VibSummaryModels
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 30 Oct. 2020
-L. UPDATE: 04 Dez. 2020 (Fulber-Garcia; Included VibMaInstance)
+L. UPDATE: 06 Dez. 2020 (Fulber-Garcia; Included maPlatform in the VibMaInstance)
 DESCRIPTION: This class represents the table creation rou-
 			 tines of all the tables of the VIB. Once a
 			 table is updated in its respective class, the
@@ -49,7 +49,8 @@ class VibSummaryModels:
 
 	VibMaInstance = """ CREATE TABLE IF NOT EXISTS MaInstance (
                      maId text PRIMARY KEY,
-                     maSource text NOT NULL
+                     maSource text NOT NULL,
+                     maPlatform text NOT NULL
                     ); """
 
 	VibPlatformInstance = """ CREATE TABLE IF NOT EXISTS PlatformInstance (
@@ -203,7 +204,7 @@ class VibSubscriptionInstance:
 CLASS: VibMaInstance
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 05 Nov. 2020
-L. UPDATE: 04 Dez. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 06 Dez. 2020 (Fulber-Garcia; Included maPLatform)
 DESCRIPTION: This class represents the MaInstance table of the VIB.
 			 Note that modifications on this class, particulary in
 			 the attributes, must be updated in the VibSummaryModels
@@ -213,6 +214,7 @@ ERROR CODES: -1 -> Invalid data type
 class VibMaInstance:
 	maId = None
 	maSource = None
+	maPlatform = None
 
 	def __init__(self):
 		return
@@ -222,30 +224,35 @@ class VibMaInstance:
 			return ("0", -1)
 		if type(self.maSource) != str:
 			return ("1", -1)
+		if type(self.maPlatform) != str:
+			return ("2", -1)
 
-		return ("2", 0)
+		return ("3", 0)
 
-	def fromData(self, maId, maSource):
+	def fromData(self, maId, maSource, maPlatform):
 		self.maId = maId
 		self.maSource = maSource
+		self.maPlatform = maPlatform
 		return self
 
 	def fromSql(self, sqlData):
 		self.maId = sqlData[0]
 		self.maSource = sqlData[1]
+		self.maPlatform = sqlData[2]
 		return self
 
 	def fromDictionary(self, dictData):
 		self.maId = dictData["maId"]
 		self.maSource = dictData["maSource"]
+		self.maPlatform = dictData["maPlatform"]
 		return self
 
 	def toSql(self):
-		return ('''INSERT INTO MaInstance(maId,maSource)
-              	   VALUES(?,?)''', (self.maId, self.maSource))
+		return ('''INSERT INTO MaInstance(maId,maSource,maPlatform)
+              	   VALUES(?,?,?)''', (self.maId, self.maSource, self.maPlatform))
 
 	def toDictionary(self):
-		return {"maId":self.maId, "maSource":self.maSource}
+		return {"maId":self.maId, "maSource":self.maSource, "maPlatform":self.maPlatform}
 
 '''
 CLASS: VibVnfInstance

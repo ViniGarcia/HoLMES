@@ -237,7 +237,7 @@ msManager = MsManager.MsManager()
 imAgent = ImAgent.ImAgent().setupAgent(None, vsAgent, msManager, vibManager)
 
 #INSERTING AN TESTING SUBSCRIPTION
-vibMaInstance = VibModels.VibMaInstance().fromData("DummyAgent", "DummyAgentSource")
+vibMaInstance = VibModels.VibMaInstance().fromData("DummyAgent", "DummyAgentSource", "Click-On-OSv")
 irManagement = IrModels.IrManagement().fromData("VIB", "post_vib_m_agents", vibMaInstance)
 print(imAgent.executeVibOperation(irManagement))
 
@@ -353,7 +353,7 @@ print(imAgent.executeVibOperation(irManagement), "\n")
 '''
 
 '''
-#-->> MANAGEMENT TESTING ROUTINE #6 - INTERNAL MANAGER ACTING OVER THE VIB MODULE (PLATFORM TABLE) <<--#
+#-->> MANAGEMENT TESTING ROUTINE #6 - INTERNAL MANAGER ACTING OVER THE VIB MODULE (VNFM TABLE) <<--#
 vsAgent = VsAgent.VsAgent()
 vibManager = VibManager.VibManager()
 msManager = MsManager.MsManager()
@@ -446,78 +446,116 @@ irManagement = IrModels.IrManagement().fromData("VS", "delete_vsd_driverId", "Du
 print(imAgent.executeVsOperation(irManagement), "\n")
 '''
 
+'''
 #-->> MANAGEMENT TESTING ROUTINE #8 - INTERNAL MANAGER ACTING OVER THE MS MODULE <<--#
-vsAgent = VsAgent.VsAgent()
-msManager = MsManager.MsManager()
-vibManager = VibManager.VibManager()
-imAgent = ImAgent.ImAgent().setupAgent(None, vsAgent, msManager, vibManager)
+import time
+def main():
+	vsAgent = VsAgent.VsAgent()
+	msManager = MsManager.MsManager()
+	vibManager = VibManager.VibManager()
+	imAgent = ImAgent.ImAgent().setupAgent(None, vsAgent, msManager, vibManager)
 
-#INSERTING AN TESTING MONITORING AGENT INSTANCE
-vibMaInstance = VibModels.VibMaInstance().fromData("DummyMonitoring", "C:/Users/55559/Desktop/EMSPlatformTesting/DummyMonitoringAgent.py")
-irManagement = IrModels.IrManagement().fromData("MS", "post_ms_agent", vibMaInstance)
-print(imAgent.executeMsOperation(irManagement), "\n")
+	#INSERTING AN TESTING MONITORING AGENT INSTANCE
+	vibMaInstance = VibModels.VibMaInstance().fromData("DummyMonitoring", "C:/Users/55559/Desktop/EMSPlatformTesting/DummyMonitoringAgent.py", "Click-On-OSv")
+	irManagement = IrModels.IrManagement().fromData("MS", "post_ms_agent", vibMaInstance)
+	print(imAgent.executeMsOperation(irManagement), "\n")
 
-#GETTING FULL MANAGER INSTANCE TABLE
-irManagement = IrModels.IrManagement().fromData("MS", "get_ms_agent", None)
-print(imAgent.executeMsOperation(irManagement), "\n")
+	#GETTING FULL MANAGER INSTANCE TABLE
+	irManagement = IrModels.IrManagement().fromData("MS", "get_ms_agent", None)
+	print(imAgent.executeMsOperation(irManagement), "\n")
 
-#GETTING THE RECENTLY INSERTED MANAGER INSTANCE
-irManagement = IrModels.IrManagement().fromData("MS", "get_msa_agentId", "DummyMonitoring")
-print(imAgent.executeMsOperation(irManagement), "\n")
+	#GETTING THE RECENTLY INSERTED MANAGER INSTANCE
+	irManagement = IrModels.IrManagement().fromData("MS", "get_msa_agentId", "DummyMonitoring")
+	print(imAgent.executeMsOperation(irManagement), "\n")
 
-#VALID UPDATE IN THE NON-KEY VALUES OF THE MANAGER
-vibMaInstance.maSource = "C:/Users/55559/Desktop/EMSPlatformTesting/DummyMonitoringAgent.py"
-irManagement = IrModels.IrManagement().fromData("MS", "patch_msa_agentId", vibMaInstance)
-print(imAgent.executeMsOperation(irManagement), "\n")
+	#VALID UPDATE IN THE NON-KEY VALUES OF THE MANAGER
+	vibMaInstance.maSource = "C:/Users/55559/Desktop/EMSPlatformTesting/DummyMonitoringAgent.py"
+	irManagement = IrModels.IrManagement().fromData("MS", "patch_msa_agentId", vibMaInstance)
+	print(imAgent.executeMsOperation(irManagement), "\n")
 
-#DELETING THE INSERTED MANAGER INSTANCE
-irManagement = IrModels.IrManagement().fromData("MS", "delete_msa_agentId", "DummyMonitoring")
-print(imAgent.executeMsOperation(irManagement), "\n")
+	#DELETING THE INSERTED MANAGER INSTANCE
+	irManagement = IrModels.IrManagement().fromData("MS", "delete_msa_agentId", "DummyMonitoring")
+	print(imAgent.executeMsOperation(irManagement), "\n")
 
-#GETTING FULL SUBSCRIPTION INSTANCE TABLE
-irManagement = IrModels.IrManagement().fromData("MS", "get_ms_subscription", None)
-print(imAgent.executeMsOperation(irManagement), "\n")
+	#GETTING FULL SUBSCRIPTION INSTANCE TABLE
+	irManagement = IrModels.IrManagement().fromData("MS", "get_ms_subscription", None)
+	print(imAgent.executeMsOperation(irManagement), "\n")
 
-#INVALID INSERTION OF SUBSCRIPTION (VNF INSTANCE)
-vnfIndicatorNotificationsFilter = AsModels.VnfIndicatorNotificationsFilter().fromData(AsModels.VnfInstanceSubscriptionFilter().fromData([], [], ["NonExist"], []), [], ["CooRunningAgent"])
-vnfIndicatorSubscriptionRequest = AsModels.VnfIndicatorSubscriptionRequest().fromData(vnfIndicatorNotificationsFilter, "http://127.0.0.1:5000/response", None)
-irManagement = IrModels.IrManagement().fromData("MS", "post_ms_subscription", vnfIndicatorSubscriptionRequest)
-print(imAgent.executeMsOperation(irManagement), "\n")
+	#INVALID INSERTION OF SUBSCRIPTION (VNF INSTANCE)
+	vnfIndicatorNotificationsFilter = AsModels.VnfIndicatorNotificationsFilter().fromData(AsModels.VnfInstanceSubscriptionFilter().fromData([], [], ["NonExist"], []), [], ["CooRunningAgent"])
+	vnfIndicatorSubscriptionRequest = AsModels.VnfIndicatorSubscriptionRequest().fromData(vnfIndicatorNotificationsFilter, "http://127.0.0.1:5000/response", None)
+	irManagement = IrModels.IrManagement().fromData("MS", "post_ms_subscription", vnfIndicatorSubscriptionRequest)
+	print(imAgent.executeMsOperation(irManagement), "\n")
 
-#INVALID INSERTION OF SUBSCRIPTION (MONITORING AGENT INSTANCE)
-vnfIndicatorNotificationsFilter = AsModels.VnfIndicatorNotificationsFilter().fromData(AsModels.VnfInstanceSubscriptionFilter().fromData([], [], ["VNF01"], []), [], ["NonExist"])
-vnfIndicatorSubscriptionRequest = AsModels.VnfIndicatorSubscriptionRequest().fromData(vnfIndicatorNotificationsFilter, "http://127.0.0.1:5000/response", None)
-irManagement = IrModels.IrManagement().fromData("MS", "post_ms_subscription", vnfIndicatorSubscriptionRequest)
-print(imAgent.executeMsOperation(irManagement), "\n")
+	#INVALID INSERTION OF SUBSCRIPTION (MONITORING AGENT INSTANCE)
+	vnfIndicatorNotificationsFilter = AsModels.VnfIndicatorNotificationsFilter().fromData(AsModels.VnfInstanceSubscriptionFilter().fromData([], [], ["VNF01"], []), [], ["NonExist"])
+	vnfIndicatorSubscriptionRequest = AsModels.VnfIndicatorSubscriptionRequest().fromData(vnfIndicatorNotificationsFilter, "http://127.0.0.1:5000/response", None)
+	irManagement = IrModels.IrManagement().fromData("MS", "post_ms_subscription", vnfIndicatorSubscriptionRequest)
+	print(imAgent.executeMsOperation(irManagement), "\n")
 
-#VALID INSERTION OF SUBSCRIPTION (MONITORING AGENT INSTANCE)
-vnfIndicatorNotificationsFilter = AsModels.VnfIndicatorNotificationsFilter().fromData(AsModels.VnfInstanceSubscriptionFilter().fromData([], [], ["VNF01"], []), [], ["CooRunningAgent"])
-vnfIndicatorSubscriptionRequest = AsModels.VnfIndicatorSubscriptionRequest().fromData(vnfIndicatorNotificationsFilter, "http://127.0.0.1:5000/response", None)
-irManagement = IrModels.IrManagement().fromData("MS", "post_ms_subscription", vnfIndicatorSubscriptionRequest)
-subscription = imAgent.executeMsOperation(irManagement)
-print(subscription, "\n")
+	#VALID INSERTION OF SUBSCRIPTION (MONITORING AGENT INSTANCE)
+	vnfIndicatorNotificationsFilter = AsModels.VnfIndicatorNotificationsFilter().fromData(AsModels.VnfInstanceSubscriptionFilter().fromData([], [], ["VNF01"], []), [], ["CooRunningAgent"])
+	vnfIndicatorSubscriptionRequest = AsModels.VnfIndicatorSubscriptionRequest().fromData(vnfIndicatorNotificationsFilter, "http://127.0.0.1:5000/response", None)
+	irManagement = IrModels.IrManagement().fromData("MS", "post_ms_subscription", vnfIndicatorSubscriptionRequest)
+	subscription = imAgent.executeMsOperation(irManagement)
+	print(subscription, "\n")
 
-#GETTING THE RECENTLY INSERTED SUBSCRIPTION INSTANCE
-irManagement = IrModels.IrManagement().fromData("MS", "get_mss_subscriptionId", subscription.id)
-vibSubscription = imAgent.executeMsOperation(irManagement)
-print(vibSubscription, "\n")
-vibSubscription = VibModels.VibSubscriptionInstance().fromSql(vibSubscription[0])
+	#GETTING THE RECENTLY INSERTED SUBSCRIPTION INSTANCE
+	irManagement = IrModels.IrManagement().fromData("MS", "get_mss_subscriptionId", subscription.id)
+	vibSubscription = imAgent.executeMsOperation(irManagement)
+	print(vibSubscription, "\n")
+	vibSubscription = VibModels.VibSubscriptionInstance().fromSql(vibSubscription[0])
 
-#INVALID UPDATE OF SUBSCRIPTION (VNF INSTANCE)
-subscription.filter = AsModels.VnfIndicatorNotificationsFilter().fromData(AsModels.VnfInstanceSubscriptionFilter().fromData([], [], ["NonExist"], []), [], ["CooRunningAgent"])
-irManagement = IrModels.IrManagement().fromData("MS", "patch_mss_subscriptionId", subscription)
-print(imAgent.executeMsOperation(irManagement), "\n")
+	#INVALID UPDATE OF SUBSCRIPTION (VNF INSTANCE)
+	subscription.filter = AsModels.VnfIndicatorNotificationsFilter().fromData(AsModels.VnfInstanceSubscriptionFilter().fromData([], [], ["NonExist"], []), [], ["CooRunningAgent"])
+	irManagement = IrModels.IrManagement().fromData("MS", "patch_mss_subscriptionId", subscription)
+	print(imAgent.executeMsOperation(irManagement), "\n")
 
-#INVALID UPDATE OF SUBSCRIPTION (MONITORING AGENT INSTANCE)
-subscription.filter = AsModels.VnfIndicatorNotificationsFilter().fromData(AsModels.VnfInstanceSubscriptionFilter().fromData([], [], ["VNF01"], []), [], ["NonExist"])
-irManagement = IrModels.IrManagement().fromData("MS", "patch_mss_subscriptionId", subscription)
-print(imAgent.executeMsOperation(irManagement), "\n")
+	#INVALID UPDATE OF SUBSCRIPTION (MONITORING AGENT INSTANCE)
+	subscription.filter = AsModels.VnfIndicatorNotificationsFilter().fromData(AsModels.VnfInstanceSubscriptionFilter().fromData([], [], ["VNF01"], []), [], ["NonExist"])
+	irManagement = IrModels.IrManagement().fromData("MS", "patch_mss_subscriptionId", subscription)
+	print(imAgent.executeMsOperation(irManagement), "\n")
 
-#VALID UPDATE OF SUBSCRIPTION
-subscription.filter = AsModels.VnfIndicatorNotificationsFilter().fromData(AsModels.VnfInstanceSubscriptionFilter().fromData([], [], ["VNF01"], []), [], ["CooRunningAgent"])
-irManagement = IrModels.IrManagement().fromData("MS", "patch_mss_subscriptionId", subscription)
-print(imAgent.executeMsOperation(irManagement), "\n")
+	#VALID UPDATE OF SUBSCRIPTION
+	subscription.filter = AsModels.VnfIndicatorNotificationsFilter().fromData(AsModels.VnfInstanceSubscriptionFilter().fromData([], [], ["VNF01"], []), [], ["CooRunningAgent"])
+	irManagement = IrModels.IrManagement().fromData("MS", "patch_mss_subscriptionId", subscription)
+	print(imAgent.executeMsOperation(irManagement), "\n")
 
-#DELETE THE INSERTED SUBSCRIPTION
-irManagement = IrModels.IrManagement().fromData("MS", "delete_mss_subscriptionId", subscription.id)
-print(imAgent.executeMsOperation(irManagement), "\n")
+	#DELETE THE INSERTED SUBSCRIPTION
+	irManagement = IrModels.IrManagement().fromData("MS", "delete_mss_subscriptionId", subscription.id)
+	print(imAgent.executeMsOperation(irManagement), "\n")
+
+	#SHOW ALL THE RUNNING SUBSCRIPTIONS
+	irManagement = IrModels.IrManagement().fromData("MS", "get_ms_running_subscription", None)
+	print(imAgent.executeMsOperation(irManagement), "\n")
+
+	#REQUEST AN SUBSCRIPRION TO RUN
+	irManagement = IrModels.IrManagement().fromData("MS", "post_ms_running_subscription", "SUBS01")
+	print(imAgent.executeMsOperation(irManagement), "\n")
+
+	#CHECK IF THE REQUESTED VNF IS NOW A RUNNING INSTANCE
+	irManagement = IrModels.IrManagement().fromData("MS", "get_msrs_subscriptionId", "SUBS01")
+	print(imAgent.executeMsOperation(irManagement), "\n")
+
+	#ACTIVATE THE MONITORING PROCESS OF A RUNNING INSTANCE
+	irManagement = IrModels.IrManagement().fromData("MS", "patch_msrs_subscriptionId", ("SUBS01", [{}]))
+	print(imAgent.executeMsOperation(irManagement), "\n")
+
+	#WAIT A MOMENT
+	time.sleep(6)
+
+	#DEACTIVATE THE MONITORING PROCESS OF A RUNNING INSTANCE
+	irManagement = IrModels.IrManagement().fromData("MS", "patch_msrs_subscriptionId", ("SUBS01", ))
+	print(imAgent.executeMsOperation(irManagement), "\n")
+
+	#DELETE THE RUNNING INSTANCE OF MONITORING SUBSYSTEM
+	irManagement = IrModels.IrManagement().fromData("MS", "delete_msrs_subscriptionId", "SUBS01")
+	print(imAgent.executeMsOperation(irManagement), "\n")
+
+	#CHECK IF THE REQUESTED VNF IS NOW A RUNNING INSTANCE
+	irManagement = IrModels.IrManagement().fromData("MS", "get_msrs_subscriptionId", "SUBS01")
+	print(imAgent.executeMsOperation(irManagement), "\n")
+
+if __name__ == '__main__':
+    main()
+'''

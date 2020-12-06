@@ -16,11 +16,8 @@ import os
 CLASS: ImAgent
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 01 Dez. 2020
-L. UPDATE: 04 Dez. 2020 (Fulber-Garcia; Implementation of MA table management;
-						new methods of VNF subsystem management; agent methods
-						changed to subscription methods; agent methods fully
-						implemented; the monitoring subsystem is not fully 
-						tested yet)
+L. UPDATE: 06 Dez. 2020 (Fulber-Garcia; Adaptations on monitoring sub-
+						 system management)
 DESCRIPTION: Implementation of the internal manager agent of the EMS.
 			 This class provides the configuration ans mantaining o-
 			 perations of the other internal modules of the EMS.
@@ -113,7 +110,6 @@ class ImAgent:
 				return self.__patch_msrs_subscriptionId(irManagement)
 			elif irManagement.operationId == "delete_msrs_subscriptionId":
 				return self.__delete_msrs_subscriptionId(irManagement)
-
 			elif irManagement.operationId == "get_ms_subscription":
 				return self.__get_ms_subscription(irManagement)
 			elif irManagement.operationId == "post_ms_subscription":
@@ -391,14 +387,20 @@ class ImAgent:
 
 		vnfInstances = []
 		for instanceId in subscription.visFilter.vnfInstanceSubscriptionFilter.vnfInstanceIds:
-			instance = self.__get_vib_i_instanceId(IrModels.IrManagement("get_vib_i_instanceId", instanceId))
+			instance = self.__get_vib_i_instanceId(IrModels.IrManagement().fromData("VIB", "get_vib_i_instanceId", instanceId))
 			if type(instance) == str:
 				return instance
 			if len(instance) == 0:
 				return "ERROR CODE #4: THE REQUIRED VNF INSTANCE DOES NOT EXIST"
 			vnfInstances.append(VibModels.VibVnfInstance().fromSql(instance[0]))
 
-		result = self.msManager.setupAgent(subscription, vnfInstances)
+		platformInstance = self.__get_vib_p_platformId(IrModels.IrManagement().fromData("VIB", "get_vib_p_platformId", vnfInstances[0].vnfPlatform))
+		if type(platformInstance) == str:
+			return platformInstance
+		if len(platformInstance) == 0:
+			return "ERROR CODE #4: THE REQUIRED PLATFORM DOES NOT EXIST"
+
+		result = self.msManager.setupAgent(subscription, vnfInstances, VibModels.VibPlatformInstance().fromSql(platformInstance[0]))
 		if type(result) == int:
 			return "ERROR CODE #6: AN ERROR OCCURED WHILE SETUPING THE SUBSCRIPTION AGENT (" + str(result) + ")"
 
@@ -421,7 +423,7 @@ class ImAgent:
 		if type(irManagement.operationArgs[0]) != str:
 			return "ERROR CODE #1: INVALID subscriptionId PROVIDED (str is expected)" 
 
-		subscription = self.__get_vib_s_subscriptionId(IrModels.IrManagement().fromData("get_vib_s_subscriptionId", irManagement.operationArgs[0]))
+		subscription = self.__get_vib_s_subscriptionId(IrModels.IrManagement().fromData("VIB", "get_vib_s_subscriptionId", irManagement.operationArgs[0]))
 		if type(subscription) == str:
 			return subscription
 		if len(subscription) == 0:
@@ -471,13 +473,25 @@ class ImAgent:
 			return "ERROR CODE #1: INVALID VnfIndicatorSubscriptionRequest PROVIDED"
 		if irManagement.operationArgs.filter == None or irManagement.operationArgs.filter.vnfInstanceSubscriptionFilter == None:
 			return "ERROR CODE #1: THE REQUIRED SUBSCRIPTION IS NOT SUPPORTED BY THE MONITORING SUBSYSTEM"
+		if len(irManagement.operationArgs.filter.indicatorIds) == 0 or len(irManagement.operationArgs.filter.vnfInstanceSubscriptionFilter.vnfInstanceIds) == 0:
+			return "ERROR CODE #1: THE REQUIRED SUBSCRIPTION IS NOT SUPPORTED BY THE MONITORING SUBSYSTEM"
 
+		platform = None
 		for instanceId in irManagement.operationArgs.filter.vnfInstanceSubscriptionFilter.vnfInstanceIds:
 			instance = self.__get_vib_i_instanceId(IrModels.IrManagement().fromData("VIB", "get_vib_i_instanceId", instanceId))
 			if type(instance) == str:
 				return instance
 			if len(instance) == 0:
 				return "ERROR CODE #4: THE REQUIRED VNF INSTANCE DOES NOT EXIST"
+			if platform != None:
+				if platform != instance[0][2]:
+					return "ERROR CODE #1: THE REQUIRED SUBSCRIPTION IS NOT SUPPORTED BY THE MONITORING SUBSYSTEM"
+			else:
+				platform = instance[0][2]
+
+		for monitoringAgent in irManagement.operationArgs.filter.indicatorIds:
+			if not os.path.isfile("Monitoring Subsystem/Monitoring Agents/" + monitoringAgent + ".py"):
+				return "ERROR CODE #4: THE REQUIRED MONITORING AGENT DOES NOT EXIST"
 
 		result = self.msManager.requestAgent(irManagement.operationArgs)
 		if type(result) == int:
@@ -504,6 +518,21 @@ class ImAgent:
 			return "ERROR CODE #1: PROVIDED VnfIndicatorSubscription IS A RUNNING SUBSCRIPTION AGENT"
 		if irManagement.operationArgs.filter == None or irManagement.operationArgs.filter.vnfInstanceSubscriptionFilter == None:
 			return "ERROR CODE #1: THE REQUIRED SUBSCRIPTION IS NOT SUPPORTED BY THE MONITORING SUBSYSTEM"
+		if len(irManagement.operationArgs.filter.indicatorIds) == 0 or len(irManagement.operationArgs.filter.vnfInstanceSubscriptionFilter.vnfInstanceIds) == 0:
+			return "ERROR CODE #1: THE REQUIRED SUBSCRIPTION IS NOT SUPPORTED BY THE MONITORING SUBSYSTEM"
+
+		platform = None
+		for instanceId in irManagement.operationArgs.filter.vnfInstanceSubscriptionFilter.vnfInstanceIds:
+			instance = self.__get_vib_i_instanceId(IrModels.IrManagement().fromData("VIB", "get_vib_i_instanceId", instanceId))
+			if type(instance) == str:
+				return instance
+			if len(instance) == 0:
+				return "ERROR CODE #4: THE REQUIRED VNF INSTANCE DOES NOT EXIST"
+			if platform != None:
+				if platform != instance[0][2]:
+					return "ERROR CODE #1: THE REQUIRED SUBSCRIPTION IS NOT SUPPORTED BY THE MONITORING SUBSYSTEM"
+			else:
+				platform = instance[0][2]
 
 		for monitoringAgent in irManagement.operationArgs.filter.indicatorIds:
 			if not os.path.isfile("Monitoring Subsystem/Monitoring Agents/" + monitoringAgent + ".py"):
@@ -796,6 +825,12 @@ class ImAgent:
 		if len(redundancy) != 0:
 			return "ERROR CODE #3: THE REQUIRED MONITORING AGENT ALREADY EXISTS"
 
+		platform = self.vibManager.queryVibDatabase("SELECT * FROM PlatformInstance WHERE platformId = \"" + irManagement.operationArgs.maPlatform + "\";")
+		if type(platform) == sqlite3.Error:
+			return "ERROR CODE #2: SQL ERROR DURING PLATFORMS CONSULTING"
+		if len(platform) == 0:
+			return "ERROR CODE #3: THE REQUIRED PLATFORM INSTANCE DOES NOT EXIST"
+
 		insertion = self.vibManager.operateVibDatabase(irManagement.operationArgs.toSql())
 		if type(insertion) == sqlite3.Error:
 			return "ERROR CODE #2: SQL ERROR DURING MONITORING AGENT INSERTION"
@@ -818,11 +853,17 @@ class ImAgent:
 		if type(irManagement.operationArgs) != VibModels.VibMaInstance:
 			return "ERROR CODE #1: INVALID ARGUMENTS PROVIDED (VibMaInstance is expected)"
 
-		platform = self.vibManager.queryVibDatabase("SELECT * FROM MaInstance WHERE maId = \"" + irManagement.operationArgs.maId + "\";")
-		if type(platform) == sqlite3.Error:
+		agent = self.vibManager.queryVibDatabase("SELECT * FROM MaInstance WHERE maId = \"" + irManagement.operationArgs.maId + "\";")
+		if type(agent) == sqlite3.Error:
 			return "ERROR CODE #2: SQL ERROR DURING MONITORING AGENTS CONSULTING"
-		if len(platform) == 0:
+		if len(agent) == 0:
 			return "ERROR CODE #3: THE REQUIRED MONITORING AGENT DOES NOT EXIST"
+
+		platform = self.vibManager.queryVibDatabase("SELECT * FROM PlatformInstance WHERE platformId = \"" + irManagement.operationArgs.maPlatform + "\";")
+		if type(platform) == sqlite3.Error:
+			return "ERROR CODE #2: SQL ERROR DURING PLATFORMS CONSULTING"
+		if len(platform) == 0:
+			return "ERROR CODE #3: THE REQUIRED PLATFORM INSTANCE DOES NOT EXIST"
 
 		subscriptions = self.vibManager.queryVibDatabase("SELECT * FROM SubscriptionInstance;")
 		for element in subscriptions:
@@ -830,7 +871,7 @@ class ImAgent:
 			if irManagement.operationArgs in element.visFilter.indicatorIds:
 				return "ERROR CODE #5: THE REQUIRED MONITORING AGENT INSTANCE IS BEING USED IN THE SUBSCRIPTION TABLE"
 
-		update = self.vibManager.operateVibDatabase(("UPDATE MaInstance SET maSource = ? WHERE maId = ?;", (irManagement.operationArgs.maSource, irManagement.operationArgs.maId)))
+		update = self.vibManager.operateVibDatabase(("UPDATE MaInstance SET maSource = ?, maPlatform = ? WHERE maId = ?;", (irManagement.operationArgs.maSource, irManagement.operationArgs.maPlatform, irManagement.operationArgs.maId)))
 		if type(update) == sqlite3.Error:
 			return "ERROR CODE #2: SQL ERROR DURING MONITORING AGENT UPDATING"
 

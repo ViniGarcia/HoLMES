@@ -74,15 +74,15 @@ class MonitoringAgentTemplate:
 		return instancesIndicator
 
 	#PRIVATE METHOD, SET PUBLIC ONLY TO PROCESS STARTING
-	def executeNotification(self, vibVnfIndicatorSubscription, notificationData):
+	def executeNotification(self, vibSubscriptionInstance, notificationData):
 		
-		if type(vibVnfIndicatorSubscription) != VibModels.VibVnfIndicatorSubscription:
+		if type(vibSubscriptionInstance) != VibModels.VibSubscriptionInstance:
 			return -1
 
 		if type(notificationData) != str:
 			return -1
 
-		responseData = requests.post(vibVnfIndicatorSubscription.visCallback, params=notificationData)
+		responseData = requests.post(vibSubscriptionInstance.visCallback, params=notificationData)
 		if responseData.status_code >= 200 and responseData.status_code < 300:
 			return str(responseData.content)
 		else:
@@ -108,25 +108,25 @@ class MonitoringAgentTemplate:
 
 		self.monitoredInstances.remove(vibVnfInstance)
 
-	def includeSubscriber(self, vibVnfIndicatorSubscription):
+	def includeSubscriber(self, vibSubscriptionInstance):
 		
-		if type(vibVnfIndicatorSubscription) != VibModels.VibVnfIndicatorSubscription:
+		if type(vibSubscriptionInstance) != VibModels.VibSubscriptionInstance:
 			return -1
 
-		if vibVnfIndicatorSubscription in self.monitoringSubscribers:
+		if vibSubscriptionInstance in self.monitoringSubscribers:
 			return -3
 
-		self.monitoringSubscribers.append(vibVnfIndicatorSubscription)
+		self.monitoringSubscribers.append(vibSubscriptionInstance)
 
-	def removeSubscriber(self, vibVnfIndicatorSubscription):
+	def removeSubscriber(self, vibSubscriptionInstance):
 		
-		if type(self.vibVnfIndicatorSubscription) != VibModels.VibVnfIndicatorSubscription:
+		if type(self.vibSubscriptionInstance) != VibModels.VibSubscriptionInstance:
 			return -1
 
-		if not vibVnfIndicatorSubscription in self.monitoringSubscribers:
+		if not vibSubscriptionInstance in self.monitoringSubscribers:
 			return -4
 
-		self.monitoringSubscribers.remove(vibVnfIndicatorSubscription)
+		self.monitoringSubscribers.remove(vibSubscriptionInstance)
 
 	def monitoringStart(self, resourceData):
 

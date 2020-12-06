@@ -88,7 +88,7 @@ class VibManager:
             self.operateVibDatabase(classTest.toSql())
             print(self.queryVibDatabase("SELECT * FROM CredentialInstance WHERE userId = \"USER01\";"))
 
-            classTest = VibModels.VibMaInstance().fromData("CooRunning", "CooRunningAgent")
+            classTest = VibModels.VibMaInstance().fromData("CooRunning", "CooRunningAgent", "Click-On-OSv")
             self.operateVibDatabase(classTest.toSql())
             print(self.queryVibDatabase("SELECT * FROM MaInstance WHERE maId = \"CooRunning\";"))
 

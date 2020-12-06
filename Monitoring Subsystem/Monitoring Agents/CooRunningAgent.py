@@ -7,11 +7,11 @@ import time
 
 class CooRunningAgent(MonitoringAgentTemplate.MonitoringAgentTemplate):
 
-	def __init__(self):
-
-		vsAgent = VsAgent.VsAgent().setup("CooDriver")
+	def __init__(self, cooPlatformDriver):
+		
+		vsAgent = VsAgent.VsAgent().setup(cooPlatformDriver)
 		super().__init__(vsAgent.get_p_operations()["get_click_running"], vsAgent)
-
+		
 	def monitoringRoutine(self, resourceData):
 		
 		while True:
