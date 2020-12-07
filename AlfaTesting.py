@@ -559,3 +559,93 @@ def main():
 if __name__ == '__main__':
     main()
 '''
+
+vibManager = VibManager.VibManager()
+asAuthAgent = AsAuthAgent.AuthenticationAgent(vibManager)
+asOpAgent = AsOpAgent.OperationAgent().setupAgent(vibManager, "DummyVnfmDriver", None, asAuthAgent)
+vsAgent = VsAgent.VsAgent()
+msManager = MsManager.MsManager()
+imAgent = ImAgent.ImAgent().setupAgent(asOpAgent, asAuthAgent, vsAgent, msManager, vibManager)
+
+#GETTING AVAILABLE AUTHENTICATORS
+irManagement = IrModels.IrManagement().fromData("AS", "get_as_auth", None)
+print(imAgent.executeAsOperation(irManagement), "\n")
+
+#CHECKING IF A PARTICULAR AUTHENTICATOR EXISTS
+irManagement = IrModels.IrManagement().fromData("AS", "get_as_a_authId", "PlainText")
+print(imAgent.executeAsOperation(irManagement), "\n")
+
+#CHECKING THE RUNNING AUTHENTICATOR
+irManagement = IrModels.IrManagement().fromData("AS", "get_as_running_auth", None)
+print(imAgent.executeAsOperation(irManagement), "\n")
+
+#SETUP AUTHENTICATOR
+irManagement = IrModels.IrManagement().fromData("AS", "post_as_running_auth", "PlainText")
+print(imAgent.executeAsOperation(irManagement), "\n")
+
+#CHECKING THE RUNNING AUTHENTICATOR
+irManagement = IrModels.IrManagement().fromData("AS", "get_as_running_auth", None)
+print(imAgent.executeAsOperation(irManagement), "\n")
+
+#CHECKING IF AN AUTHENTICATOR IS THE RUNNING AUTHENTICATOR
+irManagement = IrModels.IrManagement().fromData("AS", "get_as_ra_authId", "PlainText")
+print(imAgent.executeAsOperation(irManagement), "\n")
+
+
+#GETTING AVAILABLE CREDENTIALS
+irManagement = IrModels.IrManagement().fromData("AS", "get_as_credential", None)
+print(imAgent.executeAsOperation(irManagement), "\n")
+
+#INSERTING NEW CREDENTIAL
+irManagement = IrModels.IrManagement().fromData("AS", "post_as_credential", VibModels.VibCredentialInstance().fromData("ADMIN", "VNF01", "LALA", None))
+print(imAgent.executeAsOperation(irManagement), "\n")
+
+#GETTING A PARTICULAR CREDENTIAL
+irManagement = IrModels.IrManagement().fromData("AS", "get_as_c_credentialId", ("ADMIN", "VNF01"))
+credential = imAgent.executeAsOperation(irManagement)
+print(credential, "\n")
+credential = VibModels.VibCredentialInstance().fromSql(credential[0])
+
+#VALID UPDATE IN THE RECENTLY INSERTED CREDENTIAL
+credential.authData = "RERE"
+irManagement = IrModels.IrManagement().fromData("AS", "patch_as_c_credentialId", credential)
+print(imAgent.executeAsOperation(irManagement), "\n")
+
+#GETTING A PARTICULAR CREDENTIAL
+irManagement = IrModels.IrManagement().fromData("AS", "get_as_c_credentialId", ("ADMIN", "VNF01"))
+print(imAgent.executeAsOperation(irManagement), "\n")
+
+#DELETING THE RECENTLY INSERTED CREDENTIAL
+irManagement = IrModels.IrManagement().fromData("AS", "delete_as_c_credentialId", ("ADMIN", "VNF01"))
+print(imAgent.executeAsOperation(irManagement), "\n")
+
+#GETTING AVAILABLE CREDENTIALS
+irManagement = IrModels.IrManagement().fromData("AS", "get_as_credential", None)
+print(imAgent.executeAsOperation(irManagement), "\n")
+
+
+#GETTING AVAILABLE VNFM DRIVERS
+irManagement = IrModels.IrManagement().fromData("AS", "get_as_vnfm_driver", None)
+print(imAgent.executeAsOperation(irManagement), "\n")
+
+#INSERTING A NEW VNFM DRIVER
+irManagement = IrModels.IrManagement().fromData("AS", "post_as_vnfm_driver", VibModels.VibVnfmInstance().fromData("DummyVnfmDriver2", "C:/Users/55559/Desktop/EMSPlatformTesting/DummyVnfmDriver2.py"))
+print(imAgent.executeAsOperation(irManagement), "\n")
+
+#GETTING A PARTICULAR VNFM DRIVER
+irManagement = IrModels.IrManagement().fromData("AS", "get_as_vd_driverId", "DummyVnfmDriver2")
+driver = imAgent.executeAsOperation(irManagement)
+print(driver, "\n")
+driver = VibModels.VibVnfmInstance().fromSql(driver[0])
+
+#UPDATE RECENTLY INSERTED DRIVER
+irManagement = IrModels.IrManagement().fromData("AS", "patch_as_vd_driverId", VibModels.VibVnfmInstance().fromData("DummyVnfmDriver2", "C:/Users/55559/Desktop/EMSPlatformTesting/DummyVnfmDriver2.py"))
+print(imAgent.executeAsOperation(irManagement), "\n")
+
+#GETTING THE RUNNING DRIVER
+irManagement = IrModels.IrManagement().fromData("AS", "get_as_vnfm_running_driver", None)
+print(imAgent.executeAsOperation(irManagement), "\n")
+
+#CHECKING IF A PARTICULAR DRIVER IS THE RUNNING DRIVER
+irManagement = IrModels.IrManagement().fromData("AS", "get_as_vrd_driverId", "DummyVnfmDriver")
+print(imAgent.executeAsOperation(irManagement), "\n")

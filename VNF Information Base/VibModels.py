@@ -92,6 +92,18 @@ class VibCredentialInstance:
 	def __init__(self):
 		return
 
+	def validate(self):
+		if type(self.userId) != str:
+			return ("0", -1)
+		if type(self.vnfId) != str:
+			return ("1", -1)
+		if type(self.authData) != str:
+			return ("2", -1)
+		if self.authResource != None and type(self.authResource) != str:
+			return ("3", -1)
+
+		return ("4", 0) 
+
 	def fromData(self, userId, vnfId, authData, authResource):
 		self.userId = userId
 		self.vnfId = vnfId
@@ -357,7 +369,7 @@ class VibPlatformInstance:
 CLASS: VibVnfmInstance
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 01 Dez. 2020
-L. UPDATE: 01 Dez. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 07 Dez. 2020 (Fulber-Garcia; "validate" method implementation)
 DESCRIPTION: This class represents the VnfmInstance table of the
 			 VIB. Note that modifications on this class, particu-
 			 lary in the attributes, must be updated in the Vib-
@@ -369,6 +381,14 @@ class VibVnfmInstance:
 
 	def __init__(self):
 		return
+
+	def validate(self):
+		if type(self.vnfmId) != str:
+			return ("0", -1)
+		if type(self.vnfmDriver) != str:
+			return ("1", -1)
+
+		return ("2", 0)
 
 	def fromData(self, vnfmId, vnfmDriver):
 		self.vnfmId = vnfmId

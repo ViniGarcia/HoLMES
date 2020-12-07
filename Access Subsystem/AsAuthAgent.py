@@ -26,8 +26,10 @@ CODES: -1 -> Invalid data type of authData
 '''
 class TemplateAuthentication:
 
-	def __init__(self):
-		return
+	authenticatorId = None
+
+	def __init__(self, authenticatorId):
+		self.authenticatorId = authenticatorId
 
 	def fromAuthData(self, authData, authResource):
 		return
@@ -64,7 +66,7 @@ CODES: -1 -> Invalid data type of authData
 class PlainTextAuthentication(TemplateAuthentication):
 
 	def __init__(self):
-		return
+		super().__init__("PlainText")
 
 	def fromAuthData(self, authData, authResource):
 		
@@ -114,7 +116,7 @@ class PlainTextAuthentication(TemplateAuthentication):
 CLASS: AuthenticationAgent
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 04 Nov. 2020
-L. UPDATE: 04 Nov. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 07 Dez. 2020 (Fulber-Garcia; Implementation of "get" methods)
 DESCRIPTION: Authentication agent implementation. This class
 			 is configured with the EMS authentication model.
 			 Thus, this class is responsible for athutenti-
@@ -131,29 +133,30 @@ class AuthenticationAgent:
 	__authModel = None
 	__vibManager = None	
 
-	def __init__(self, authModel, vibManager):
-
-		self.__availableAuth = {"PlainText":PlainTextAuthentication}
-		if not authModel in self.__availableAuth:
-			return
+	def __init__(self, vibManager):
+		
 		if type(vibManager) != VibManager.VibManager:
 			return
 
-		self.__authModel = self.__availableAuth[authModel]()
+		self.__availableAuth = {"PlainText":PlainTextAuthentication}
 		self.__vibManager = vibManager
 
-	def __changeAuthentication(self, authModel):
+	def getAuthenticators(self):
+
+		return list(self.__availableAuth.keys())
+
+	def getRunningAuthenticator(self):
+
+		if self.__authModel != None:
+			return self.__authModel.authenticatorId
+
+		return None
+
+	def setupAuthentication(self, authModel):
 		
 		if not authModel in self.__availableAuth:
 			return -1
 		self.__authModel = self.__availableAuth[authModel]()
-		return 0
-
-	def __updateVibManager(self, vibManager):
-		
-		if type(vibManager) != VibManager.VibManager:
-			return -2
-		self.__vibManager = vibManager
 		return 0
 
 	def authRequest(self, requestAuth):

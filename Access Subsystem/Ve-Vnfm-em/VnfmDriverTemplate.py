@@ -8,10 +8,10 @@ DESCRIPTION: Template for the implementation of VNFM drivers that run in the "Ac
 			 return the HTTP code 501 (Not Implemented).
 '''
 class VnfmDriverTemplate:
-	className = None
+	vnfmId = None
 
-	def __init__(self, className):
-		self.className = className
+	def __init__(self, vnfmId):
+		self.vnfmId = vnfmId
 	
 	'''
 	PATH: 		 /vlmi/vnf_instances/ 

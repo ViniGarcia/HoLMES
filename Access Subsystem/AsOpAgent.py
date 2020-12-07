@@ -57,7 +57,7 @@ class OperationAgent:
 		if not os.path.isfile("Access Subsystem/Ve-Vnfm-em/" + veVnfmEm + ".py"):
 			return -3
 		try:
-			self.__veVnfmEm = getattr(importlib.import_module("Ve-Vnfm-em." + veVnfmEm), veVnfmEm)(veVnfmEm)
+			self.__veVnfmEm = getattr(importlib.import_module("Ve-Vnfm-em." + veVnfmEm), veVnfmEm)()
 		except:
 			return -4
 
@@ -69,6 +69,24 @@ class OperationAgent:
 		self.__oaAa = oaAa
 
 		return self
+
+	def setupDriver(self, vibVnfmInstance):
+
+		if not os.path.isfile("Access Subsystem/Ve-Vnfm-em/" + vibVnfmInstance.vnfmDriver + ".py"):
+			return -3
+		try:
+			self.__veVnfmEm = getattr(importlib.import_module("Ve-Vnfm-em." + vibVnfmInstance.vnfmDriver), vibVnfmInstance.vnfmDriver)(vibVnfmInstance.vnfmDriver)
+		except:
+			return -4
+
+		return 0
+
+	def getRunningDriver(self):
+
+		if self.__veVnfmEm != None:
+			return self.__veVnfmEm.vnfmId
+
+		return None
 
 	def __authenticateRequest(self, operationRequest):
 		
