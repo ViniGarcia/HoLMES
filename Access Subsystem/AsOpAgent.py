@@ -58,7 +58,7 @@ class OperationAgent:
 			return -3
 		try:
 			self.__veVnfmEm = getattr(importlib.import_module("Ve-Vnfm-em." + veVnfmEm), veVnfmEm)()
-		except:
+		except Exception as e:
 			return -4
 
 		#TODO: class check
@@ -75,8 +75,8 @@ class OperationAgent:
 		if not os.path.isfile("Access Subsystem/Ve-Vnfm-em/" + vibVnfmInstance.vnfmDriver + ".py"):
 			return -3
 		try:
-			self.__veVnfmEm = getattr(importlib.import_module("Ve-Vnfm-em." + vibVnfmInstance.vnfmDriver), vibVnfmInstance.vnfmDriver)(vibVnfmInstance.vnfmDriver)
-		except:
+			self.__veVnfmEm = getattr(importlib.import_module("Ve-Vnfm-em." + vibVnfmInstance.vnfmDriver), vibVnfmInstance.vnfmDriver)()
+		except Exception as e:
 			return -4
 
 		return 0
