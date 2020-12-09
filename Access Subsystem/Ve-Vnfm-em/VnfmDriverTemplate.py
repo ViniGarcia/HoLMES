@@ -14,7 +14,7 @@ class VnfmDriverTemplate:
 		self.vnfmId = vnfmId
 	
 	'''
-	PATH: 		 /vlmi/vnf_instances/ 
+	PATH: 		 /vlmi/vnf_instances/
 	ACTION: 	 GET
 	DESCRIPTION: Query multiple VNF instances, thus returning information 
 				 from the VNFM of all the VNF instances managed by the EMS
@@ -24,7 +24,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def get_vlmi_vnfInstances(self):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/vnf_instances/ 
@@ -38,7 +38,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def post_vlmi_vnfInstances(self, createVnfRequest):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/vnf_instances/
@@ -46,14 +46,14 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def put_vlmi_vnfInstances(self):
-		return 405
+		return "405"
 	def patch_vlmi_vnfInstances(self):
-		return 405
+		return "405"
 	def delete_vlmi_vnfInstances(self):
-		return 405
+		return "405"
 
 	'''
-	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId} 
+	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId}
 	ACTION: 	 GET
 	DESCRIPTION: Read an "Individual VNF instance" resource. Return the same
 				 information than the "/vnfInstances/" operation, but for
@@ -64,7 +64,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def get_vlmi_vi_vnfInstanceID(self, vnfInstanceId):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId} 
@@ -79,7 +79,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def patch_vlmi_vi_vnfInstanceID(self, vnfInstanceId, vnfInfoModificationRequest):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId} 
@@ -94,7 +94,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def delete_vlmi_vi_vnfInstanceID(self, vnfInstanceId):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId} 
@@ -102,9 +102,9 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def post_vlmi_vi_vnfInstanceID(self):
-		return 405
+		return "405"
 	def put_vlmi_vi_vnfInstanceID(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId}/instantiate 
@@ -117,7 +117,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def post_vlmi_viid_instantiate(self, vnfInstanceId, instantiateVnfRequest):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId}/instantiate
@@ -125,13 +125,13 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def get_vlmi_viid_instantiate(self):
-		return 405
+		return "405"
 	def put_vlmi_viid_instantiate(self):
-		return 405
+		return "405"
 	def patch_vlmi_viid_instantiate(self):
-		return 405
+		return "405"
 	def delete_vlmi_viid_instantiate(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId}/scale 
@@ -145,7 +145,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def post_vlmi_viid_scale(self, vnfInstanceId, scaleVnfRequest):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId}/scale 
@@ -153,13 +153,13 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def get_vlmi_viid_scale(self):
-		return 405
+		return "405"
 	def put_vlmi_viid_scale(self):
-		return 405
+		return "405"
 	def patch_vlmi_viid_scale(self):
-		return 405
+		return "405"
 	def delete_vlmi_viid_scale(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId}/scale_to_level 
@@ -172,7 +172,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def post_vlmi_viid_scaleToLevel(self, vnfInstanceId, scaleVnfToLevelRequest):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId}/scale_to_level 
@@ -180,13 +180,13 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def get_vlmi_viid_scaleToLevel(self):
-		return 405
+		return "405"
 	def put_vlmi_viid_scaleToLevel(self):
-		return 405
+		return "405"
 	def patch_vlmi_viid_scaleToLevel(self):
-		return 405
+		return "405"
 	def delete_vlmi_viid_scaleToLevel(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId}/change_flavour 
@@ -200,7 +200,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def post_vlmi_viid_changeFlavour(self, vnfInstanceId, changeVnfFlavourRequest):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId}/change_flavour 
@@ -208,16 +208,16 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def get_vlmi_viid_changeFlavour(self):
-		return 405
+		return "405"
 	def put_vlmi_viid_changeFlavour(self):
-		return 405
+		return "405"
 	def patch_vlmi_viid_changeFlavour(self):
-		return 405
+		return "405"
 	def delete_vlmi_viid_changeFlavour(self):
-		return 405
+		return "405"
 
 	'''
-	PATH: 		 /vnf_instances/{vnfInstanceId}/terminate
+	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId}/terminate
 	ACTION: 	 POST
 	DESCRIPTION: Terminate a VNF instance. This method regards just to the
 				 termination request to the VNFM. Here we do not threat the
@@ -228,7 +228,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def post_vlmi_viid_terminate(self, vnfInstanceId, terminateVnfRequest):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId}/change_flavour 
@@ -236,13 +236,13 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def get_vlmi_viid_terminate(self):
-		return 405
+		return "405"
 	def put_vlmi_viid_terminate(self):
-		return 405
+		return "405"
 	def patch_vlmi_viid_terminate(self):
-		return 405
+		return "405"
 	def delete_vlmi_viid_terminate(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId}/heal 
@@ -257,7 +257,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def post_vlmi_viid_heal(self, vnfInstanceId, healVnfRequest):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId}/heal
@@ -265,13 +265,13 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def get_vlmi_viid_heal(self):
-		return 405
+		return "405"
 	def put_vlmi_viid_heal(self):
-		return 405
+		return "405"
 	def patch_vlmi_viid_heal(self):
-		return 405
+		return "405"
 	def delete_vlmi_viid_heal(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vnf_instances/{vnfInstanceId}/operate 
@@ -284,7 +284,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def post_vlmi_viid_operate(self, vnfInstanceId, operateVnfRequest):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId}/operate
@@ -292,13 +292,13 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def get_vlmi_viid_operate(self):
-		return 405
+		return "405"
 	def put_vlmi_viid_operate(self):
-		return 405
+		return "405"
 	def patch_vlmi_viid_operate(self):
-		return 405
+		return "405"
 	def delete_vlmi_viid_operate(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId}/change_ext_conn 
@@ -313,7 +313,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def post_vlmi_viid_changeExtConn(self, vnfInstanceId, changeExtVnfConnectivityRequest):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId}/change_ext_conn 
@@ -321,13 +321,13 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def get_vlmi_viid_changeExtConn(self):
-		return 405
+		return "405"
 	def put_vlmi_viid_changeExtConn(self):
-		return 405
+		return "405"
 	def patch_vlmi_viid_changeExtConn(self):
-		return 405
+		return "405"
 	def delete_vlmi_viid_changeExtConn(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId}/change_vnfpkg 
@@ -341,7 +341,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def post_vlmi_viid_changeVnfPkg(self, vnfInstanceId, changeCurrentVnfPkgRequest):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId}/change_vnfpkg
@@ -349,13 +349,13 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def get_vlmi_viid_changeVnfPkg(self):
-		return 405
+		return "405"
 	def put_vlmi_viid_changeVnfPkg(self):
-		return 405
+		return "405"
 	def patch_vlmi_viid_changeVnfPkg(self):
-		return 405
+		return "405"
 	def delete_vlmi_viid_changeVnfPkg(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId}/create_snapshot 
@@ -369,7 +369,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def post_vlmi_viid_createSnapshot(self, vnfInstanceId, createVnfSnapshotRequest):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId}/create_snapshot 
@@ -377,13 +377,13 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def get_vlmi_viid_createSnapshot(self):
-		return 405
+		return "405"
 	def put_vlmi_viid_createSnapshot(self):
-		return 405
+		return "405"
 	def patch_vlmi_viid_createSnapshot(self):
-		return 405
+		return "405"
 	def delete_vlmi_viid_createSnapshot(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId}/revert_to_snapshot 
@@ -395,7 +395,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def post_vlmi_viid_revertToSnapshot(self, vnfInstanceId, revertToVnfSnapshotRequest):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/vnf_instances/{vnfInstanceId}/revert_to_snapshot 
@@ -403,13 +403,13 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def get_vlmi_viid_revertToSnapshot(self):
-		return 405
+		return "405"
 	def put_vlmi_viid_revertToSnapshot(self):
-		return 405
+		return "405"
 	def patch_vlmi_viid_revertToSnapshot(self):
-		return 405
+		return "405"
 	def delete_vlmi_viid_revertToSnapshot(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 	  	 /vnf_lcm_op_occs 
@@ -427,7 +427,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def get_vlmi_vnfLcmOpOccs(self):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/vnf_lcm_op_occs 
@@ -435,17 +435,17 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def post_vlmi_vnfLcmOpOccs(self):
-		return 405
+		return "405"
 	def put_vlmi_vnfLcmOpOccs(self):
-		return 405
+		return "405"
 	def patch_vlmi_vnfLcmOpOccs(self):
-		return 405
+		return "405"
 	def delete_vlmi_vnfLcmOpOccs(self):
-		return 405
+		return "405"
 
 	'''
-	PATH: /vnf_lcm_op_occs/{vnfLcmOpOccId} 
-	ACTION: GET
+	PATH: 		 /vlmi/vnf_lcm_op_occs/{vnfLcmOpOccId} 
+	ACTION: 	 GET
 	DESCRIPTION: Read information about an individual VNF lifecycle manage-
 				 ment operation occurrence. The same process as described 
 				 for the "get_vnfLcmOpOccs" is done, but for a single and
@@ -456,7 +456,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def get_vlmi_vloo_vnfOperationID(self, vnfLcmOpOccId):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/vnf_lcm_op_occs/{vnfLcmOpOccId}  
@@ -464,13 +464,13 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def post_vlmi_vloo_vnfOperationID(self):
-		return 405
+		return "405"
 	def put_vlmi_vloo_vnfOperationID(self):
-		return 405
+		return "405"
 	def patch_vlmi_vloo_vnfOperationID(self):
-		return 405
+		return "405"
 	def delete_vlmi_vloo_vnfOperationID(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vlmi/vnf_lcm_op_occs/{vnfLcmOpOccId}/retry 
@@ -485,7 +485,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def post_vlmi_vlooid_retry(self, vnfLcmOpOccId):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/vnf_lcm_op_occs/{vnfLcmOpOccId}/retry 
@@ -493,13 +493,13 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def get_vlmi_vlooid_retry(self):
-		return 405
+		return "405"
 	def put_vlmi_vlooid_retry(self):
-		return 405
+		return "405"
 	def patch_vlmi_vlooid_retry(self):
-		return 405
+		return "405"
 	def delete_vlmi_vlooid_retry(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vlmi/vnf_lcm_op_occs/{vnfLcmOpOccId}/rollback 
@@ -514,7 +514,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def post_vlmi_vlooid_rollback(self, vnfLcmOpOccId):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/vnf_lcm_op_occs/{vnfLcmOpOccId}/rollback 
@@ -522,13 +522,13 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def get_vlmi_vlooid_rollback(self):
-		return 405
+		return "405"
 	def put_vlmi_vlooid_rollback(self):
-		return 405
+		return "405"
 	def patch_vlmi_vlooid_rollback(self):
-		return 405
+		return "405"
 	def delete_vlmi_vlooid_rollback(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vlmi/vnf_lcm_op_occs/{vnfLcmOpOccId}/fail 
@@ -542,7 +542,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def post_vlmi_vlooid_fail(self, vnfLcmOpOccId):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/vnf_lcm_op_occs/{vnfLcmOpOccId}/fail 
@@ -550,13 +550,13 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def get_vlmi_vlooid_fail(self):
-		return 405
+		return "405"
 	def put_vlmi_vlooid_fail(self):
-		return 405
+		return "405"
 	def patch_vlmi_vlooid_fail(self):
-		return 405
+		return "405"
 	def delete_vlmi_vlooid_fail(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vlmi/vnf_lcm_op_occs/{vnfLcmOpOccId}/cancel 
@@ -573,7 +573,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def post_vlmi_vlooid_cancel(self, vnfLcmOpOccId, cancelMode):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/vnf_lcm_op_occs/{vnfLcmOpOccId}/cancel 
@@ -581,16 +581,16 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def get_vlmi_vlooid_cancel(self):
-		return 405
+		return "405"
 	def put_vlmi_vlooid_cancel(self):
-		return 405
+		return "405"
 	def patch_vlmi_vlooid_cancel(self):
-		return 405
+		return "405"
 	def delete_vlmi_vlooid_cancel(self):
-		return 405
+		return "405"
 
 	'''
-	PATH: 		 /vnf_snapshots
+	PATH: 		 /vlmi/vnf_snapshots
 	ACTION: 	 GET
 	DESCRIPTION: Query multiple VNF snapshots. Get information about 
 				 all the available snapshots of the managed VNF ins-
@@ -601,7 +601,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def get_vlmi_vnfSnapshots(self):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/vnf_snapshots
@@ -613,8 +613,8 @@ class VnfmDriverTemplate:
 				 - Integer error code (HTTP)
 	CALL: 		 EM -> VNFM
 	'''
-	def post_vlmi_vnfSnapshots(self):
-		return 501
+	def post_vlmi_vnfSnapshots(self, createVnfSnapshotInfoRequest):
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/vnf_snapshots
@@ -622,11 +622,11 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def put_vlmi_vnfSnapshots(self):
-		return 405
+		return "405"
 	def patch_vlmi_vnfSnapshots(self):
-		return 405
+		return "405"
 	def delete_vlmi_vnfSnapshots(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vlmi/vnf_snapshots/{vnfSnapshotInfoId}
@@ -639,7 +639,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def get_vlmi_vs_vnfSnapshotID(self, vnfSnapshotInfoId):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/vnf_snapshots/{vnfSnapshotInfoId}
@@ -651,7 +651,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def delete_vlmi_vs_vnfSnapshotID(self, vnfSnapshotID):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/vnf_snapshots/{vnfSnapshotInfoId}
@@ -659,11 +659,11 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def post_vlmi_vs_vnfSnapshotID(self):
-		return 405
+		return "405"
 	def put_vlmi_vs_vnfSnapshotID(self):
-		return 405
+		return "405"
 	def patch_vlmi_vs_vnfSnapshotID(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vlmi/subscriptions
@@ -676,7 +676,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def get_vlmi_subscriptions(self):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/subscriptions
@@ -691,7 +691,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def post_vlmi_subscriptions(self, lccnSubscriptionRequest):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/subscriptions
@@ -699,11 +699,11 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def put_vlmi_subscriptions(self):
-		return 405
+		return "405"
 	def patch_vlmi_subscriptions(self):
-		return 405
+		return "405"
 	def delete_vlmi_subscriptions(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vlmi/subscriptions/{subscriptionId}
@@ -715,7 +715,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def get_vlmi_s_subscriptionID(self, subscriptionId):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/subscriptions/{subscriptionId}
@@ -728,7 +728,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def post_vlmi_s_subscriptionID(self, subscriptionId):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vlmi/subscriptions/{subscriptionId}
@@ -736,11 +736,11 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def put_vlmi_s_subscriptionID(self):
-		return 405
+		return "405"
 	def patch_vlmi_s_subscriptionID(self):
-		return 405
+		return "405"
 	def delete_vlmi_s_subscriptionID(self):
-		return 405
+		return "405"
 
 	#######################################################################################################
 	#######################################################################################################
@@ -756,7 +756,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def get_vpmi_pm_jobs(self):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vpmi/pm_jobs
@@ -769,7 +769,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def post_vpmi_pm_jobs(self):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vpmi/pm_jobs
@@ -777,11 +777,11 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def put_vpmi_pm_jobs(self):
-		return 405
+		return "405"
 	def patch_vpmi_pm_jobs(self):
-		return 405
+		return "405"
 	def delete_vpmi_pm_jobs(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vpmi/pm_jobs/{pmJobId}
@@ -795,7 +795,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''	
 	def get_vpmi_pmj_pmJobID(self, pmJobId):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vpmi/pm_jobs/{pmJobId}
@@ -808,7 +808,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''	
 	def patch_vpmi_pmj_pmJobID(self, pmJobId, pmJobModifications):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vpmi/pm_jobs/{pmJobId}
@@ -821,7 +821,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''	
 	def delete_vpmi_pmj_pmJobID(self, pmJobId):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vpmi/pm_jobs/{pmJobId}
@@ -829,9 +829,9 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def post_vpmi_pmj_pmJobID(self):
-		return 405
+		return "405"
 	def put_vpmi_pmj_pmJobID(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vpmi/pm_jobs/{pmJobId}/reports/{reportId}
@@ -844,7 +844,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''	
 	def get_vpmi_pmjid_r_reportID(self, pmJobId, reportId):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vpmi/pm_jobs/{pmJobId}/reports/{reportId}
@@ -852,13 +852,13 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def post_vpmi_pmjid_r_reportID(self):
-		return 405
+		return "405"
 	def put_vpmi_pmjid_r_reportID(self):
-		return 405
+		return "405"
 	def patch_vpmi_pmjid_r_reportID(self):
-		return 405
+		return "405"
 	def delete_vpmi_pmjid_r_reportID(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vpmi/thresholds
@@ -871,7 +871,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''	
 	def get_vpmi_thresholds(self):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vpmi/thresholds
@@ -884,7 +884,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''	
 	def post_vpmi_thresholds(self):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vpmi/thresholds
@@ -892,11 +892,11 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def put_vpmi_thresholds(self):
-		return 405
+		return "405"
 	def patch_vpmi_thresholds(self):
-		return 405
+		return "405"
 	def delete_vpmi_thresholds(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vpmi/thresholds/{thresholdId}
@@ -909,7 +909,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''	
 	def get_vpmi_t_thresholdID(self, thresholdId):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vpmi/thresholds/{thresholdId}
@@ -922,7 +922,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''	
 	def patch_vpmi_t_thresholdID(self, thresholdId, thresholdModifications):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vpmi/thresholds/{thresholdId}
@@ -934,7 +934,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''	
 	def delete_vpmi_t_thresholdID(self, thresholdId):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vpmi/thresholds/{thresholdId}
@@ -942,9 +942,9 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def post_vpmi_t_thresholdID(self):
-		return 405
+		return "405"
 	def put_vpmi_t_thresholdID(self):
-		return 405
+		return "405"
 
 	#######################################################################################################
 	#######################################################################################################
@@ -960,7 +960,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''	
 	def get_vfmi_alarms(self):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vfmi/alarms
@@ -968,13 +968,13 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def post_vfmi_alarms(self):
-		return 405
+		return "405"
 	def put_vfmi_alarms(self):
-		return 405
+		return "405"
 	def patch_vfmi_alarms(self):
-		return 405
+		return "405"
 	def delete_vfmi_alarms(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vfmi/alarms/{alarmId}
@@ -987,7 +987,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''	
 	def get_vfmi_a_alarmID(self, alarmId):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vfmi/alarms/{alarmId}
@@ -1000,7 +1000,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''	
 	def patch_vfmi_a_alarmID(self, alarmId, alarmModifications):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vfmi/alarms/{alarmId}
@@ -1008,11 +1008,11 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def post_vfmi_a_alarmID(self):
-		return 405
+		return "405"
 	def put_vfmi_a_alarmID(self):
-		return 405
+		return "405"
 	def delete_vfmi_a_alarmID(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vfmi/alarms/{alarmId}/escalate
@@ -1027,7 +1027,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''	
 	def post_vfmi_aid_escalate(self, alarmId, perceivedSeverityRequest):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vfmi/alarms/{alarmId}/escalate
@@ -1035,13 +1035,13 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def get_vfmi_aid_escalate(self):
-		return 405
+		return "405"
 	def put_vfmi_aid_escalate(self):
-		return 405
+		return "405"
 	def patch_vfmi_aid_escalate(self):
-		return 405
+		return "405"
 	def delete_vfmi_aid_escalate(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vfmi/subscriptions
@@ -1056,7 +1056,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''	
 	def get_vfmi_subscriptions(self):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vfmi/subscriptions
@@ -1069,7 +1069,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def post_vfmi_subscriptions(self, fmSubscriptionRequest):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vfmi/subscriptions
@@ -1077,11 +1077,11 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def put_vfmi_subscriptions(self):
-		return 405
+		return "405"
 	def patch_vfmi_subscriptions(self):
-		return 405
+		return "405"
 	def delete_vfmi_subscriptions(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vfmi/subscriptions/{subscriptionId}
@@ -1095,7 +1095,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def get_vfmi_s_subscriptionID(self, subscriptionId):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vfmi/subscriptions/{subscriptionId}
@@ -1108,7 +1108,7 @@ class VnfmDriverTemplate:
 	CALL: 		 EM -> VNFM
 	'''
 	def delete_vfmi_s_subscriptionID(self, subscriptionId):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vfmi/subscriptions/{subscriptionId}
@@ -1116,11 +1116,11 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def post_vfmi_s_subscriptionID(self):
-		return 405
+		return "405"
 	def put_vfmi_s_subscriptionID(self):
-		return 405
+		return "405"
 	def patch_vfmi_s_subscriptionID(self):
-		return 405
+		return "405"
 	
 	#######################################################################################################
 	#######################################################################################################
@@ -1136,7 +1136,7 @@ class VnfmDriverTemplate:
 	CALL: 		 VNFM -> EM
 	'''
 	def get_vii_indicators(self):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vii/indicators
@@ -1144,13 +1144,13 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def post_vii_indicators(self):
-		return 405
+		return "405"
 	def put_vii_indicators(self):
-		return 405
+		return "405"
 	def patch_vii_indicators(self):
-		return 405
+		return "405"
 	def delete_vii_indicators(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vii/indicators/{vnfInstanceId}
@@ -1164,7 +1164,7 @@ class VnfmDriverTemplate:
 	CALL: 		 VNFM -> EM
 	'''
 	def get_vii_i_vnfInstanceID(self, vnfInstanceId):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vii/indicators/{vnfInstanceId}
@@ -1172,13 +1172,13 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def post_vii_i_vnfInstanceID(self):
-		return 405
+		return "405"
 	def put_vii_i_vnfInstanceID(self):
-		return 405
+		return "405"
 	def patch_vii_i_vnfInstanceID(self):
-		return 405
+		return "405"
 	def delete_vii_i_vnfInstanceID(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vii/indicators/{vnfInstanceId}/{indicatorId}
@@ -1190,7 +1190,7 @@ class VnfmDriverTemplate:
 	CALL: 		 VNFM -> EM
 	'''
 	def get_vii_iid_indicatorID(self, vnfInstanceId, indicatorId):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vii/indicators/{vnfInstanceId}/{indicatorId}
@@ -1198,13 +1198,13 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def post_vii_iid_indicatorID(self):
-		return 405
+		return "405"
 	def put_vii_iid_indicatorID(self):
-		return 405
+		return "405"
 	def patch_vii_iid_indicatorID(self):
-		return 405
+		return "405"
 	def delete_vii_iid_indicatorID(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vii/indicators/{indicatorId}
@@ -1216,7 +1216,7 @@ class VnfmDriverTemplate:
 	CALL: 		 VNFM -> EM
 	'''
 	def get_vii_i_indicatorID(self, indicatorId):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vii/indicators/{indicatorId}
@@ -1224,13 +1224,13 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def post_vii_i_indicatorID(self):
-		return 405
+		return "405"
 	def put_vii_i_indicatorID(self):
-		return 405
+		return "405"
 	def patch_vii_i_indicatorID(self):
-		return 405
+		return "405"
 	def delete_vii_i_indicatorID(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vii/subscriptions
@@ -1242,7 +1242,7 @@ class VnfmDriverTemplate:
 	CALL: 		 VNFM -> EM
 	'''
 	def get_vii_subscriptions(self):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vii/subscriptions
@@ -1254,7 +1254,7 @@ class VnfmDriverTemplate:
 	CALL: 		 VNFM -> EM
 	'''
 	def post_vii_subscriptions(self, vnfIndicatorSubscriptionRequest):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vii/subscriptions
@@ -1262,11 +1262,11 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def put_vii_subscriptions(self):
-		return 405
+		return "405"
 	def patch_vii_subscriptions(self):
-		return 405
+		return "405"
 	def delete_vii_subscriptions(self):
-		return 405
+		return "405"
 
 	'''
 	PATH: 		 /vii/subscriptions/{subscriptionId}
@@ -1278,7 +1278,7 @@ class VnfmDriverTemplate:
 	CALL: 		 VNFM -> EM
 	'''
 	def get_vii_s_subscriptionID(self, subscriptionId):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vii/subscriptions/{subscriptionId}
@@ -1290,7 +1290,7 @@ class VnfmDriverTemplate:
 	CALL: 		 VNFM -> EM
 	'''
 	def delete_vii_s_subscriptionID(self, subscriptionId):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vii/indicators/{indicatorId}
@@ -1298,11 +1298,11 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def post_vii_s_subscriptionID(self):
-		return 405
+		return "405"
 	def put_vii_s_subscriptionID(self):
-		return 405
+		return "405"
 	def patch_vii_s_subscriptionID(self):
-		return 405
+		return "405"
 
 	#######################################################################################################
 	#######################################################################################################
@@ -1318,7 +1318,7 @@ class VnfmDriverTemplate:
 	CALL: 		 VNFM -> EM
 	'''
 	def get_vci_configuration(self, vnfId):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vci/configuration/{vnfId}
@@ -1331,7 +1331,7 @@ class VnfmDriverTemplate:
 	CALL: 		 VNFM -> EM
 	'''
 	def patch_vci_configuration(self, vnfId, vnfConfigModifications):
-		return 501
+		return "501"
 
 	'''
 	PATH: 		 /vci/configuration
@@ -1339,8 +1339,8 @@ class VnfmDriverTemplate:
 	**Do not change these methods**
 	'''
 	def post_vci_configuration(self):
-		return 405
+		return "405"
 	def put_vci_configuration(self):
-		return 405
+		return "405"
 	def delete_vci_configuration(self):
-		return 405
+		return "405"

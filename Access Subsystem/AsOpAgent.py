@@ -1,5 +1,6 @@
 import uuid
 import json
+import flask
 import os.path
 import importlib
 
@@ -25,16 +26,17 @@ CODES:  -1 -> Invalid data type of __vibManager
 	    -2 -> Invalid data type of __veVnfmEm
 	    -3 -> Invalid driver name of __veVnfmEm
 		-4 -> Invalid class instantiation of __veVnfmEm
-		-5 -> Invalid data type of oaAa
-		-6 -> Unavailable authentication attribute
-		-7 -> Error during request authentication
-		-8 -> Invalid argument type received
-		-9 -> Invalid id of VNF provided
-		-10 -> Invalid id of indicator provided
-		-11 -> Error during VIB table entry creation
-		-12 -> Error on database operation
-		-13 -> Invalid id of subscription provided
-		-14 -> Error on response creation
+		-5 -> Invalid data type of aiAs
+		-6 -> Invalid data type of oaAa
+		-7 -> Unavailable authentication attribute
+		-8 -> Error during request authentication
+		-9 -> Invalid argument type received
+		-10 -> Invalid id of VNF provided
+		-11 -> Invalid id of indicator provided
+		-12 -> Error during VIB table entry creation
+		-13 -> Error on database operation
+		-14 -> Invalid id of subscription provided
+		-15 -> Error on response creation
 '''
 class OperationAgent:
 
@@ -61,11 +63,13 @@ class OperationAgent:
 		except Exception as e:
 			return -4
 
-		#TODO: class check
+		if type(aiAs) != flask.Flask:
+			return -5
 		self.__aiAs = aiAs
+		self.__setupAccessInterface()
 
 		if type(oaAa) != AsAuthAgent.AuthenticationAgent:
-			return -5
+			return -6
 		self.__oaAa = oaAa
 
 		return self
@@ -91,487 +95,310 @@ class OperationAgent:
 	def __authenticateRequest(self, operationRequest):
 		
 		if not hasattr(operationRequest, "authentication"):
-			return -6
+			return -7
 
 		authResult = self.__oaAa.authRequest(operationRequest.authentication)
 		if type(authResult) == int:
-			return -7
+			return -8
 
 		return authResult
 
+	def __setupAccessInterface(self):
+
+		self.__aiAs.add_url_rule("/vlmi/vnf_instances/", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_vnfInstances)
+		self.__aiAs.add_url_rule("/vlmi/vnf_instances/<vnfInstanceId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_vi_vnfInstanceID)
+		self.__aiAs.add_url_rule("/vlmi/vnf_instances/<vnfInstanceId>/instantiate", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_viid_instantiate)
+		self.__aiAs.add_url_rule("/vlmi/vnf_instances/<vnfInstanceId>/scale", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_viid_scale)
+		self.__aiAs.add_url_rule("/vlmi/vnf_instances/<vnfInstanceId>/scale_to_level", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_viid_scaleToLevel)
+		self.__aiAs.add_url_rule("/vlmi/vnf_instances/<vnfInstanceId>/change_flavour", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_viid_changeFlavour)
+		self.__aiAs.add_url_rule("/vlmi/vnf_instances/<vnfInstanceId>/terminate", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_viid_terminate)
+		self.__aiAs.add_url_rule("/vlmi/vnf_instances/<vnfInstanceId>/heal", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_viid_heal)
+		self.__aiAs.add_url_rule("/vlmi/vnf_instances/<vnfInstanceId>/operate", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_viid_operate)
+		self.__aiAs.add_url_rule("/vlmi/vnf_instances/<vnfInstanceId>/changeExtConn", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_viid_changeExtConn)
+		self.__aiAs.add_url_rule("/vlmi/vnf_instances/<vnfInstanceId>/changeVnfPkg", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_viid_changeVnfPkg)
+		self.__aiAs.add_url_rule("/vlmi/vnf_instances/<vnfInstanceId>/createSnapshot", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_viid_createSnapshot)
+		self.__aiAs.add_url_rule("/vlmi/vnf_instances/<vnfInstanceId>/revertToSnapshot", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_viid_revertToSnapshot)
+		self.__aiAs.add_url_rule("/vlmi/vnf_lcm_op_occs", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_vnfLcmOpOccs)
+		self.__aiAs.add_url_rule("/vlmi/vnf_lcm_op_occs/<vnfLcmOpOccId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_vloo_vnfOperationID)
+		self.__aiAs.add_url_rule("/vlmi/vnf_lcm_op_occs/<vnfLcmOpOccId>/retry", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_vlooid_retry)
+		self.__aiAs.add_url_rule("/vlmi/vnf_lcm_op_occs/<vnfLcmOpOccId>/rollback", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_vlooid_rollback)
+		self.__aiAs.add_url_rule("/vlmi/vnf_lcm_op_occs/<vnfLcmOpOccId>/fail", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_vlooid_fail)
+		self.__aiAs.add_url_rule("/vlmi/vnf_lcm_op_occs/<vnfLcmOpOccId>/cancel", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_vlooid_cancel)
+		self.__aiAs.add_url_rule("/vlmi/vnf_snapshots", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_vnfSnapshots)
+
 	# ================================ Ve-Vnfm-em Operations (EMS -> VNFM) ================================
 
-	def get_vlmi_vnfInstances(self):
+	def vlmi_vnfInstances(self):
 
-		return self.__veVnfmEm.get_vlmi_vnfInstances()
-		
-	def post_vlmi_vnfInstances(self, createVnfRequest):
-		
-		if type(createVnfRequest) != CreateVnfRequest:
-			return -8
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vlmi_vnfInstances()
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vlmi_vnfInstances(flask.request.values.get("createVnfRequest"))
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vlmi_vnfInstances()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vlmi_vnfInstances()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vlmi_vnfInstances()
+	
+	def vlmi_vi_vnfInstanceID(self, vnfInstanceId):
 
-		return self.__veVnfmEm.post_vlmi_vnfInstances(createVnfRequest)
-		
-	def put_vlmi_vnfInstances(self):
-		
-		return self.__veVnfmEm.put_vlmi_vnfInstances()
-		
-	def patch_vlmi_vnfInstances(self):
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vlmi_vi_vnfInstanceID(vnfInstanceId)
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vlmi_vi_vnfInstanceID()
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vlmi_vi_vnfInstanceID()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vlmi_vi_vnfInstanceID(vnfInstanceId, flask.request.values.get("vnfInfoModificationRequest"))
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vlmi_vi_vnfInstanceID(vnfInstanceId)
+	
+	def vlmi_viid_instantiate(self, vnfInstanceId):
 
-		return self.__veVnfmEm.patch_vlmi_vnfInstances()
-		
-	def delete_vlmi_vnfInstances(self):
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vlmi_viid_instantiate()
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vlmi_viid_instantiate(vnfInstanceId, flask.request.values.get("instantiateVnfRequest"))
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vlmi_viid_instantiate()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vlmi_viid_instantiate()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vlmi_viid_instantiate()
 
-		return self.__veVnfmEm.delete_vlmi_vnfInstances()
-		
-	def get_vlmi_vi_vnfInstanceID(self, vnfInstanceId):
+	def vlmi_viid_scale(self, vnfInstanceId):
 
-		if type(vnfInstanceId) != str:
-			return -8
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vlmi_viid_scale()
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vlmi_viid_scale(vnfInstanceId, flask.request.values.get("scaleVnfRequest"))
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vlmi_viid_scale()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vlmi_viid_scale()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vlmi_viid_scale()
+	
+	def vlmi_viid_scaleToLevel(self, vnfInstanceId):
 
-		return self.__veVnfmEm.get_vlmi_vi_vnfInstanceID()
-		
-	def patch_vlmi_vi_vnfInstanceID(self, vnfInstanceId, vnfInfoModificationRequest):
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vlmi_viid_scaleToLevel()
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vlmi_viid_scaleToLevel(vnfInstanceId, flask.request.values.get("scaleVnfToLevelRequest"))
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vlmi_viid_scaleToLevel()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vlmi_viid_scaleToLevel()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vlmi_viid_scaleToLevel()
 
-		if type(vnfInstanceId) != str or type(vnfInfoModificationRequest) != VnfInfoModificationRequest:
-			return -8
+	def vlmi_viid_changeFlavour(self, vnfInstanceId):
 
-		return self.__veVnfmEm.patch_vlmi_vi_vnfInstanceID(vnfInstanceId, vnfInfoModificationRequest)
-		
-	def delete_vlmi_vi_vnfInstanceID(self, vnfInstanceId):
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vlmi_viid_changeFlavour()
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vlmi_viid_changeFlavour(vnfInstanceId, flask.request.values.get("changeVnfFlavourRequest"))
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vlmi_viid_changeFlavour()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vlmi_viid_changeFlavour()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vlmi_viid_changeFlavour()
+	
+	def vlmi_viid_terminate(self, vnfInstanceId):
 
-		if type(vnfInstanceId) != str:
-			return -8
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vlmi_viid_terminate()
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vlmi_viid_terminate(vnfInstanceId, flask.request.values.get("terminateVnfRequest"))
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vlmi_viid_terminate()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vlmi_viid_terminate()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vlmi_viid_terminate()
+	
+	def vlmi_viid_heal(self, vnfInstanceId):
 
-		return self.__veVnfmEm.delete_vlmi_vi_vnfInstanceID(vnfInstanceId)
-		
-	def post_vlmi_vi_vnfInstanceID(self):
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vlmi_viid_heal()
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vlmi_viid_heal(vnfInstanceId, flask.request.values.get("healVnfRequest"))
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vlmi_viid_heal()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vlmi_viid_heal()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vlmi_viid_heal()
 
-		return self.__veVnfmEm.post_vlmi_vi_vnfInstanceID()
-		
-	def put_vlmi_vi_vnfInstanceID(self):
+	def vlmi_viid_operate(self, vnfInstanceId):
 
-		return self.__veVnfmEm.put_vlmi_vi_vnfInstanceID()
-		
-	def post_vlmi_viid_instantiate(self, vnfInstanceId, instantiateVnfRequest):
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vlmi_viid_operate()
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vlmi_viid_operate(vnfInstanceId, flask.request.values.get("operateVnfRequest"))
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vlmi_viid_operate()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vlmi_viid_operate()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vlmi_viid_operate()
 
-		if type(vnfInstanceId) != str or type(instantiateVnfRequest) != InstantiateVnfRequest:
-			return -8
+	def vlmi_viid_changeExtConn(self, vnfInstanceId):
 
-		return self.__veVnfmEm.post_vlmi_viid_instantiate(vnfInstanceId, instantiateVnfRequest)
-		
-	def get_vlmi_viid_instantiate(self):
-		
-		return self.__veVnfmEm.get_vlmi_viid_instantiate()
-		
-	def put_vlmi_viid_instantiate(self):
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vlmi_viid_changeExtConn()
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vlmi_viid_changeExtConn(vnfInstanceId, flask.request.values.get("changeExtVnfConnectivityRequest"))
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vlmi_viid_changeExtConn()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vlmi_viid_changeExtConn()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vlmi_viid_changeExtConn()
 
-		return self.__veVnfmEm.put_vlmi_viid_instantiate()
-		
-	def patch_vlmi_viid_instantiate(self):
+	def vlmi_viid_changeVnfPkg(self, vnfInstanceId):
 
-		return self.__veVnfmEm.patch_vlmi_viid_instantiate()
-		
-	def delete_vlmi_viid_instantiate(self):
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vlmi_viid_changeVnfPkg()
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vlmi_viid_changeVnfPkg(vnfInstanceId, flask.request.values.get("changeCurrentVnfPkgRequest"))
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vlmi_viid_changeVnfPkg()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vlmi_viid_changeVnfPkg()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vlmi_viid_changeVnfPkg()
 
-		return self.__veVnfmEm.delete_vlmi_viid_instantiate()
-		
-	def post_vlmi_viid_scale(self, vnfInstanceId, scaleVnfRequest):
+	def vlmi_viid_createSnapshot(self, vnfInstanceId):
 
-		if type(vnfInstanceId) != str or type(scaleVnfRequest) != ScaleVnfRequest:
-			return -8
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vlmi_viid_createSnapshot()
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vlmi_viid_createSnapshot(vnfInstanceId, flask.request.values.get("createVnfSnapshotRequest"))
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vlmi_viid_createSnapshot()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vlmi_viid_createSnapshot()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vlmi_viid_createSnapshot()	
 
-		return self.__veVnfmEm.post_vlmi_viid_scale(vnfInstanceId, scaleVnfRequest)
-		
-	def get_vlmi_viid_scale(self):
-		
-		return self.__veVnfmEm.get_vlmi_viid_scale()
-		
-	def put_vlmi_viid_scale(self):
-		
-		return self.__veVnfmEm.put_vlmi_viid_scale()
-		
-	def patch_vlmi_viid_scale(self):
-		
-		return self.__veVnfmEm.patch_vlmi_viid_scale()
-		
-	def delete_vlmi_viid_scale(self):
-		
-		return self.__veVnfmEm.delete_vlmi_viid_scale()
-		
-	def post_vlmi_viid_scaleToLevel(self, vnfInstanceId, scaleVnfToLevelRequest):
-		
-		if type(vnfInstanceId) != str or type(scaleVnfToLevelRequest) != ScaleVnfToLevelRequest:
-			return -8
+	def vlmi_viid_revertToSnapshot(self, vnfInstanceId):
 
-		return self.__veVnfmEm.post_vlmi_viid_scaleToLevel(vnfInstanceId, scaleVnfToLevelRequest)
-		
-	def get_vlmi_viid_scaleToLevel(self):
-		
-		return self.__veVnfmEm.get_vlmi_viid_scaleToLevel()
-		
-	def put_vlmi_viid_scaleToLevel(self):
-		
-		return self.__veVnfmEm.put_vlmi_viid_scaleToLevel()
-		
-	def patch_vlmi_viid_scaleToLevel(self):
-		
-		return self.__veVnfmEm.patch_vlmi_viid_scaleToLevel()
-		
-	def delete_vlmi_viid_scaleToLevel(self):
-		
-		return self.__veVnfmEm.delete_vlmi_viid_scaleToLevel()
-		
-	def post_vlmi_viid_changeFlavour(self, vnfInstanceId, changeVnfFlavourRequest):
-		
-		if type(vnfInstanceId) != str or type(changeVnfFlavourRequest) != ChangeVnfFlavourRequest:
-			return -8
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vlmi_viid_revertToSnapshot()
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vlmi_viid_revertToSnapshot(vnfInstanceId, flask.request.values.get("revertToVnfSnapshotRequest"))
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vlmi_viid_revertToSnapshot()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vlmi_viid_revertToSnapshot()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vlmi_viid_revertToSnapshot()
 
-		return self.__veVnfmEm.post_vlmi_viid_changeFlavour(vnfInstanceId, changeVnfFlavourRequest)
-		
-	def get_vlmi_viid_changeFlavour(self):
-		
-		return self.__veVnfmEm.get_vlmi_viid_changeFlavour()
-		
-	def put_vlmi_viid_changeFlavour(self):
-		
-		return self.__veVnfmEm.put_vlmi_viid_changeFlavour()
-		
-	def patch_vlmi_viid_changeFlavour(self):
-		
-		return self.__veVnfmEm.patch_vlmi_viid_changeFlavour()
-		
-	def delete_vlmi_viid_changeFlavour(self):
-		
-		return self.__veVnfmEm.delete_vlmi_viid_changeFlavour()
-		
-	def post_vlmi_viid_terminate(self, vnfInstanceId, terminateVnfRequest):
+	def vlmi_vnfLcmOpOccs(self):
 
-		if type(vnfInstanceId) != str or type(terminateVnfRequest) != TerminateVnfRequest:
-			return -8
-		
-		return self.__veVnfmEm.post_vlmi_viid_terminate(vnfInstanceId, terminateVnfRequest)
-		
-	def get_vlmi_viid_terminate(self):
-		
-		return self.__veVnfmEm.get_vlmi_viid_terminate()
-		
-	def put_vlmi_viid_terminate(self):
-		
-		return self.__veVnfmEm.put_vlmi_viid_terminate()
-		
-	def patch_vlmi_viid_terminate(self):
-		
-		return self.__veVnfmEm.patch_vlmi_viid_terminate()
-		
-	def delete_vlmi_viid_terminate(self):
-		
-		return self.__veVnfmEm.delete_vlmi_viid_terminate()
-		
-	def post_vlmi_viid_heal(self, vnfInstanceId, healVnfRequest):
-		
-		if type(vnfInstanceId) != str or type(healVnfRequest) != HealVnfRequest:
-			return -8
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vlmi_vnfLcmOpOccs()
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vlmi_vnfLcmOpOccs()
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vlmi_vnfLcmOpOccs()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vlmi_vnfLcmOpOccs()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vlmi_vnfLcmOpOccs()
 
-		return self.__veVnfmEm.post_vlmi_viid_heal(vnfInstanceId, healVnfRequest)
-		
-	def get_vlmi_viid_heal(self):
-		
-		return self.__veVnfmEm.get_vlmi_viid_heal()
-		
-	def put_vlmi_viid_heal(self):
-		
-		return self.__veVnfmEm.put_vlmi_viid_heal()
-		
-	def patch_vlmi_viid_heal(self):
-		
-		return self.__veVnfmEm.patch_vlmi_viid_heal()
-		
-	def delete_vlmi_viid_heal(self):
-		
-		return self.__veVnfmEm.delete_vlmi_viid_heal()
-		
-	def post_vlmi_viid_operate(self, vnfInstanceId, operateVnfRequest):
-		
-		if type(vnfInstanceId) != str or type(operateVnfRequest) != OperateVnfRequest:
-			return -8
+	def vlmi_vloo_vnfOperationID(self, vnfLcmOpOccId):
 
-		return self.__veVnfmEm.post_vlmi_viid_operate(vnfInstanceId, operateVnfRequest)
-		
-	def get_vlmi_viid_operate(self):
-		
-		return self.__veVnfmEm.get_vlmi_viid_operate()
-		
-	def put_vlmi_viid_operate(self):
-		
-		return self.__veVnfmEm.put_vlmi_viid_operate()
-		
-	def patch_vlmi_viid_operate(self):
-		
-		return self.__veVnfmEm.patch_vlmi_viid_operate()
-		
-	def delete_vlmi_viid_operate(self):
-		
-		return self.__veVnfmEm.delete_vlmi_viid_operate()
-		
-	def post_vlmi_viid_changeExtConn(self, vnfInstanceId, changeExtVnfConnectivityRequest):
-		
-		if type(vnfInstanceId) != str or type(changeExtVnfConnectivityRequest) != ChangeExtVnfConnectivityRequest:
-			return -8
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vlmi_vloo_vnfOperationID(vnfLcmOpOccId)
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vlmi_vloo_vnfOperationID()
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vlmi_vloo_vnfOperationID()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vlmi_vloo_vnfOperationID()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vlmi_vloo_vnfOperationID()	
 
-		return self.__veVnfmEm.post_vlmi_viid_changeExtConn(vnfInstanceId, changeExtVnfConnectivityRequest)
-		
-	def get_vlmi_viid_changeExtConn(self):
-		
-		return self.__veVnfmEm.get_vlmi_viid_changeExtConn()
-		
-	def put_vlmi_viid_changeExtConn(self):
-		
-		return self.__veVnfmEm.put_vlmi_viid_changeExtConn()
-		
-	def patch_vlmi_viid_changeExtConn(self):
-		
-		return self.__veVnfmEm.patch_vlmi_viid_changeExtConn()
-		
-	def delete_vlmi_viid_changeExtConn(self):
-		
-		return self.__veVnfmEm.delete_vlmi_viid_changeExtConn()
-		
-	def post_vlmi_viid_changeVnfPkg(self, vnfInstanceId, changeCurrentVnfPkgRequest):
-		
-		if type(vnfInstanceId) != str or type(changeCurrentVnfPkgRequest) != ChangeCurrentVnfPkgRequest:
-			return -8
+	def vlmi_vlooid_retry(self, vnfLcmOpOccId):
 
-		return self.__veVnfmEm.post_vlmi_viid_changeVnfPkg(vnfInstanceId, changeCurrentVnfPkgRequest)
-		
-	def get_vlmi_viid_changeVnfPkg(self):
-		
-		return self.__veVnfmEm.get_vlmi_viid_changeVnfPkg()
-		
-	def put_vlmi_viid_changeVnfPkg(self):
-		
-		return self.__veVnfmEm.put_vlmi_viid_changeVnfPkg()
-		
-	def patch_vlmi_viid_changeVnfPkg(self):
-		
-		return self.__veVnfmEm.patch_vlmi_viid_changeVnfPkg()
-		
-	def delete_vlmi_viid_changeVnfPkg(self):
-		
-		return self.__veVnfmEm.delete_vlmi_viid_changeVnfPkg()
-		
-	def post_vlmi_viid_createSnapshot(self, vnfInstanceId, createVnfSnapshotRequest):
-		
-		if type(vnfInstanceId) != str or type(createVnfSnapshotRequest) != CreateVnfSnapshotRequest:
-			return -8
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vlmi_vlooid_retry()
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vlmi_vlooid_retry(vnfLcmOpOccId)
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vlmi_vlooid_retry()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vlmi_vlooid_retry()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vlmi_vlooid_retry()
 
-		return self.__veVnfmEm.post_vlmi_viid_createSnapshot(vnfInstanceId, createVnfSnapshotRequest)
-		
-	def get_vlmi_viid_createSnapshot(self):
-		
-		return self.__veVnfmEm.get_vlmi_viid_createSnapshot()
-		
-	def put_vlmi_viid_createSnapshot(self):
-		
-		return self.__veVnfmEm.put_vlmi_viid_createSnapshot()
-		
-	def patch_vlmi_viid_createSnapshot(self):
-		
-		return self.__veVnfmEm.patch_vlmi_viid_createSnapshot()
-		
-	def delete_vlmi_viid_createSnapshot(self):
-		
-		return self.__veVnfmEm.delete_vlmi_viid_createSnapshot()
-		
-	def post_vlmi_viid_revertToSnapshot(self, vnfInstanceId, revertToVnfSnapshotRequest):
-		
-		if type(vnfInstanceId) != str or type(revertToVnfSnapshotRequest) != RevertToVnfSnapshotRequest:
-			return -8
+	def vlmi_vlooid_rollback(self, vnfLcmOpOccId):
 
-		return self.__veVnfmEm.post_vlmi_viid_revertToSnapshot(vnfInstanceId, revertToVnfSnapshotRequest)
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vlmi_vlooid_rollback()
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vlmi_vlooid_rollback(vnfLcmOpOccId)
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vlmi_vlooid_rollback()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vlmi_vlooid_rollback()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vlmi_vlooid_rollback()
 		
-	def get_vlmi_viid_revertToSnapshot(self):
-		
-		return self.__veVnfmEm.get_vlmi_viid_revertToSnapshot()
-		
-	def put_vlmi_viid_revertToSnapshot(self):
-		
-		return self.__veVnfmEm.put_vlmi_viid_revertToSnapshot()
-		
-	def patch_vlmi_viid_revertToSnapshot(self):
-		
-		return self.__veVnfmEm.patch_vlmi_viid_revertToSnapshot()
-		
-	def delete_vlmi_viid_revertToSnapshot(self):
-		
-		return self.__veVnfmEm.delete_vlmi_viid_revertToSnapshot()
-		
-	def get_vlmi_vnfLcmOpOccs(self):
-		
-		return self.__veVnfmEm.get_vlmi_vnfLcmOpOccs()
-		
-	def post_vlmi_vnfLcmOpOccs(self):
-		
-		return self.__veVnfmEm.post_vlmi_vnfLcmOpOccs()
-		
-	def put_vlmi_vnfLcmOpOccs(self):
-		
-		return self.__veVnfmEm.put_vlmi_vnfLcmOpOccs()
-		
-	def patch_vlmi_vnfLcmOpOccs(self):
-		
-		return self.__veVnfmEm.patch_vlmi_vnfLcmOpOccs()
-		
-	def delete_vlmi_vnfLcmOpOccs(self):
-		
-		return self.__veVnfmEm.delete_vlmi_vnfLcmOpOccs()
-		
-	def get_vlmi_vloo_vnfOperationID(self, vnfLcmOpOccId):
+	def vlmi_vlooid_fail(self, vnfLcmOpOccId):
 
-		if type(vnfLcmOpOccId) != str:
-			return -8
-		
-		return self.__veVnfmEm.get_vlmi_vloo_vnfOperationID(vnfLcmOpOccId)
-		
-	def post_vlmi_vloo_vnfOperationID(self):
-		
-		return self.__veVnfmEm.post_vlmi_vloo_vnfOperationID()
-		
-	def put_vlmi_vloo_vnfOperationID(self):
-		
-		return self.__veVnfmEm.put_vlmi_vloo_vnfOperationID()
-		
-	def patch_vlmi_vloo_vnfOperationID(self):
-		
-		return self.__veVnfmEm.patch_vlmi_vloo_vnfOperationID()
-		
-	def delete_vlmi_vloo_vnfOperationID(self):
-		
-		return self.__veVnfmEm.delete_vlmi_vloo_vnfOperationID()
-		
-	def post_vlmi_vlooid_retry(self, vnfLcmOpOccId):
-		
-		if type(vnfLcmOpOccId) != str:
-			return -8
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vlmi_vlooid_fail()
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vlmi_vlooid_fail(vnfLcmOpOccId)
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vlmi_vlooid_fail()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vlmi_vlooid_fail()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vlmi_vlooid_fail()
 
-		return self.__veVnfmEm.post_vlmi_vlooid_retry(vnfLcmOpOccId)
-		
-	def get_vlmi_vlooid_retry(self):
-		
-		return self.__veVnfmEm.get_vlmi_vlooid_retry()
-		
-	def put_vlmi_vlooid_retry(self):
-		
-		return self.__veVnfmEm.put_vlmi_vlooid_retry()
-		
-	def patch_vlmi_vlooid_retry(self):
-		
-		return self.__veVnfmEm.patch_vlmi_vlooid_retry()
-		
-	def delete_vlmi_vlooid_retry(self):
-		
-		return self.__veVnfmEm.delete_vlmi_vlooid_retry()
-		
-	def post_vlmi_vlooid_rollback(self, vnfLcmOpOccId):
-		
-		if type(vnfLcmOpOccId) != str:
-			return -8
+	def vlmi_vlooid_cancel(self, vnfLcmOpOccId):
 
-		return self.__veVnfmEm.post_vlmi_vlooid_rollback(vnfLcmOpOccId)
-		
-	def get_vlmi_vlooid_rollback(self):
-		
-		return self.__veVnfmEm.get_vlmi_vlooid_rollback()
-		
-	def put_vlmi_vlooid_rollback(self):
-		
-		return self.__veVnfmEm.put_vlmi_vlooid_rollback()
-		
-	def patch_vlmi_vlooid_rollback(self):
-		
-		return self.__veVnfmEm.patch_vlmi_vlooid_rollback()
-		
-	def delete_vlmi_vlooid_rollback(self):
-		
-		return self.__veVnfmEm.delete_vlmi_vlooid_rollback()
-		
-	def post_vlmi_vlooid_fail(self, vnfLcmOpOccId):
-		
-		if type(vnfLcmOpOccId) != str:
-			return -8
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vlmi_vlooid_cancel()
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vlmi_vlooid_cancel(vnfLcmOpOccId, flask.request.values.get("cancelMode"))
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vlmi_vlooid_cancel()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vlmi_vlooid_cancel()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vlmi_vlooid_cancel()
 
-		return self.__veVnfmEm.post_vlmi_vlooid_fail(vnfLcmOpOccId)
-		
-	def get_vlmi_vlooid_fail(self):
-		
-		return self.__veVnfmEm.get_vlmi_vlooid_fail()
-		
-	def put_vlmi_vlooid_fail(self):
-		
-		return self.__veVnfmEm.put_vlmi_vlooid_fail()
-		
-	def patch_vlmi_vlooid_fail(self):
-		
-		return self.__veVnfmEm.patch_vlmi_vlooid_fail()
-		
-	def delete_vlmi_vlooid_fail(self):
-		
-		return self.__veVnfmEm.delete_vlmi_vlooid_fail()
-		
-	def post_vlmi_vlooid_cancel(self, vnfLcmOpOccId, cancelMode):
-		
-		if type(vnfLcmOpOccId) != str or type(cancelMode) != cancelMode:
-			return -8
+	def vlmi_vnfSnapshots(self):
 
-		return self.__veVnfmEm.post_vlmi_vlooid_cancel(vnfLcmOpOccId, cancelMode)
-		
-	def get_vlmi_vlooid_cancel(self):
-		
-		return self.__veVnfmEm.get_vlmi_vlooid_cancel()
-		
-	def put_vlmi_vlooid_cancel(self):
-		
-		return self.__veVnfmEm.put_vlmi_vlooid_cancel()
-		
-	def patch_vlmi_vlooid_cancel(self):
-		
-		return self.__veVnfmEm.patch_vlmi_vlooid_cancel()
-		
-	def delete_vlmi_vlooid_cancel(self):
-		
-		return self.__veVnfmEm.delete_vlmi_vlooid_cancel()
-		
-	def get_vlmi_vnfSnapshots(self):
-		
-		return self.__veVnfmEm.get_vlmi_vnfSnapshots()
-		
-	def post_vlmi_vnfSnapshots(self):
-		
-		return self.__veVnfmEm.post_vlmi_vnfSnapshots()
-		
-	def put_vlmi_vnfSnapshots(self):
-		
-		return self.__veVnfmEm.put_vlmi_vnfSnapshots()
-		
-	def patch_vlmi_vnfSnapshots(self):
-		
-		return self.__veVnfmEm.patch_vlmi_vnfSnapshots()
-		
-	def delete_vlmi_vnfSnapshots(self):
-		
-		return self.__veVnfmEm.delete_vlmi_vnfSnapshots()
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vlmi_vnfSnapshots()
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vlmi_vnfSnapshots(flask.request.values.get("createVnfSnapshotInfoRequest"))
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vlmi_vnfSnapshots()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vlmi_vnfSnapshots()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vlmi_vnfSnapshots()
 		
 	def get_vlmi_vs_vnfSnapshotID(self, vnfSnapshotInfoId):
 		
 		if type(vnfSnapshotInfoId) != str:
-			return -8
+			return -9
 
 		return self.__veVnfmEm.get_vlmi_vs_vnfSnapshotID(vnfSnapshotInfoId)
 		
 	def delete_vlmi_vs_vnfSnapshotID(self, vnfSnapshotID):
 		
 		if type(vnfSnapshotID) != str:
-			return -8
+			return -9
 
 		return self.__veVnfmEm.delete_vlmi_vs_vnfSnapshotID(vnfSnapshotID)
 		
@@ -594,7 +421,7 @@ class OperationAgent:
 	def post_vlmi_subscriptions(self, lccnSubscriptionRequest):
 		
 		if type(lccnSubscriptionRequest) != LccnSubscriptionRequest:
-			return -8
+			return -9
 
 		return self.__veVnfmEm.post_vlmi_subscriptions(lccnSubscriptionRequest)
 		
@@ -613,14 +440,14 @@ class OperationAgent:
 	def get_vlmi_s_subscriptionID(self, subscriptionId):
 		
 		if type(subscriptionId) != str:
-			return -8
+			return -9
 
 		return self.__veVnfmEm.get_vlmi_s_subscriptionID(subscriptionId)
 		
 	def post_vlmi_s_subscriptionID(self, subscriptionId):
 		
 		if type(subscriptionId) != str:
-			return -8
+			return -9
 
 		return self.__veVnfmEm.post_vlmi_s_subscriptionID(subscriptionId)
 		
@@ -659,21 +486,21 @@ class OperationAgent:
 	def get_vpmi_pmj_pmJobID(self, pmJobId):
 		
 		if type(pmJobId) != str:
-			return -8
+			return -9
 
 		return self.__veVnfmEm.get_vpmi_pmj_pmJobID(pmJobID)
 		
 	def patch_vpmi_pmj_pmJobID(self, pmJobId, pmJobModifications):
 		
 		if type(pmJobId) != str or type(pmJobModifications) != PmJobModifications:
-			return -8
+			return -9
 
 		return self.__veVnfmEm.patch_vpmi_pmj_pmJobID(pmJobID, pmJobModifications)
 		
 	def delete_vpmi_pmj_pmJobID(self, pmJobId):
 		
 		if type(pmJobId) != str:
-			return -8
+			return -9
 
 		return self.__veVnfmEm.delete_vpmi_pmj_pmJobID(pmJobId)
 		
@@ -688,7 +515,7 @@ class OperationAgent:
 	def get_vpmi_pmjid_r_reportID(self, pmJobId, reportId):
 		
 		if type(pmJobId) != str or type(reportId) != str:
-			return -8
+			return -9
 
 		return self.__veVnfmEm.get_vpmi_pmjid_r_reportID(pmJobId, reportId)
 		
@@ -731,21 +558,21 @@ class OperationAgent:
 	def get_vpmi_t_thresholdID(self, thresholdId):
 		
 		if type(thresholdId) != str:
-			return -8
+			return -9
 
 		return self.__veVnfmEm.get_vpmi_t_thresholdID(thresholdId)
 		
 	def patch_vpmi_t_thresholdID(self, thresholdId, thresholdModifications):
 		
 		if type(thresholdId) != str and type(thresholdModifications) != ThresholdModifications:
-			return -8
+			return -9
 
 		return self.__veVnfmEm.patch_vpmi_t_thresholdID(thresholdId, thresholdModifications)
 		
 	def delete_vpmi_t_thresholdID(self, thresholdId):
 		
 		if type(thresholdId) != str:
-			return -8
+			return -9
 
 		return self.__veVnfmEm.delete_vpmi_t_thresholdID(thresholdId)
 		
@@ -780,14 +607,14 @@ class OperationAgent:
 	def get_vfmi_a_alarmID(self, alarmId):
 		
 		if type(alarmId) != str:
-			return -8
+			return -9
 
 		return self.__veVnfmEm.get_vfmi_a_alarmID(alarmId)
 		
 	def patch_vfmi_a_alarmID(self, alarmId, alarmModifications):
 		
 		if type(alarmId) != str and type(alarmModifications) != AlarmModifications:
-			return -8
+			return -9
 
 		return self.__veVnfmEm.patch_vfmi_a_alarmID(alarmId, alarmModifications)
 		
@@ -806,7 +633,7 @@ class OperationAgent:
 	def post_vfmi_aid_escalate(self, alarmId, perceivedSeverityRequest):
 		
 		if type(alarmId) != str and type(perceivedSeverityRequest) != PerceivedSeverityRequest:
-			return -8
+			return -9
 
 		return self.__veVnfmEm.post_vfmi_aid_escalate(alarmId, perceivedSeverityRequest)
 		
@@ -833,7 +660,7 @@ class OperationAgent:
 	def post_vfmi_subscriptions(self, fmSubscriptionRequest):
 		
 		if type(fmSubscriptionRequest) != FmSubscriptionRequest:
-			return -8
+			return -9
 
 		return self.__veVnfmEm.post_vfmi_subscriptions(fmSubscriptionRequest)
 		
@@ -852,14 +679,14 @@ class OperationAgent:
 	def get_vfmi_s_subscriptionID(self, subscriptionId):
 		
 		if type(subscriptionId) != str:
-			return -8
+			return -9
 
 		return self.__veVnfmEm.get_vfmi_s_subscriptionID(subscriptionId)
 		
 	def delete_vfmi_s_subscriptionID(self, subscriptionId):
 		
 		if type(subscriptionId) != str:
-			return -8
+			return -9
 
 		return self.__veVnfmEm.delete_vfmi_s_subscriptionID(subscriptionId)
 		
@@ -892,12 +719,12 @@ class OperationAgent:
 	def get_vii_i_vnfInstanceID(self, vnfInstanceId):
 
 		if type(vnfInstanceId) != str:
-			return -8
+			return -9
 
 		vnfIndicators = []
 		vibVnfInstance = self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"" + vnfInstanceId + "\";")
 		if len(vibVnfInstance) == 0:
-			return -9
+			return -10
 		vibVnfInstance = VibModels.VibVnfInstance().fromSql(vibVnfInstance[0])
 
 		#print("TODO - Request the the allocation of the instance platform", vnfInstance.vnfPlatform, "driver") - Router task??
@@ -909,11 +736,11 @@ class OperationAgent:
 	def get_vii_iid_indicatorID(self, vnfInstanceId, indicatorId):
 		
 		if type(vnfInstanceId) != str or type(indicatorId) != str:
-			return -8
+			return -9
 
 		vibVnfInstance = self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"" + vnfInstanceId + "\";")
 		if len(vibVnfInstance) == 0:
-			return -9
+			return -10
 		vibVnfInstance = VibModels.VibVnfInstance().fromSql(vibVnfInstance[0])
 		
 		#print("TODO - Request the the allocation of the instance platform", vnfInstance.vnfPlatform, "driver") - Router task??
@@ -925,7 +752,7 @@ class OperationAgent:
 	def get_vii_i_indicatorID(self, indicatorId):
 		
 		if type(indicatorId) != str:
-			return -8
+			return -9
 
 		vnfIndicators = []
 		vibVnfInstances = [VibModels.VibVnfInstance().fromSql(vvi) for vvi in self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance;")]
@@ -947,29 +774,29 @@ class OperationAgent:
 	def post_vii_subscriptions(self, vnfIndicatorSubscriptionRequest):
 		
 		if type(vnfIndicatorSubscriptionRequest) != AsModels.VnfIndicatorSubscriptionRequest:
-			return -8
+			return -9
 
 		if self.__oaAa.authRequest(vnfIndicatorSubscriptionRequest.authentication) == True:
 			vnfIndicatorSubscription = AsModels.VnfIndicatorSubscription().fromData(str(uuid.uuid1()), vnfIndicatorSubscriptionRequest.filter, vnfIndicatorSubscriptionRequest.callbackUri, {"self":"192.168.100:8000"})
 			if not vnfIndicatorSubscription:
-				return -11
+				return -12
 			
 			if self.__vibManager.insertVibDatabase(VibModels.VibVnfIndicatorSubscription().fromData(vnfIndicatorSubscription.id, vnfIndicatorSubscription.filter, vnfIndicatorSubscription.callbackUri, vnfIndicatorSubscription.links).toSql()) > 0:
 				return 0
 			else:
-				return -12
+				return -13
 
-		return -7
+		return -8
 	
 	#TODO: change operation request routine to the Internal Manager
 	def get_vii_s_subscriptionID(self, subscriptionId):
 		
 		if type(subscriptionId) != str:
-			return -8
+			return -9
 
 		vibIndicatorSubscription = self.__vibManager.queryVibDatabase("SELECT * FROM VnfIndicatorSubscription WHERE visId = \"" + subscriptionId + "\";")
 		if len(vibIndicatorSubscription) == 0:
-			return -13
+			return -14
 
 		if vibIndicatorSubscription[0][1] == None:
 			vibIndicatorSubscription = AsModels.VnfIndicatorSubscription().fromData(vibIndicatorSubscription[0][0], vibIndicatorSubscription[0][1], vibIndicatorSubscription[0][2], json.loads(vibIndicatorSubscription[0][3]))
@@ -979,27 +806,27 @@ class OperationAgent:
 		if vibIndicatorSubscription:
 			return vibIndicatorSubscription
 		else:
-			return -14
+			return -15
 	
 	#TODO: change operation request routine to the Internal Manager
 	def delete_vii_s_subscriptionID(self, subscriptionId):
 		
 		if type(subscriptionId) != str:
-			return -8
+			return -9
 
 		if self.__vibManager.deleteVibDatabase("DELETE FROM VnfIndicatorSubscription WHERE visId = \"" + subscriptionId + "\""):
 			return 0
 		else:
-			return -12
+			return -13
 	
 	def get_vci_configuration(self, vnfId):
 		
 		if type(vnfId) != str:
-			return -8
+			return -9
 
 		vibVnfInstance = self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"" + vnfInstanceId + "\";")
 		if len(vibVnfInstance) == 0:
-			return -9
+			return -10
 		
 		print("TODO - Send operation to router:", vibVnfInstance)
 		return None
@@ -1007,14 +834,14 @@ class OperationAgent:
 	def patch_vci_configuration(self, vnfId, vnfConfigModifications):
 
 		if type(vnfId) != str:
-			return -8
+			return -9
 
 		if type(vnfConfigModifications) != VnfConfigModifications:
-			return -8
+			return -9
 
 		vibVnfInstance = self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"" + vnfInstanceId + "\";")
 		if len(vibVnfInstance) == 0:
-			return -9
+			return -10
 		
 		print("TODO - Send operation to router:", vibVnfInstance, vnfConfigModifications)
 		return None

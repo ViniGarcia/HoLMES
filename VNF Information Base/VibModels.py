@@ -286,6 +286,23 @@ class VibVnfInstance:
 	def __init__(self):
 		return	
 
+	def validate(self):
+		if type(self.vnfId) != str:
+			return ("0", -1)
+		if type(self.vnfAddress) != str:
+			return ("1", -1)
+		if type(self.vnfPlatform) != str:
+			return ("2", -1)
+		if type(self.vnfExtAgents) != list:
+			return ("3", -1)
+		for index in range(len(self.vnfExtAgents)):
+			if type(self.vnfExtAgents[index]) != str:
+				return ("3." + str(index), -1)
+		if type(self.vnfAuth) != bool:
+			return ("4", -1)
+
+		return ("5", 0)
+
 	def fromData(self, vnfId, vnfAddress, vnfPlatform, vnfExtAgents, vnfAuth):
 		self.vnfId = vnfId
 		self.vnfAddress = vnfAddress
