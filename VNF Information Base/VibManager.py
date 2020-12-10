@@ -20,7 +20,7 @@ class VibManager:
     def __init__(self):
 
         try:
-            self.__vibConnection = sqlite3.connect(self.__vibPath)
+            self.__vibConnection = sqlite3.connect(self.__vibPath, check_same_thread=False)
 
         except sqlite3.Error as e:
             self.__vibConnection = None

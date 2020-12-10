@@ -1932,6 +1932,7 @@ class VnfIndicator:
 		self.value = dictData["value"]
 		self.vnfInstanceId = dictData["vnfInstanceId"]
 		self.links = dictData["links"]
+		return self
 
 '''
 CLASS: VnfIndicatorSubscriptionRequest
@@ -1994,6 +1995,7 @@ class VnfIndicatorSubscriptionRequest:
 			self.filter = dictData["filter"]
 		self.callbackUri = dictData["callbackUri"]
 		self.authentication = dictData["authentication"]
+		return self
 
 '''
 CLASS: VnfIndicatorSubscription

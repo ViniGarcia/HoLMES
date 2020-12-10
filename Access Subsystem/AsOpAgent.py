@@ -5,8 +5,10 @@ import os.path
 import importlib
 
 import AsModels
+import IrModels
 import VibModels
 
+import IrAgent
 import VibManager
 import AsAuthAgent
 
@@ -14,7 +16,9 @@ import AsAuthAgent
 CLASS: OperationAgent
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 05 Nov. 2020
-L. UPDATE: 10 Nov. 2020 (Fulber-Garcia; Implementation of get_vii_subscriptions, post_vii_subscriptions, get_vii_s_subscriptionID, delete_vii_s_subscriptionID, get_vci_configuration, patch_vci_configuration)
+L. UPDATE: 10 Dez. 2020 (Fulber-Garcia; Inserting the internal manager in the class; inserting the access 
+						 interface in the class; adapting methods to the access interface; reimplementation
+						 of management methos with the internal manager)
 DESCRIPTION: Operation agent implementation. This class
 			 has the kernel functionalites of the access
 			 subsystem. It holds the implementation of all
@@ -28,27 +32,30 @@ CODES:  -1 -> Invalid data type of __vibManager
 		-4 -> Invalid class instantiation of __veVnfmEm
 		-5 -> Invalid data type of aiAs
 		-6 -> Invalid data type of oaAa
-		-7 -> Unavailable authentication attribute
-		-8 -> Error during request authentication
-		-9 -> Invalid argument type received
-		-10 -> Invalid id of VNF provided
-		-11 -> Invalid id of indicator provided
-		-12 -> Error during VIB table entry creation
-		-13 -> Error on database operation
-		-14 -> Invalid id of subscription provided
-		-15 -> Error on response creation
+		-7 -> Invalid data type of asIr
+		-8 -> Unavailable authentication attribute
+		-9 -> Error during request authentication
+		-10 -> Invalid argument type received
+		-11 -> Invalid id of VNF provided
+		-12 -> Invalid id of indicator provided
+		-13 -> Error during VIB table entry creation
+		-14 -> Error on database operation
+		-15 -> Invalid id of subscription provided
+		-16 -> Error on response creation
 '''
 class OperationAgent:
 
 	__vibManager = None
 	__veVnfmEm = None
+
 	__aiAs = None
 	__oaAa = None
+	__asIr = None
 
 	def __init__(self):
 		return
 
-	def setupAgent(self, vibManager, veVnfmEm, aiAs, oaAa):
+	def setupAgent(self, vibManager, veVnfmEm, aiAs, oaAa, asIr):
 
 		if type(vibManager) != VibManager.VibManager:
 			return -1
@@ -71,6 +78,10 @@ class OperationAgent:
 		if type(oaAa) != AsAuthAgent.AuthenticationAgent:
 			return -6
 		self.__oaAa = oaAa
+
+		if type(asIr) != IrAgent.IrAgent:
+			return -7
+		self.__asIr = asIr
 
 		return self
 
@@ -95,11 +106,11 @@ class OperationAgent:
 	def __authenticateRequest(self, operationRequest):
 		
 		if not hasattr(operationRequest, "authentication"):
-			return -7
+			return -8
 
 		authResult = self.__oaAa.authRequest(operationRequest.authentication)
 		if type(authResult) == int:
-			return -8
+			return -9
 
 		return authResult
 
@@ -125,7 +136,28 @@ class OperationAgent:
 		self.__aiAs.add_url_rule("/vlmi/vnf_lcm_op_occs/<vnfLcmOpOccId>/fail", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_vlooid_fail)
 		self.__aiAs.add_url_rule("/vlmi/vnf_lcm_op_occs/<vnfLcmOpOccId>/cancel", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_vlooid_cancel)
 		self.__aiAs.add_url_rule("/vlmi/vnf_snapshots", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_vnfSnapshots)
+		self.__aiAs.add_url_rule("/vlmi/vnf_snapshots/<vnfSnapshotInfoId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_vs_vnfSnapshotID)
+		self.__aiAs.add_url_rule("/vlmi/subscriptions", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_subscriptions)
+		self.__aiAs.add_url_rule("/vlmi/subscriptions/<subscriptionId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_s_subscriptionID)
+		self.__aiAs.add_url_rule("/vpmi/pm_jobs", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vpmi_pm_jobs)
+		self.__aiAs.add_url_rule("/vpmi/pm_jobs/<pmJobId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vpmi_pmj_pmJobID)
+		self.__aiAs.add_url_rule("/vpmi/pm_jobs/<pmJobId>/reports/<reportId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vpmi_pmjid_r_reportID)
+		self.__aiAs.add_url_rule("/vpmi/thresholds", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vpmi_thresholds)
+		self.__aiAs.add_url_rule("/vpmi/thresholds/<thresholdId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vpmi_t_thresholdID)
+		self.__aiAs.add_url_rule("/vfmi/alarms", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vfmi_alarms)
+		self.__aiAs.add_url_rule("/vfmi/alarms/<alarmId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vfmi_a_alarmID)
+		self.__aiAs.add_url_rule("/vfmi/alarms/<alarmId>/escalate", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vfmi_aid_escalate)
+		self.__aiAs.add_url_rule("/vfmi/subscriptions", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vfmi_subscriptions)
+		self.__aiAs.add_url_rule("/vfmi/subscriptions/<subscriptionId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vfmi_s_subscriptionID)
+		
+		self.__aiAs.add_url_rule("/vii/indicators", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vii_indicators)
+		self.__aiAs.add_url_rule("/vii/indicators/<vnfInstanceId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vii_i_vnfInstanceID)
+		self.__aiAs.add_url_rule("/vii/indicators/<vnfInstanceId>/<indicatorId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vii_iid_indicatorID)
+		self.__aiAs.add_url_rule("/vii/subscriptions", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vii_subscriptions)
+		self.__aiAs.add_url_rule("/vii/subscriptions/<subscriptionId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vii_s_subscriptionID)
+		self.__aiAs.add_url_rule("/vci/configuration/<vnfId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vci_configuration)
 
+		
 	# ================================ Ve-Vnfm-em Operations (EMS -> VNFM) ================================
 
 	def vlmi_vnfInstances(self):
@@ -387,416 +419,534 @@ class OperationAgent:
 			return self.__veVnfmEm.patch_vlmi_vnfSnapshots()
 		elif flask.request.method == "DELETE":
 			return self.__veVnfmEm.delete_vlmi_vnfSnapshots()
-		
-	def get_vlmi_vs_vnfSnapshotID(self, vnfSnapshotInfoId):
-		
-		if type(vnfSnapshotInfoId) != str:
-			return -9
-
-		return self.__veVnfmEm.get_vlmi_vs_vnfSnapshotID(vnfSnapshotInfoId)
-		
-	def delete_vlmi_vs_vnfSnapshotID(self, vnfSnapshotID):
-		
-		if type(vnfSnapshotID) != str:
-			return -9
-
-		return self.__veVnfmEm.delete_vlmi_vs_vnfSnapshotID(vnfSnapshotID)
-		
-	def post_vlmi_vs_vnfSnapshotID(self):
-		
-		return self.__veVnfmEm.post_vlmi_vs_vnfSnapshotID()
-		
-	def put_vlmi_vs_vnfSnapshotID(self):
-		
-		return self.__veVnfmEm.put_vlmi_vs_vnfSnapshotID()
-		
-	def patch_vlmi_vs_vnfSnapshotID(self):
-		
-		return self.__veVnfmEm.patch_vlmi_vs_vnfSnapshotID()
-		
-	def get_vlmi_subscriptions(self):
-		
-		return self.__veVnfmEm.get_vlmi_subscriptions()
-		
-	def post_vlmi_subscriptions(self, lccnSubscriptionRequest):
-		
-		if type(lccnSubscriptionRequest) != LccnSubscriptionRequest:
-			return -9
-
-		return self.__veVnfmEm.post_vlmi_subscriptions(lccnSubscriptionRequest)
-		
-	def put_vlmi_subscriptions(self):
-		
-		return self.__veVnfmEm.put_vlmi_subscriptions()
-		
-	def patch_vlmi_subscriptions(self):
-		
-		return self.__veVnfmEm.patch_vlmi_subscriptions()
-		
-	def delete_vlmi_subscriptions(self):
-		
-		return self.__veVnfmEm.delete_vlmi_subscriptions()
-		
-	def get_vlmi_s_subscriptionID(self, subscriptionId):
-		
-		if type(subscriptionId) != str:
-			return -9
-
-		return self.__veVnfmEm.get_vlmi_s_subscriptionID(subscriptionId)
-		
-	def post_vlmi_s_subscriptionID(self, subscriptionId):
-		
-		if type(subscriptionId) != str:
-			return -9
-
-		return self.__veVnfmEm.post_vlmi_s_subscriptionID(subscriptionId)
-		
-	def put_vlmi_s_subscriptionID(self):
-		
-		return self.__veVnfmEm.put_vlmi_s_subscriptionID()
-		
-	def patch_vlmi_s_subscriptionID(self):
-		
-		return self.__veVnfmEm.patch_vlmi_s_subscriptionID()
-		
-	def delete_vlmi_s_subscriptionID(self):
-		
-		return self.__veVnfmEm.delete_vlmi_s_subscriptionID()
-		
-	def get_vpmi_pm_jobs(self):
-		
-		return self.__veVnfmEm.get_vpmi_pm_jobs()
-		
-	def post_vpmi_pm_jobs(self):
-		
-		return self.__veVnfmEm.post_vpmi_pm_jobs()
-		
-	def put_vpmi_pm_jobs(self):
-		
-		return self.__veVnfmEm.put_vpmi_pm_jobs()
-		
-	def patch_vpmi_pm_jobs(self):
-		
-		return self.__veVnfmEm.patch_vpmi_pm_jobs()
-		
-	def delete_vpmi_pm_jobs(self):
-		
-		return self.__veVnfmEm.delete_vpmi_pm_jobs()
-		
-	def get_vpmi_pmj_pmJobID(self, pmJobId):
-		
-		if type(pmJobId) != str:
-			return -9
-
-		return self.__veVnfmEm.get_vpmi_pmj_pmJobID(pmJobID)
-		
-	def patch_vpmi_pmj_pmJobID(self, pmJobId, pmJobModifications):
-		
-		if type(pmJobId) != str or type(pmJobModifications) != PmJobModifications:
-			return -9
-
-		return self.__veVnfmEm.patch_vpmi_pmj_pmJobID(pmJobID, pmJobModifications)
-		
-	def delete_vpmi_pmj_pmJobID(self, pmJobId):
-		
-		if type(pmJobId) != str:
-			return -9
-
-		return self.__veVnfmEm.delete_vpmi_pmj_pmJobID(pmJobId)
-		
-	def post_vpmi_pmj_pmJobID(self):
-		
-		return self.__veVnfmEm.post_vpmi_pmj_pmJobID()
-		
-	def put_vpmi_pmj_pmJobID(self):
-		
-		return self.__veVnfmEm.put_vpmi_pmj_pmJobID()
-		
-	def get_vpmi_pmjid_r_reportID(self, pmJobId, reportId):
-		
-		if type(pmJobId) != str or type(reportId) != str:
-			return -9
-
-		return self.__veVnfmEm.get_vpmi_pmjid_r_reportID(pmJobId, reportId)
-		
-	def post_vpmi_pmjid_r_reportID(self):
-		
-		return self.__veVnfmEm.post_vpmi_pmjid_r_reportID()
-		
-	def put_vpmi_pmjid_r_reportID(self):
-		
-		return self.__veVnfmEm.put_vpmi_pmjid_r_reportID()
-		
-	def patch_vpmi_pmjid_r_reportID(self):
-		
-		return self.__veVnfmEm.patch_vpmi_pmjid_r_reportID()
-		
-	def delete_vpmi_pmjid_r_reportID(self):
-		
-		return self.__veVnfmEm.delete_vpmi_pmjid_r_reportID()
-		
-	def get_vpmi_thresholds(self):
-		
-		return self.__veVnfmEm.get_vpmi_thresholds()
-		
-	def post_vpmi_thresholds(self):
-		
-		return self.__veVnfmEm.post_vpmi_thresholds()
-		
-	def put_vpmi_thresholds(self):
-		
-		return self.__veVnfmEm.put_vpmi_thresholds()
-		
-	def patch_vpmi_thresholds(self):
-		
-		return self.__veVnfmEm.patch_vpmi_thresholds()
-		
-	def delete_vpmi_thresholds(self):
-		
-		return self.__veVnfmEm.delete_vpmi_thresholds()
-		
-	def get_vpmi_t_thresholdID(self, thresholdId):
-		
-		if type(thresholdId) != str:
-			return -9
-
-		return self.__veVnfmEm.get_vpmi_t_thresholdID(thresholdId)
-		
-	def patch_vpmi_t_thresholdID(self, thresholdId, thresholdModifications):
-		
-		if type(thresholdId) != str and type(thresholdModifications) != ThresholdModifications:
-			return -9
-
-		return self.__veVnfmEm.patch_vpmi_t_thresholdID(thresholdId, thresholdModifications)
-		
-	def delete_vpmi_t_thresholdID(self, thresholdId):
-		
-		if type(thresholdId) != str:
-			return -9
-
-		return self.__veVnfmEm.delete_vpmi_t_thresholdID(thresholdId)
-		
-	def post_vpmi_t_thresholdID(self):
-		
-		return self.__veVnfmEm.post_vpmi_t_thresholdID()
-		
-	def put_vpmi_t_thresholdID(self):
-		
-		return self.__veVnfmEm.put_vpmi_t_thresholdID()
-		
-	def get_vfmi_alarms(self):
-		
-		return self.__veVnfmEm.get_vfmi_alarms()
-		
-	def post_vfmi_alarms(self):
-		
-		return self.__veVnfmEm.post_vfmi_alarms()
-		
-	def put_vfmi_alarms(self):
-		
-		return self.__veVnfmEm.put_vfmi_alarms()
-		
-	def patch_vfmi_alarms(self):
-		
-		return self.__veVnfmEm.patch_vfmi_alarms()
-		
-	def delete_vfmi_alarms(self):
-		
-		return self.__veVnfmEm.delete_vfmi_alarms()
-		
-	def get_vfmi_a_alarmID(self, alarmId):
-		
-		if type(alarmId) != str:
-			return -9
-
-		return self.__veVnfmEm.get_vfmi_a_alarmID(alarmId)
-		
-	def patch_vfmi_a_alarmID(self, alarmId, alarmModifications):
-		
-		if type(alarmId) != str and type(alarmModifications) != AlarmModifications:
-			return -9
-
-		return self.__veVnfmEm.patch_vfmi_a_alarmID(alarmId, alarmModifications)
-		
-	def post_vfmi_a_alarmID(self):
-		
-		return self.__veVnfmEm.post_vfmi_a_alarmID()
-		
-	def put_vfmi_a_alarmID(self):
-		
-		return self.__veVnfmEm.put_vfmi_a_alarmID()
-		
-	def delete_vfmi_a_alarmID(self):
-		
-		return self.__veVnfmEm.delete_vfmi_a_alarmID()
-		
-	def post_vfmi_aid_escalate(self, alarmId, perceivedSeverityRequest):
-		
-		if type(alarmId) != str and type(perceivedSeverityRequest) != PerceivedSeverityRequest:
-			return -9
-
-		return self.__veVnfmEm.post_vfmi_aid_escalate(alarmId, perceivedSeverityRequest)
-		
-	def get_vfmi_aid_escalate(self):
-		
-		return self.__veVnfmEm.get_vfmi_aid_escalate()
-		
-	def put_vfmi_aid_escalate(self):
-		
-		return self.__veVnfmEm.put_vfmi_aid_escalate()
-		
-	def patch_vfmi_aid_escalate(self):
-		
-		return self.__veVnfmEm.patch_vfmi_aid_escalate()
-		
-	def delete_vfmi_aid_escalate(self):
-		
-		return self.__veVnfmEm.delete_vfmi_aid_escalate()
-		
-	def get_vfmi_subscriptions(self):
-		
-		return self.__veVnfmEm.get_vfmi_subscriptions()
-		
-	def post_vfmi_subscriptions(self, fmSubscriptionRequest):
-		
-		if type(fmSubscriptionRequest) != FmSubscriptionRequest:
-			return -9
-
-		return self.__veVnfmEm.post_vfmi_subscriptions(fmSubscriptionRequest)
-		
-	def put_vfmi_subscriptions(self):
-		
-		return self.__veVnfmEm.put_vfmi_subscriptions()
-		
-	def patch_vfmi_subscriptions(self):
-		
-		return self.__veVnfmEm.patch_vfmi_subscriptions()
-		
-	def delete_vfmi_subscriptions(self):
-		
-		return self.__veVnfmEm.delete_vfmi_subscriptions()
-		
-	def get_vfmi_s_subscriptionID(self, subscriptionId):
-		
-		if type(subscriptionId) != str:
-			return -9
-
-		return self.__veVnfmEm.get_vfmi_s_subscriptionID(subscriptionId)
-		
-	def delete_vfmi_s_subscriptionID(self, subscriptionId):
-		
-		if type(subscriptionId) != str:
-			return -9
-
-		return self.__veVnfmEm.delete_vfmi_s_subscriptionID(subscriptionId)
-		
-	def post_vfmi_s_subscriptionID(self):
-		
-		return self.__veVnfmEm.post_vfmi_s_subscriptionID()
-		
-	def put_vfmi_s_subscriptionID(self):
-		
-		return self.__veVnfmEm.put_vfmi_s_subscriptionID()
-		
-	def patch_vfmi_s_subscriptionID(self):
-		
-		return self.__veVnfmEm.patch_vfmi_s_subscriptionID()
 	
+	def vlmi_vs_vnfSnapshotID(self, vnfSnapshotInfoId):
+
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vlmi_vs_vnfSnapshotID(vnfSnapshotInfoId)
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vlmi_vs_vnfSnapshotID()
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vlmi_vs_vnfSnapshotID()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vlmi_vs_vnfSnapshotID()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vlmi_vs_vnfSnapshotID(vnfSnapshotInfoId)
+	
+	def vlmi_subscriptions(self):
+
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vlmi_subscriptions()
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vlmi_subscriptions(flask.request.values.get("lccnSubscriptionRequest"))
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vlmi_subscriptions()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vlmi_subscriptions()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vlmi_subscriptions()
+
+	def vlmi_s_subscriptionID(self, subscriptionId):
+
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vlmi_s_subscriptionID(subscriptionId)
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vlmi_s_subscriptionID(subscriptionId)
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vlmi_s_subscriptionID()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vlmi_s_subscriptionID()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vlmi_s_subscriptionID()
+
+	def vpmi_pm_jobs(self):
+
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vpmi_pm_jobs()
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vpmi_pm_jobs(flask.request.values.get("createPmJobRequest"))
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vpmi_pm_jobs()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vpmi_pm_jobs()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vpmi_pm_jobs()
+
+	def vpmi_pmj_pmJobID(self, pmJobId):
+
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vpmi_pmj_pmJobID(pmJobId)
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vpmi_pmj_pmJobID()
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vpmi_pmj_pmJobID()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vpmi_pmj_pmJobID(pmJobId, flask.request.values.get("pmJobModifications"))
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vpmi_pmj_pmJobID(pmJobId)
+		
+	def vpmi_pmjid_r_reportID(self, pmJobId, reportId):
+
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vpmi_pmjid_r_reportID(pmJobId, reportId)
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vpmi_pmjid_r_reportID()
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vpmi_pmjid_r_reportID()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vpmi_pmjid_r_reportID()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vpmi_pmjid_r_reportID()
+	
+	def vpmi_thresholds(self):
+
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vpmi_thresholds()
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vpmi_thresholds(flask.request.values.get("createThresholdRequest"))
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vpmi_thresholds()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vpmi_thresholds()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vpmi_thresholds()
+
+	def vpmi_t_thresholdID(self, thresholdId):
+
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vpmi_t_thresholdID(thresholdId)
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vpmi_t_thresholdID()
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vpmi_t_thresholdID()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vpmi_t_thresholdID(thresholdId, flask.request.values.get("thresholdModifications"))
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vpmi_t_thresholdID(thresholdId)
+		
+	def vfmi_alarms(self):
+
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vfmi_alarms()
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vfmi_alarms()
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vfmi_alarms()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vfmi_alarms()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vfmi_alarms()
+
+	def vfmi_a_alarmID(self, alarmId):
+
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vfmi_a_alarmID(alarmId)
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vfmi_a_alarmID()
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vfmi_a_alarmID()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vfmi_a_alarmID(alarmId, flask.request.values.get("alarmModifications"))
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vfmi_a_alarmID()
+
+	def vfmi_aid_escalate(self, alarmId):
+
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vfmi_aid_escalate()
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vfmi_aid_escalate(alarmId, flask.request.values.get("perceivedSeverityRequest"))
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vfmi_aid_escalate()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vfmi_aid_escalate()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vfmi_aid_escalate()
+
+	def vfmi_subscriptions(self):
+		
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vfmi_subscriptions()
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vfmi_subscriptions(flask.request.values.get("fmSubscriptionRequest"))
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vfmi_subscriptions()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vfmi_subscriptions()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vfmi_subscriptions()
+
+	def vfmi_s_subscriptionID(self, subscriptionId):
+		
+		if flask.request.method == "GET":
+			return self.__veVnfmEm.get_vfmi_s_subscriptionID(subscriptionId)
+		elif flask.request.method == "POST":
+			return self.__veVnfmEm.post_vfmi_s_subscriptionID()
+		elif flask.request.method == "PUT":
+			return self.__veVnfmEm.put_vfmi_s_subscriptionID()
+		elif flask.request.method == "PATCH":
+			return self.__veVnfmEm.patch_vfmi_s_subscriptionID()
+		elif flask.request.method == "DELETE":
+			return self.__veVnfmEm.delete_vfmi_s_subscriptionID(subscriptionId)
+
+	def vii_indicators(self):
+		
+		if flask.request.method == "GET":
+			return self.get_vii_indicators()
+		elif flask.request.method == "POST":
+			return self.post_vii_indicators()
+		elif flask.request.method == "PUT":
+			return self.put_vii_indicators()
+		elif flask.request.method == "PATCH":
+			return self.patch_vii_indicators()
+		elif flask.request.method == "DELETE":
+			return self.delete_vii_indicators()
+
+	def vii_i_vnfInstanceID(self, vnfInstanceId):
+
+		if flask.request.method == "GET":
+			result = self.get_vii_i_vnfInstanceID(vnfInstanceId)
+			if result == "204":
+				return self.vii_i_indicatorID(vnfInstanceId)
+			return result
+		elif flask.request.method == "POST":
+			return self.post_vii_i_vnfInstanceID()
+		elif flask.request.method == "PUT":
+			return self.put_vii_i_vnfInstanceID()
+		elif flask.request.method == "PATCH":
+			return self.patch_vii_i_vnfInstanceID()
+		elif flask.request.method == "DELETE":
+			return self.delete_vii_i_vnfInstanceID()
+
+	def vii_iid_indicatorID(self, vnfInstanceId, indicatorId):
+
+		if flask.request.method == "GET":
+			return self.get_vii_iid_indicatorID(vnfInstanceId, indicatorId)
+		elif flask.request.method == "POST":
+			return self.post_vii_iid_indicatorID()
+		elif flask.request.method == "PUT":
+			return self.put_vii_iid_indicatorID()
+		elif flask.request.method == "PATCH":
+			return self.patch_vii_iid_indicatorID()
+		elif flask.request.method == "DELETE":
+			return self.delete_vii_iid_indicatorID()
+
+	def vii_i_indicatorID(self, indicatorId):
+
+		if flask.request.method == "GET":
+			return self.get_vii_i_indicatorID(indicatorId)
+		elif flask.request.method == "POST":
+			return self.post_vii_i_indicatorID()
+		elif flask.request.method == "PUT":
+			return self.put_vii_i_indicatorID()
+		elif flask.request.method == "PATCH":
+			return self.patch_vii_i_indicatorID()
+		elif flask.request.method == "DELETE":
+			return self.delete_vii_i_indicatorID()
+	
+	def vii_subscriptions(self):
+
+		if flask.request.method == "GET":
+			return self.get_vii_subscriptions()
+		elif flask.request.method == "POST":
+			return self.post_vii_subscriptions(flask.request.values.get("vnfIndicatorSubscriptionRequest"))
+		elif flask.request.method == "PUT":
+			return self.put_vii_subscriptions()
+		elif flask.request.method == "PATCH":
+			return self.patch_vii_subscriptions()
+		elif flask.request.method == "DELETE":
+			return self.delete_vii_subscriptions()
+
+	def vii_s_subscriptionID(self, subscriptionId):
+
+		if flask.request.method == "GET":
+			return self.get_vii_s_subscriptionID(subscriptionId)
+		elif flask.request.method == "POST":
+			return self.post_vii_s_subscriptionID()
+		elif flask.request.method == "PUT":
+			return self.put_vii_s_subscriptionID()
+		elif flask.request.method == "PATCH":
+			return self.patch_vii_s_subscriptionID()
+		elif flask.request.method == "DELETE":
+			return self.delete_vii_s_subscriptionID(subscriptionId)
+
+	def vci_configuration(self, vnfId):
+
+		if flask.request.method == "GET":
+			return self.get_vci_configuration(vnfId)
+		elif flask.request.method == "POST":
+			return self.post_vci_configuration()
+		elif flask.request.method == "PUT":
+			return self.put_vci_configuration()
+		elif flask.request.method == "PATCH":
+			return self.patch_vci_configuration(vnfId, flask.request.values.get("vnfConfigModifications"))
+		elif flask.request.method == "DELETE":
+			return self.delete_vci_configuration()
+
 	# ================================ Ve-Vnfm-em Operations (VNFM -> EMS) ================================
 
+	'''
+	PATH: 		 /vii/indicators
+	ACTION: 	 GET
+	DESCRIPTION: Query multiple VNF indicators. This resource allows to query all
+				 VNF indicators that are known to the API producer.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VnfIndicator (Class) [0..N]
+				 - Integer error code (HTTP)
+	CALL: 		 VNFM -> EM
+	'''
 	def get_vii_indicators(self):
 
 		vnfIndicators = []
-		vibVnfInstances = [VibModels.VibVnfInstance().fromSql(vvi) for vvi in self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance;")]
-		
-		for vnfInstance in vibVnfInstances:
-			#print("TODO - Request the the allocation of the instance platform", vnfInstance.vnfPlatform, "driver") - Router task??
-			print("TODO - Send operation to router:", [vnfInstance], "get_vii_i_vnfInstanceID")
-			print("TODO - Check if the response is 200")
+		vnfPlatforms = {}
 
-		return vnfIndicators
+		vibVnfInstances = [VibModels.VibVnfInstance().fromSql(vvi) for vvi in self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance;")]
+		for instance in vibVnfInstances:
+			if instance.vnfPlatform in vnfPlatforms:
+				operations = vnfPlatforms[instance.vnfPlatform][0]
+			else:
+				platform = self.__asIr.sendMessage(IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "post_vs_running_driver", instance.vnfPlatform), "AS", "IM"))
+				if type(platform.messageData) == tuple:
+					return "400"
+				operations = self.__asIr.sendMessage(IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "get_vs_rdo_monitoring", None), "AS", "IM"))
+				if type(operations.messageData) == tuple:
+					return "400"
+				vnfPlatforms[instance.vnfPlatform] = (operations.messageData, platform.messageData)
+				operations = operations.messageData
+
+			for indicator in operations:
+				result = self.__asIr.sendMessage(IrModels.IrMessage().fromData(IrModels.VsData().fromData(instance, vnfPlatforms[instance.vnfPlatform][1], indicator, {}), "AS", "VS"))
+				vnfIndicators.append(AsModels.VnfIndicator().fromData(instance.vnfId + ";"+ indicator, indicator, result.messageData, instance.vnfId, {"self":flask.request.host, "vnfInstance":instance.vnfAddress}).toDictionary())
+
+		return json.dumps(vnfIndicators)
+
+	'''
+	PATH: 		 /vii/indicators
+	N/A ACTIONS: POST, PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def post_vii_indicators(self):
+		return "405"
+	def put_vii_indicators(self):
+		return "405"
+	def patch_vii_indicators(self):
+		return "405"
+	def delete_vii_indicators(self):
+		return "405"
 	
+	'''
+	PATH: 		 /vii/indicators/{vnfInstanceId}
+	ACTION: 	 GET
+	DESCRIPTION: Query multiple VNF indicators related to one VNF instance. This re-
+				 source allows to query all VNF indicators that are known to the API
+				 producer.
+	ARGUMENT: 	 vnfInstanceId (String)
+	RETURN: 	 - 200 (HTTP) + VnfIndicator (Class) [0..N]
+				 - Integer error code (HTTP)
+	CALL: 		 VNFM -> EM
+	'''
 	def get_vii_i_vnfInstanceID(self, vnfInstanceId):
 
 		if type(vnfInstanceId) != str:
-			return -9
+			return "400"
 
 		vnfIndicators = []
-		vibVnfInstance = self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"" + vnfInstanceId + "\";")
-		if len(vibVnfInstance) == 0:
-			return -10
-		vibVnfInstance = VibModels.VibVnfInstance().fromSql(vibVnfInstance[0])
 
-		#print("TODO - Request the the allocation of the instance platform", vnfInstance.vnfPlatform, "driver") - Router task??
-		print("TODO - Send operation to router:", [vibVnfInstance], "get_vii_i_vnfInstanceID")
-		print("TODO - Check if the response is 200")
+		instance = self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"" + vnfInstanceId + "\";")
+		if len(instance) == 0:
+			return "204"
+		instance = VibModels.VibVnfInstance().fromSql(instance[0])
 
-		return vnfIndicators
-		
+		platform = self.__asIr.sendMessage(IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "post_vs_running_driver", instance.vnfPlatform), "AS", "IM"))
+		if type(platform.messageData) == tuple:
+			return "400"
+		operations = self.__asIr.sendMessage(IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "get_vs_rdo_monitoring", None), "AS", "IM"))
+		if type(operations.messageData) == tuple:
+			return "400"
+
+		for indicator in operations.messageData:
+			result = self.__asIr.sendMessage(IrModels.IrMessage().fromData(IrModels.VsData().fromData(instance, platform.messageData, indicator, {}), "AS", "VS"))
+			vnfIndicators.append(AsModels.VnfIndicator().fromData(instance.vnfId + ";"+ indicator, indicator, result.messageData, instance.vnfId, {"self":flask.request.host, "vnfInstance":instance.vnfAddress}).toDictionary())
+
+		return json.dumps(vnfIndicators)
+
+	'''
+	PATH: 		 /vii/indicators/{vnfInstanceId}
+	N/A ACTIONS: POST, PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def post_vii_i_vnfInstanceID(self):
+		return "405"
+	def put_vii_i_vnfInstanceID(self):
+		return "405"
+	def patch_vii_i_vnfInstanceID(self):
+		return "405"
+	def delete_vii_i_vnfInstanceID(self):
+		return "405"
+
+	'''
+	PATH: 		 /vii/indicators/{vnfInstanceId}/{indicatorId}
+	ACTION: 	 GET
+	DESCRIPTION: Read an individual VNF indicator to one VNF instance.
+	ARGUMENT: 	 vnfInstanceId (String), indicatorId (String)
+	RETURN: 	 - 200 (HTTP) + VnfIndicator (Class) [1]
+				 - Integer error code (HTTP)
+	CALL: 		 VNFM -> EM
+	'''		
 	def get_vii_iid_indicatorID(self, vnfInstanceId, indicatorId):
 		
 		if type(vnfInstanceId) != str or type(indicatorId) != str:
-			return -9
+			return "400"
 
-		vibVnfInstance = self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"" + vnfInstanceId + "\";")
-		if len(vibVnfInstance) == 0:
-			return -10
-		vibVnfInstance = VibModels.VibVnfInstance().fromSql(vibVnfInstance[0])
-		
-		#print("TODO - Request the the allocation of the instance platform", vnfInstance.vnfPlatform, "driver") - Router task??
-		print("TODO - Send operation to router:", [vibVnfInstance, indicatorId], "get_vii_iid_indicatorID")
-		print("TODO - Check if the response is 200")
+		instance = self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"" + vnfInstanceId + "\";")
+		if len(instance) == 0:
+			return "400"
+		instance = VibModels.VibVnfInstance().fromSql(instance[0])
 
-		return None
-	
+		platform = self.__asIr.sendMessage(IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "post_vs_running_driver", instance.vnfPlatform), "AS", "IM"))
+		if type(platform.messageData) == tuple:
+			return "400"
+		operations = self.__asIr.sendMessage(IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "get_vs_rdo_monitoring", None), "AS", "IM"))
+		if type(operations.messageData) == tuple:
+			return "400"
+		if not indicatorId in operations.messageData:
+			return "400"
+
+		result = self.__asIr.sendMessage(IrModels.IrMessage().fromData(IrModels.VsData().fromData(instance, platform.messageData, indicatorId, {}), "AS", "VS"))
+
+		return json.dumps(AsModels.VnfIndicator().fromData(instance.vnfId + ";"+ indicatorId, indicatorId, result.messageData, instance.vnfId, {"self":flask.request.host, "vnfInstance":instance.vnfAddress}).toDictionary())
+
+	'''
+	PATH: 		 /vii/indicators/{vnfInstanceId}/{indicatorId}
+	N/A ACTIONS: POST, PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def post_vii_iid_indicatorID(self):
+		return "405"
+	def put_vii_iid_indicatorID(self):
+		return "405"
+	def patch_vii_iid_indicatorID(self):
+		return "405"
+	def delete_vii_iid_indicatorID(self):
+		return "405"
+
+	'''
+	PATH: 		 /vii/indicators/{indicatorId}
+	ACTION: 	 GET
+	DESCRIPTION: Read an individual VNF indicator to all VNF instances.
+	ARGUMENT: 	 indicatorId (String)
+	RETURN: 	 - 200 (HTTP) + VnfIndicator (Class) [1]
+				 - Integer error code (HTTP)
+	CALL: 		 VNFM -> EM
+	'''
 	def get_vii_i_indicatorID(self, indicatorId):
 		
 		if type(indicatorId) != str:
-			return -9
+			return "400"
 
 		vnfIndicators = []
-		vibVnfInstances = [VibModels.VibVnfInstance().fromSql(vvi) for vvi in self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance;")]
-		
-		for vnfInstance in vibVnfInstances:
-			#print("TODO - Request the the allocation of the instance platform", vnfInstance.vnfPlatform, "driver") - Router task??
-			print("TODO - Send operation to router:", [vnfInstance, indicatorId], "get_vii_iid_indicatorID")
-			print("TODO - Check if the response is 200")
+		vnfPlatforms = {}
 
-		return vnfIndicators
+		vibVnfInstances = [VibModels.VibVnfInstance().fromSql(vvi) for vvi in self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance;")]
+		for instance in vibVnfInstances:
+			if instance.vnfPlatform in vnfPlatforms:
+				operations = vnfPlatforms[instance.vnfPlatform][0]
+			else:
+				platform = self.__asIr.sendMessage(IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "post_vs_running_driver", instance.vnfPlatform), "AS", "IM"))
+				if type(platform.messageData) == tuple:
+					return "400"
+				operations = self.__asIr.sendMessage(IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "get_vs_rdo_monitoring", None), "AS", "IM"))
+				if type(operations.messageData) == tuple:
+					return "400"
+				vnfPlatforms[instance.vnfPlatform] = (operations.messageData, platform.messageData)
+				operations = operations.messageData
+
+			if indicatorId in operations:
+				result = self.__asIr.sendMessage(IrModels.IrMessage().fromData(IrModels.VsData().fromData(instance, vnfPlatforms[instance.vnfPlatform][1], indicatorId, {}), "AS", "VS"))
+				vnfIndicators.append(AsModels.VnfIndicator().fromData(instance.vnfId + ";"+ indicatorId, indicatorId, result.messageData, instance.vnfId, {"self":flask.request.host, "vnfInstance":instance.vnfAddress}).toDictionary())
+
+		return json.dumps(vnfIndicators)
 	
-	#TODO: change operation request routine to the Internal Manager
+	'''
+	PATH: 		 /vii/indicators/{indicatorId}
+	N/A ACTIONS: POST, PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def post_vii_i_indicatorID(self):
+		return "405"
+	def put_vii_i_indicatorID(self):
+		return "405"
+	def patch_vii_i_indicatorID(self):
+		return "405"
+	def delete_vii_i_indicatorID(self):
+		return "405"
+
+	'''
+	PATH: 		 /vii/subscriptions
+	ACTION: 	 GET
+	DESCRIPTION: Query multiple subscriptions of indicators.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VnfIndicatorSubscription (Class) [0..N]
+				 - Integer error code (HTTP)
+	CALL: 		 VNFM -> EM
+	'''
 	def get_vii_subscriptions(self):
 		
-		vibIndicatorSubscriptions = [VibModels.VibVnfIndicatorSubscription().fromSql(vvis) for vvis in self.__vibManager.queryVibDatabase("SELECT * FROM VnfIndicatorSubscription;")]	
-		return [AsModels.VnfIndicatorSubscription().fromData(vvis.visId, vvis.visFilter, vvis.visCallback, vvis.visLinks) for vvis in vibIndicatorSubscriptions]
-	
-	#TODO: change operation request routine to the Internal Manager
+		subscriptions = self.__asIr.sendMessage(IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "get_ms_subscription", None), "AS", "IM"))
+		if type(subscriptions.messageData) == list:
+			return json.dumps([AsModels.VnfIndicatorSubscription().fromData(s.visId, s.visFilter, s.visCallback, s.visLinks).toDictionary() for s in subscriptions.messageData])
+		return json.dumps(subscriptions.messageData)
+
+	'''
+	PATH: 		 /vii/subscriptions
+	ACTION: 	 POST
+	DESCRIPTION: Subscribe to VNF indicator change notifications.
+	ARGUMENT: 	 VnfIndicatorSubscriptionRequest (Class)
+	RETURN: 	 - 201 (HTTP) + VnfIndicatorSubscription (Class) [1]
+				 - Integer error code (HTTP)
+	CALL: 		 VNFM -> EM
+	'''
 	def post_vii_subscriptions(self, vnfIndicatorSubscriptionRequest):
 		
-		if type(vnfIndicatorSubscriptionRequest) != AsModels.VnfIndicatorSubscriptionRequest:
-			return -9
+		request = AsModels.VnfIndicatorSubscriptionRequest().fromDictionary(json.loads(vnfIndicatorSubscriptionRequest))
+		subscription = self.__asIr.sendMessage(IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "post_ms_subscription", request), "AS", "IM"))
+		if type(subscription.messageData) == AsModels.VnfIndicatorSubscription:
+			subscription.messageData.links["self"] = flask.request.host
+			return json.dumps(subscription.messageData.toDictionary())
+		return json.dumps(subscription.messageData)
 
-		if self.__oaAa.authRequest(vnfIndicatorSubscriptionRequest.authentication) == True:
-			vnfIndicatorSubscription = AsModels.VnfIndicatorSubscription().fromData(str(uuid.uuid1()), vnfIndicatorSubscriptionRequest.filter, vnfIndicatorSubscriptionRequest.callbackUri, {"self":"192.168.100:8000"})
-			if not vnfIndicatorSubscription:
-				return -12
-			
-			if self.__vibManager.insertVibDatabase(VibModels.VibVnfIndicatorSubscription().fromData(vnfIndicatorSubscription.id, vnfIndicatorSubscription.filter, vnfIndicatorSubscription.callbackUri, vnfIndicatorSubscription.links).toSql()) > 0:
-				return 0
-			else:
-				return -13
+	'''
+	PATH: 		 /vii/subscriptions
+	N/A ACTIONS: PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def put_vii_subscriptions(self):
+		return "405"
+	def patch_vii_subscriptions(self):
+		return "405"
+	def delete_vii_subscriptions(self):
+		return "405"
 
-		return -8
-	
-	#TODO: change operation request routine to the Internal Manager
+	'''
+	PATH: 		 /vii/subscriptions/{subscriptionId}
+	ACTION: 	 GET
+	DESCRIPTION: Read an individual subscription.
+	ARGUMENT: 	 subscriptionId (String)
+	RETURN: 	 - 200 (HTTP) + VnfIndicatorSubscription (Class) [1]
+				 - Integer error code (HTTP)
+	CALL: 		 VNFM -> EM
+	'''
 	def get_vii_s_subscriptionID(self, subscriptionId):
 		
+		#SUBSTITUIR A FUNÇÃO PARA O IM
+		return "None"
+
 		if type(subscriptionId) != str:
-			return -9
+			return -10
 
 		vibIndicatorSubscription = self.__vibManager.queryVibDatabase("SELECT * FROM VnfIndicatorSubscription WHERE visId = \"" + subscriptionId + "\";")
 		if len(vibIndicatorSubscription) == 0:
-			return -14
+			return -15
 
 		if vibIndicatorSubscription[0][1] == None:
 			vibIndicatorSubscription = AsModels.VnfIndicatorSubscription().fromData(vibIndicatorSubscription[0][0], vibIndicatorSubscription[0][1], vibIndicatorSubscription[0][2], json.loads(vibIndicatorSubscription[0][3]))
@@ -806,48 +956,111 @@ class OperationAgent:
 		if vibIndicatorSubscription:
 			return vibIndicatorSubscription
 		else:
-			return -15
+			return -16
 	
-	#TODO: change operation request routine to the Internal Manager
+	'''
+	PATH: 		 /vii/subscriptions/{subscriptionId}
+	ACTION: 	 DELETE
+	DESCRIPTION: Terminate a subscription.
+	ARGUMENT: 	 subscriptionId (String)
+	RETURN: 	 - 204 (HTTP)
+				 - Integer error code (HTTP)
+	CALL: 		 VNFM -> EM
+	'''
 	def delete_vii_s_subscriptionID(self, subscriptionId):
 		
+		#SUBSTITUIR A FUNÇÃO PARA O IM
+		return "None"
+
 		if type(subscriptionId) != str:
-			return -9
+			return -10
 
 		if self.__vibManager.deleteVibDatabase("DELETE FROM VnfIndicatorSubscription WHERE visId = \"" + subscriptionId + "\""):
 			return 0
 		else:
-			return -13
-	
+			return -14
+
+	'''
+	PATH: 		 /vii/subscriptions/{subscriptionId}
+	N/A ACTIONS: POST, PUT, PATCH
+	**Do not change these methods**
+	'''
+	def post_vii_s_subscriptionID(self):
+		return "405"
+	def put_vii_s_subscriptionID(self):
+		return "405"
+	def patch_vii_s_subscriptionID(self):
+		return "405"
+
+	'''
+	PATH: 		 /vci/configuration/{vnfId}
+	ACTION: 	 GET
+	DESCRIPTION: Read configuration data of a VNF instance and its VNFC
+				 instances.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VnfConfiguration (Class) [1]
+				 - Integer error code (HTTP)
+	CALL: 		 VNFM -> EM
+	'''
 	def get_vci_configuration(self, vnfId):
 		
+		#AJUSTAR A FUNÇÃO PARA O IM
+		return "None"
+
 		if type(vnfId) != str:
-			return -9
+			return -10
 
 		vibVnfInstance = self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"" + vnfInstanceId + "\";")
 		if len(vibVnfInstance) == 0:
-			return -10
+			return -11
 		
 		print("TODO - Send operation to router:", vibVnfInstance)
 		return None
 		
+	'''
+	PATH: 		 /vci/configuration/{vnfId}
+	ACTION: 	 PATCH
+	DESCRIPTION: Set configuration data of a VNF instance and/or its VNFC
+				 instances.
+	ARGUMENT: 	 VnfConfigModifications (Class)
+	RETURN: 	 - 200 (HTTP) + VnfConfigModifications (Class) [1]
+				 - Integer error code (HTTP)
+	CALL: 		 VNFM -> EM
+	'''
 	def patch_vci_configuration(self, vnfId, vnfConfigModifications):
 
+		#AJUSTAR A FUNÇÃO PARA O IM
+		return "None"
+
 		if type(vnfId) != str:
-			return -9
+			return -10
 
 		if type(vnfConfigModifications) != VnfConfigModifications:
-			return -9
+			return -10
 
 		vibVnfInstance = self.__vibManager.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"" + vnfInstanceId + "\";")
 		if len(vibVnfInstance) == 0:
-			return -10
+			return -11
 		
 		print("TODO - Send operation to router:", vibVnfInstance, vnfConfigModifications)
 		return None
+
+	'''
+	PATH: 		 /vci/configuration
+	N/A ACTIONS: POST, PUT, DELETE
+	**Do not change these methods**
+	'''
+	def post_vci_configuration(self):
+		return "405"
+	def put_vci_configuration(self):
+		return "405"
+	def delete_vci_configuration(self):
+		return "405"
 	
+	#TO DO FOR ALFA.2: IN/OUT METHODS IN DRIVER TO OPERATIONS FROM VNFM TO EM
+
 	# ===================================== VNF Management Operations =====================================
-	#TO DO
+	#TO DO FOR ALFA.1
 
 	# ===================================== EMS Management Operations =====================================
-	#TO DO
+	#TO DO FOR ALFA.1

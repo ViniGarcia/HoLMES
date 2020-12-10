@@ -615,11 +615,18 @@ if __name__ == '__main__':
     main()
 '''
 vibManager = VibManager.VibManager()
-msManager = MsManager.MsManager()
-aiAgent = flask.Flask(__name__)
-asAuthAgent = AsAuthAgent.AuthenticationAgent(vibManager)
-asOpAgent = AsOpAgent.OperationAgent().setupAgent(vibManager, "DummyVnfmDriver", aiAgent, asAuthAgent)
-vsAgent = VsAgent.VsAgent()
-imAgent = ImAgent.ImAgent().setupAgent(vibManager, msManager, asAuthAgent, asOpAgent, vsAgent)
 
-aiAgent.run()
+asAuthAgent = AsAuthAgent.AuthenticationAgent(vibManager)
+asOpAgent = AsOpAgent.OperationAgent()
+msManager = MsManager.MsManager()
+vsAgent = VsAgent.VsAgent()
+imAgent = ImAgent.ImAgent()
+irAgent = IrAgent.IrAgent()
+
+aiAgent = flask.Flask(__name__)
+
+asOpAgent.setupAgent(vibManager, "DummyVnfmDriver", aiAgent, asAuthAgent, irAgent)
+imAgent.setupAgent(vibManager, msManager, asAuthAgent, asOpAgent, vsAgent)
+irAgent.setupAgent(imAgent, vsAgent)
+
+aiAgent.run(port=9000)

@@ -1,7 +1,6 @@
 import IrModels
 
-import AsOpAgent
-import MsManager
+import ImAgent
 import VsAgent
 
 
@@ -14,14 +13,14 @@ DESCRIPTION: Internal router agent implementation. This
 			 class has the kernel functionalites to en-
 			 able the communication between the internal
 			 modules of the EMS platform.
-CODES:  -1 -> Invalid operationagent instance
-		-2 -> Invalid monitoring subsystem instance
-		-3 -> Invalid internal manager instance
-		-4 -> Invalid vnf subsystem instance
+CODES:  -1 -> Invalid internal manager instance
+		-2 -> Invalid vnf subsystem instance
+		-3 -> Invalid origin
+		-4 -> Wrong message type for destination
+		-5 -> Invalid destination
 '''
 class IrAgent:
 
-	asIr = None
 	irMs = None
 	irIm = None
 	irVs = None
@@ -29,17 +28,13 @@ class IrAgent:
 	def __init__(self):
 		return
 
-	def setupAgent(self, asIr, irMs, irIm, irVs):
+	def setupAgent(self, irIm, irVs):
 
-		if type(asIr) != AsOpAgent.OperationAgent:
+		if type(irIm) != ImAgent.ImAgent:
 			return -1
-		if type(irMs) != MsManager.MsManager:
-			return -2
 		if type(irVs) != VsAgent.VsAgent:
-			return -4
+			return -2
 
-		self.asIr = asIr
-		self.irMs = irMs
 		self.irIm = irIm
 		self.irVs = irVs
 
@@ -47,8 +42,21 @@ class IrAgent:
 
 	def sendMessage(self, irMessage):
 		
-		if type(irMessage.messageData) == IrModels.VsData:
-			irMessage.messageData = self.irVs.exec_p_operation(irMessage.messageData)
+		if not irMessage.originModule in ["AS", "VS", "IM"]:
+			return -3
+
+		if irMessage.destinationModule == "VS":
+			if type(irMessage.messageData) == IrModels.VsData:
+				irMessage.messageData = self.irVs.exec_p_operation(irMessage.messageData)
+			else:
+				return -4
+		elif irMessage.destinationModule == "IM":
+			if type(irMessage.messageData) == IrModels.IrManagement:
+				irMessage.messageData = self.irIm.requestOperation(irMessage.messageData)
+			else:
+				return -4
+		else:
+			return -5
 
 		saveOrigin = irMessage.originModule
 		irMessage.originModule = irMessage.destinationModule
