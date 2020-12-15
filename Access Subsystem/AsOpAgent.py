@@ -16,9 +16,9 @@ import AsAuthAgent
 CLASS: OperationAgent
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 05 Nov. 2020
-L. UPDATE: 14 Dez. 2020 (Fulber-Garcia; Vs operation access implemented [not
-						 tested yet]; Vib credential operations access imple-
-						 mented [not tested yet])
+L. UPDATE: 15 Dez. 2020 (Fulber-Garcia; Vib subscriptions/management agents/
+						 vnf instances operations access implemented [not tes-
+						 ted yet])
 DESCRIPTION: Operation agent implementation. This class
 			 has the kernel functionalites of the access
 			 subsystem. It holds the implementation of all
@@ -1142,7 +1142,7 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vib/credentials/{userId}/{vnfId}
 	ACTION: 	 GET
-	DESCRIPTION: Send a new credential instance to the VIB
+	DESCRIPTION: Retrieve a credential instance from the VIB
 				 database.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibCredentialInstance [1]
@@ -1206,6 +1206,371 @@ class OperationAgent:
 	def post_vib_c_credentialId(self):
 		return "NOT AVAILABLE", 405
 	def put_vib_c_credentialId(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/vib/subscriptions
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve the available subscriptions from the VIB
+				 database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibSubscriptionInstance [0..N]
+				 - Integer error code (HTTP)
+	
+	'''
+	def get_vib_subscriptions(self):
+		
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement("VIB", "get_vib_subscriptions", None), "AS", "IM")
+		subscriptions = self.asIr.sendMessage(request)
+		if type(subscriptions) == tuple:
+			return ("ERROR CODE #3 (AS): IM/VIB ERROR DURING SUBSCRIPTION OPERATION (" + subscriptions[1] + ")", 3), 400
+		return [json.dumps(s.toDictionary()) for s in subscriptions], 200
+
+	'''
+	PATH: 		 /im/vib/subscriptions
+	ACTION: 	 POST
+	DESCRIPTION: Send a new subscription instance to the VIB
+				 database.
+	ARGUMENT: 	 VibSubscriptionInstance (JSON Dictionary)
+	RETURN: 	 - 200 (HTTP) + VibSubscriptionInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def post_vib_subscriptions(self, vibSubscriptionInstance):
+		
+		try:
+			vibSubscriptionInstance = VibModels.VibCredentialInstance().fromDictionary(json.loads(vibSubscriptionInstance))
+		except:
+			return ("ERROR CODE #0 (AS): INVALID SUBSCRIPTION INSTANCE PROVIDED", 0), 400
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement("VIB", "post_vib_subscription", vibSubscriptionInstance), "AS", "IM")
+		subscription = self.asIr.sendMessage(request)
+		if type(subscription) == tuple:
+			return ("ERROR CODE #3 (AS): IM/VIB ERROR DURING SUBSCRIPTION OPERATION (" + subscription[1] + ")", 3), 400
+
+		return json.dumps(subscription.toDictionary())
+
+	'''
+	PATH: 		 /im/vib/subscriptions
+	N/A ACTIONS: PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def put_vib_subscriptions(self):
+		return "NOT AVAILABLE", 405
+	def patch_vib_subscriptions(self):
+		return "NOT AVAILABLE", 405
+	def delete_vib_subscriptions(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/vib/subscriptions/{subscriptionId}
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve a subscription instance from the VIB
+				 database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibSubscriptionInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def get_vib_c_subscriptionId(self, subscriptionId):
+		
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement("VIB", "get_vib_s_subscriptionId", subscriptionId), "AS", "IM")
+		subscription = self.asIr.sendMessage(request)
+		if type(subscription) == tuple:
+			return ("ERROR CODE #3 (AS): IM/VIB ERROR DURING SUBSCRIPTION OPERATION (" + subscription[1] + ")", 3), 400
+		return json.dumps(subscription.toDictionary())
+
+	'''
+	PATH: 		 /im/vib/subscriptions/{subscriptionId}
+	ACTION: 	 PATCH
+	DESCRIPTION: Send updates to a subscription instance already
+				 in the VIB database.
+	ARGUMENT: 	 VibSubscriptionInstance (JSON Dictionary)
+	RETURN: 	 - 200 (HTTP) + VibSubscriptionInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def patch_vib_s_subscriptionId(self, subscriptionId, vibSubscriptionInstance):
+		
+		try:
+			vibSubscriptionInstance = VibModels.VibSubscriptionInstance().fromDictionary(json.loads(vibSubscriptionInstance))
+			if subscriptionId != vibSubscriptionInstance.visId:
+				return ("ERROR CODE #0 (AS): INVALID SUBSCRIPTION INSTANCE PROVIDED", 0), 400
+		except:
+			return ("ERROR CODE #0 (AS): INVALID SUBSCRIPTION INSTANCE PROVIDED", 0), 400
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement("VIB", "patch_vib_s_subscriptionId", vibSubscriptionInstance), "AS", "IM")
+		subscription = self.asIr.sendMessage(request)
+		if type(subscription) == tuple:
+			return ("ERROR CODE #3 (AS): IM/VIB ERROR DURING SUBSCRIPTION OPERATION (" + subscription[1] + ")", 3), 400
+
+		return json.dumps(subscription.toDictionary())
+
+	'''
+	PATH: 		 /im/vib/subscriptions/{subscriptionId}
+	ACTION: 	 DELETE
+	DESCRIPTION: Delete a subscription instance in the VIB data-
+				 base.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibSubscriptionInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def delete_vib_s_subscriptionId(self, subscriptionId):
+		
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement("VIB", "delete_vib_s_subscriptionId", subscriptionId), "AS", "IM")
+		subscription = self.asIr.sendMessage(request)
+		if type(subscription) == tuple:
+			return ("ERROR CODE #3 (AS): IM/VIB ERROR DURING SUBSCRIPTION OPERATION (" + subscription[1] + ")", 3), 400
+		return json.dumps(subscription.toDictionary())
+
+	'''
+	PATH: 		 /im/vib/subscriptions/{subscriptionId}
+	N/A ACTIONS: POST, PUT
+	**Do not change these methods**
+	'''
+	def post_vib_s_subscriptionId(self):
+		return "NOT AVAILABLE", 405
+	def put_vib_s_subscriptionId(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/vib/m_agents
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve the available management agents from the VIB
+				 database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibMaInstance [0..N]
+				 - Integer error code (HTTP)
+	
+	'''
+	def get_vib_m_agents(self):
+		
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement("VIB", "get_vib_m_agents", None), "AS", "IM")
+		agents = self.asIr.sendMessage(request)
+		if type(agents) == tuple:
+			return ("ERROR CODE #3 (AS): IM/VIB ERROR DURING MANAGEMENT AGENT OPERATION (" + agents[1] + ")", 3), 400
+		return [json.dumps(a.toDictionary()) for a in agents], 200
+
+	'''
+	PATH: 		 /im/vib/m_agents
+	ACTION: 	 POST
+	DESCRIPTION: Send a new management agents instance to the VIB
+				 database.
+	ARGUMENT: 	 VibMaInstance (JSON Dictionary)
+	RETURN: 	 - 200 (HTTP) + VibMaInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def post_vib_m_agents(self, vibMaInstance):
+		
+		try:
+			vibMaInstance = VibModels.VibMaInstance().fromDictionary(json.loads(vibMaInstance))
+		except:
+			return ("ERROR CODE #0 (AS): INVALID MANAGEMENT AGENT INSTANCE PROVIDED", 0), 400
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement("VIB", "post_vib_m_agents", vibMaInstance), "AS", "IM")
+		agent = self.asIr.sendMessage(request)
+		if type(agent) == tuple:
+			return ("ERROR CODE #3 (AS): IM/VIB ERROR DURING MANAGEMENT AGENT OPERATION (" + agent[1] + ")", 3), 400
+
+		return json.dumps(agent.toDictionary())
+
+	'''
+	PATH: 		 /im/vib/m_agents
+	N/A ACTIONS: PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def put_vib_m_agents(self):
+		return "NOT AVAILABLE", 405
+	def patch_vib_m_agents(self):
+		return "NOT AVAILABLE", 405
+	def delete_vib_m_agents(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/vib/m_agents/{agentId}
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve a management agent instance from the VIB
+				 database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibMaInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def get_vib_ma_agentId(self, agentId):
+		
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement("VIB", "get_vib_ma_agentId", agentId), "AS", "IM")
+		agent = self.asIr.sendMessage(request)
+		if type(agent) == tuple:
+			return ("ERROR CODE #3 (AS): IM/VIB ERROR DURING MANAGEMENT AGENT OPERATION (" + agent[1] + ")", 3), 400
+		return json.dumps(agent.toDictionary())
+
+	'''
+	PATH: 		 /im/vib/m_agents/{agentId}
+	ACTION: 	 PATCH
+	DESCRIPTION: Send updates to a management agent instance already
+				 in the VIB database.
+	ARGUMENT: 	 VibMaInstance (JSON Dictionary)
+	RETURN: 	 - 200 (HTTP) + VibMaInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def patch_vib_ma_agentId(self, agentId, vibMaInstance):
+		
+		try:
+			vibMaInstance = VibModels.VibMaInstance().fromDictionary(json.loads(vibMaInstance))
+			if agentId != vibMaInstance.maId:
+				return ("ERROR CODE #0 (AS): INVALID MANAGEMENT AGENT INSTANCE PROVIDED", 0), 400
+		except:
+			return ("ERROR CODE #0 (AS): INVALID MANAGEMENT AGENT INSTANCE PROVIDED", 0), 400
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement("VIB", "patch_vib_ma_agentId", vibMaInstance), "AS", "IM")
+		agent = self.asIr.sendMessage(request)
+		if type(agent) == tuple:
+			return ("ERROR CODE #3 (AS): IM/VIB ERROR DURING MANAGEMENT AGENT OPERATION (" + agent[1] + ")", 3), 400
+
+		return json.dumps(agent.toDictionary())
+
+	'''
+	PATH: 		 /im/vib/m_agents/{agentId}
+	ACTION: 	 DELETE
+	DESCRIPTION: Delete a management agent instance in the VIB data-
+				 base.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibMaInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def delete_vib_ma_agentId(self, agentId):
+		
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement("VIB", "delete_vib_ma_agentId", agentId), "AS", "IM")
+		agent = self.asIr.sendMessage(request)
+		if type(agent) == tuple:
+			return ("ERROR CODE #3 (AS): IM/VIB ERROR DURING MANAGEMENT AGENT OPERATION (" + agent[1] + ")", 3), 400
+		return json.dumps(agent.toDictionary())
+
+	'''
+	PATH: 		 /im/vib/m_agents/{agentId}
+	N/A ACTIONS: POST, PUT
+	**Do not change these methods**
+	'''
+	def post_vib_ma_agentId(self):
+		return "NOT AVAILABLE", 405
+	def put_vib_ma_agentId(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/vib/instances
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve the available vnf instances from the VIB
+				 database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibVnfInstance [0..N]
+				 - Integer error code (HTTP)
+	
+	'''
+	def get_vib_instances(self):
+		
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement("VIB", "get_vib_instances", None), "AS", "IM")
+		instances = self.asIr.sendMessage(request)
+		if type(instances) == tuple:
+			return ("ERROR CODE #3 (AS): IM/VIB ERROR DURING VNF INSTANCE OPERATION (" + instances[1] + ")", 3), 400
+		return [json.dumps(i.toDictionary()) for i in instances], 200
+
+	'''
+	PATH: 		 /im/vib/instances
+	ACTION: 	 POST
+	DESCRIPTION: Send a new management vnf instance to the VIB
+				 database.
+	ARGUMENT: 	 VibVnfInstance (JSON Dictionary)
+	RETURN: 	 - 200 (HTTP) + VibVnfInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def post_vib_instances(self, vibVnfInstance):
+		
+		try:
+			vibVnfInstance = VibModels.VibVnfInstance().fromDictionary(json.loads(vibVnfInstance))
+		except:
+			return ("ERROR CODE #0 (AS): INVALID VNF INSTANCE PROVIDED", 0), 400
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement("VIB", "post_vib_instances", vibVnfInstance), "AS", "IM")
+		instance = self.asIr.sendMessage(request)
+		if type(instance) == tuple:
+			return ("ERROR CODE #3 (AS): IM/VIB ERROR DURING VNF INSTANCE OPERATION (" + instance[1] + ")", 3), 400
+
+		return json.dumps(instance.toDictionary())
+
+	'''
+	PATH: 		 /im/vib/instances
+	N/A ACTIONS: PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def put_vib_instances(self):
+		return "NOT AVAILABLE", 405
+	def patch_vib_instances(self):
+		return "NOT AVAILABLE", 405
+	def delete_vib_instances(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/vib/instances/{instanceId}
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve a vnf instance from the VIB
+				 database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibVnfInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def get_vib_i_instanceId(self, instanceId):
+		
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement("VIB", "get_vib_i_instanceId", instanceId), "AS", "IM")
+		instance = self.asIr.sendMessage(request)
+		if type(instance) == tuple:
+			return ("ERROR CODE #3 (AS): IM/VIB ERROR DURING VNF INSTANCE OPERATION (" + instance[1] + ")", 3), 400
+		return json.dumps(instance.toDictionary())
+
+	'''
+	PATH: 		 /im/vib/instances/{instanceId}
+	ACTION: 	 PATCH
+	DESCRIPTION: Send updates to a vnf instance instance already
+				 in the VIB database.
+	ARGUMENT: 	 VibVnfInstance (JSON Dictionary)
+	RETURN: 	 - 200 (HTTP) + VibVnfInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def patch_vib_i_instanceId(self, instanceId, vibVnfInstance):
+		
+		try:
+			vibVnfInstance = VibModels.VibVnfInstance().fromDictionary(json.loads(vibVnfInstance))
+			if vnfId != vibVnfInstance.vnfId:
+				return ("ERROR CODE #0 (AS): INVALID VNF INSTANCE INSTANCE PROVIDED", 0), 400
+		except:
+			return ("ERROR CODE #0 (AS): INVALID VNF INSTANCE PROVIDED", 0), 400
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement("VIB", "patch_vib_i_instanceId", vibVnfInstance), "AS", "IM")
+		instance = self.asIr.sendMessage(request)
+		if type(instance) == tuple:
+			return ("ERROR CODE #3 (AS): IM/VIB ERROR DURING VNF INSTANCE OPERATION (" + instance[1] + ")", 3), 400
+
+		return json.dumps(instance.toDictionary())
+
+	'''
+	PATH: 		 /im/vib/instances/{instanceId}
+	ACTION: 	 DELETE
+	DESCRIPTION: Delete a vnf instance in the VIB database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibVnfInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def delete_vib_i_instanceId(self, instanceId):
+		
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement("VIB", "delete_vib_i_instanceId", instanceId), "AS", "IM")
+		instance = self.asIr.sendMessage(request)
+		if type(instance) == tuple:
+			return ("ERROR CODE #3 (AS): IM/VIB ERROR DURING VNF INSTANCE OPERATION (" + instance[1] + ")", 3), 400
+		return json.dumps(instance.toDictionary())
+
+	'''
+	PATH: 		 /im/vib/instances/{instanceId}
+	N/A ACTIONS: POST, PUT
+	**Do not change these methods**
+	'''
+	def post_vib_i_instanceId(self):
+		return "NOT AVAILABLE", 405
+	def put_vib_i_instanceId(self):
 		return "NOT AVAILABLE", 405
 
 	#TO DO FOR ALFA.1
