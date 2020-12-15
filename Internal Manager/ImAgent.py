@@ -1342,9 +1342,9 @@ class ImAgent:
 	def __delete_mss_subscriptionId(self, irManagement):
 		
 		if type(irManagement.operationArgs) != str:
-			return "ERROR CODE #1: INVALID ARGUMENTS PROVIDED (subscriptionId is expected)"
+			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (subscriptionId is expected)", 1)
 		if self.__get_msrs_subscriptionId(irManagement):
-			return "ERROR CODE #1: PROVIDED subscriptionId IS A RUNNING AGENT"
+			return ("ERROR CODE #1: PROVIDED subscriptionId IS A RUNNING AGENT", 1)
 
 		return self.__delete_vib_s_subscriptionId(irManagement)
 
@@ -1357,7 +1357,7 @@ class ImAgent:
 		if not hasattr(irManagement.operationArgs, "maSource"):
 			return ("ERROR CODE #1: THERE IS NO maSource IN irManagement.operationArgs", 1)
 		if not os.path.isfile(irManagement.operationArgs.maSource) or not irManagement.operationArgs.maSource.endswith(".py"):
-			return "ERROR CODE #1: INVALID maSource PROVIDED"
+			return ("ERROR CODE #1: INVALID maSource PROVIDED", 1)
 
 		original = irManagement.operationArgs.maSource
 		irManagement.operationArgs.maSource = irManagement.operationArgs.maSource.replace("\\", "/").split("/")[-1][:-3]

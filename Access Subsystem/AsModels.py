@@ -2258,10 +2258,10 @@ class VnfConfigModifications:
 	def fromDictionary(self, dictData):
 		
 		if dictData["vnfConfigurationData"] != None:
-			self.vnfConfigurationData = VnfConfigurationData.fromDictionary(dictData["vnfConfigurationData"])
+			self.vnfConfigurationData = VnfConfigurationData().fromDictionary(dictData["vnfConfigurationData"])
 		else:
 			self.vnfConfigurationData = dictData["vnfConfigurationData"]
-		self.vnfcConfigurationData = [VnfcConfigurationData.fromDictionary(vcd) for vcd in dictData["vnfConfigurationData"]]
+		self.vnfcConfigurationData = [VnfcConfigurationData().fromDictionary(vcd) for vcd in dictData["vnfConfigurationData"]]
 		self.vnfcConfigurationDataDeleteIds = dictData["vnfConfigurationData"]
 		return self
 

@@ -43,7 +43,7 @@ class IrMessage:
 			return ("1", -1)
 		if not self.destinationModule in availableConnections:
 			return ("2", -1)
-		if self.messageData == None: #TODO: adjust here
+		if self.messageData == None:
 			return ("3", -2) 
 
 		return ("4", 0)
