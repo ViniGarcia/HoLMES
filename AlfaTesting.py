@@ -614,6 +614,7 @@ def main():
 if __name__ == '__main__':
     main()
 '''
+
 vibManager = VibManager.VibManager()
 
 asAuthAgent = AsAuthAgent.AuthenticationAgent(vibManager)

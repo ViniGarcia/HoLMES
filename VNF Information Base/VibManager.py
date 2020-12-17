@@ -99,4 +99,5 @@ class VibManager:
 
             classTest = VibModels.VibVnfmInstance().fromData("DummyVnfmDriver", "DummyVnfmDriver")
             self.operateVibDatabase(classTest.toSql())
-            print(self.queryVibDatabase("SELECT * FROM VnfmInstance WHERE vnfmId = \"DummyVnfmDriver\";"))'''
+            print(self.queryVibDatabase("SELECT * FROM VnfmInstance WHERE vnfmId = \"DummyVnfmDriver\";"))
+'''

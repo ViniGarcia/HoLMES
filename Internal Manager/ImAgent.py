@@ -673,7 +673,7 @@ class ImAgent:
 			if len(existence) == 0:
 				return ("ERROR CODE #4: THE REQUIRED VNF PLATFORM DOES NOT EXIST", 4)
 
-		update = self.vibManager.operateVibDatabase(("UPDATE VnfInstance SET vnfAddress = ?, vnfPlatform = ?, vnfExtAgents = ?, vnfAuth = ? WHERE vnfId = ?;", (irManagement.operationArgs.vnfAddress, irManagement.operationArgs.vnfPlatform, json.dumps(irManagement.operationArgs.vnfExtAgents), irManagement.operationArgs.vnfAuth, irManagement.operationArgs.vnfId)))
+		update = self.vibManager.operateVibDatabase(("UPDATE VnfInstance SET vnfAddress = ?, vnfPlatform = ?, vnfExtAgents = ?, vnfAuth = ? WHERE vnfId = ?;", (irManagement.operationArgs.vnfAddress, irManagement.operationArgs.vnfPlatform, json.dumps(irManagement.operationArgs.vnfExtAgents), int(irManagement.operationArgs.vnfAuth), irManagement.operationArgs.vnfId)))
 		if type(update) == sqlite3.Error:
 			return ("ERROR CODE #2: SQL ERROR DURING VNF INSTANCE UPDATING", 2)
 

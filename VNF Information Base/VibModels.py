@@ -63,7 +63,7 @@ class VibSummaryModels:
                      vnfAddress text NOT NULL,
                      vnfPlatform text NOT NULL,
                      vnfExtAgents text,
-                     vnfAuth boolean,
+                     vnfAuth int,
                      FOREIGN KEY (vnfPlatform)
        					REFERENCES PlatformInstance (platformId)
                     ); """
@@ -122,7 +122,7 @@ class VibCredentialInstance:
 		self.userId = dictData["userId"]
 		self.vnfId = dictData["vnfId"]
 		self.authData = dictData["authData"]
-		if "authResource" in self.dictData:
+		if "authResource" in dictData:
 			self.authResource = dictData["authResource"]
 		return self
 
@@ -316,7 +316,7 @@ class VibVnfInstance:
 		self.vnfAddress = sqlData[1]
 		self.vnfPlatform = sqlData[2]
 		self.vnfExtAgents = json.loads(sqlData[3])
-		self.vnfAuth = bool(sqlData[3])
+		self.vnfAuth = bool(sqlData[4])
 		return self
 
 	def fromDictionary(self, dictData):
@@ -324,12 +324,12 @@ class VibVnfInstance:
 		self.vnfAddress = dictData["vnfAddress"]
 		self.vnfPlatform = dictData["vnfPlatform"]
 		self.vnfExtAgents = dictData["vnfExtAgents"]
-		self.vnfAuth = dictData["vnfAuth"]
+		self.vnfAuth = bool(dictData["vnfAuth"])
 		return self
 
 	def toSql(self):
 		return ('''INSERT INTO VnfInstance(vnfId,vnfAddress,vnfPlatform,vnfExtAgents,vnfAuth)
-              	   VALUES(?,?,?,?,?)''', (self.vnfId, self.vnfAddress, self.vnfPlatform, json.dumps(self.vnfExtAgents), self.vnfAuth))
+              	   VALUES(?,?,?,?,?)''', (self.vnfId, self.vnfAddress, self.vnfPlatform, json.dumps(self.vnfExtAgents), int(self.vnfAuth)))
 
 	def toDictionary(self):
 		return {"vnfId":self.vnfId, "vnfAddress":self.vnfAddress, "vnfPlatform":self.vnfPlatform, "vnfExtAgents":self.vnfExtAgents, "vnfAuth":self.vnfAuth}
