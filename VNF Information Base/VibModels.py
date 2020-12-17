@@ -427,5 +427,4 @@ class VibVnfmInstance:
               	   VALUES(?,?)''', (self.vnfmId, self.vnfmDriver))
 
 	def toDictionary(self):
-		return {"vnfmId":self.platformId, "vnfmDriver":self.platformDriver}
-
+		return {"vnfmId":self.vnfmId, "vnfmDriver":self.vnfmDriver}

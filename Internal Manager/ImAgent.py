@@ -177,10 +177,10 @@ class ImAgent:
 		if irManagement.operationId.endswith("subscription") or irManagement.operationId.endswith("subscriptionId"):
 			if irManagement.operationId == "get_ms_running_subscription":
 				return self.__get_ms_running_subscription(irManagement)
-			elif irManagement.operationId == "post_ms_running_subscription":
-				return self.__post_ms_running_subscription(irManagement)
 			elif irManagement.operationId == "get_msrs_subscriptionId":
 				return self.__get_msrs_subscriptionId(irManagement)
+			elif irManagement.operationId == "post_msrs_subscriptionId":
+				return self.__post_msrs_subscriptionId(irManagement)
 			elif irManagement.operationId == "patch_msrs_subscriptionId":
 				return self.__patch_msrs_subscriptionId(irManagement)
 			elif irManagement.operationId == "delete_msrs_subscriptionId":
@@ -1196,7 +1196,17 @@ class ImAgent:
 
 		return self.msManager.getAgents()
 
-	def __post_ms_running_subscription(self, irManagement):
+	def __get_msrs_subscriptionId(self, irManagement):
+
+		if type(irManagement.operationArgs) != str:
+			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (subscriptionId is expected)", 1)
+
+		if irManagement.operationArgs in self.msManager.getAgents():
+			return True
+
+		return False
+
+	def __post_msrs_subscriptionId(self, irManagement):
 
 		subscription = self.__get_vib_s_subscriptionId(irManagement)
 		if type(subscription) == tuple:
@@ -1221,16 +1231,6 @@ class ImAgent:
 			return ("ERROR CODE #6: AN ERROR OCCURED WHILE SETUPING THE SUBSCRIPTION AGENT (" + str(result) + ")", 6)
 
 		return subscription
-
-	def __get_msrs_subscriptionId(self, irManagement):
-
-		if type(irManagement.operationArgs) != str:
-			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (subscriptionId is expected)", 1)
-
-		if irManagement.operationArgs in self.msManager.getAgents():
-			return True
-
-		return False
 
 	def __patch_msrs_subscriptionId(self, irManagement):
 

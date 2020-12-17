@@ -171,8 +171,16 @@ class OperationAgent:
 		self.__aiAs.add_url_rule("/im/vib/instances", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_instances)
 		self.__aiAs.add_url_rule("/im/vib/instances/<instanceId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_i_instanceId)
 		self.__aiAs.add_url_rule("/im/vib/platforms", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_platforms)
+		self.__aiAs.add_url_rule("/im/vib/platforms/<platformId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_p_platformId)
+		self.__aiAs.add_url_rule("/im/vib/v_managers", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_vnf_managers)
+		self.__aiAs.add_url_rule("/im/vib/v_managers/<managerId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_vnfm_managerId)
 
-
+		self.__aiAs.add_url_rule("/im/ms/running_subscription", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_ms_running_subscription)
+		self.__aiAs.add_url_rule("/im/ms/running_subscription/<subscriptionId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_msrs_subscriptionId)
+		self.__aiAs.add_url_rule("/im/ms/subscription", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_ms_subscription)
+		self.__aiAs.add_url_rule("/im/ms/subscription/<subscriptionId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_mss_subscriptionId)
+		self.__aiAs.add_url_rule("/im/ms/agent", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_ms_agent)
+		self.__aiAs.add_url_rule("/im/ms/agent/<agentId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_msa_agentId)
 
 	# ================================ Ve-Vnfm-em Operations (EMS -> VNFM) ================================
 
@@ -829,6 +837,126 @@ class OperationAgent:
 		elif flask.request.method == "DELETE":
 			return self.delete_vib_platforms()
 
+	def im_vib_p_platformId(self, platformId):
+
+		if flask.request.method == "GET":
+			return self.get_vib_p_platformId(platformId)
+		elif flask.request.method == "POST":
+			return self.post_vib_p_platformId()
+		elif flask.request.method == "PUT":
+			return self.put_vib_p_platformId()
+		elif flask.request.method == "PATCH":
+			return self.patch_vib_p_platformId(platformId, flask.request.values.get("vibPlatformInstance"))
+		elif flask.request.method == "DELETE":
+			return self.delete_vib_p_platformId(platformId)
+
+	def im_vib_vnf_managers(self):
+
+		if flask.request.method == "GET":
+			return self.get_vib_vnf_managers()
+		elif flask.request.method == "POST":
+			return self.post_vib_vnf_managers(flask.request.values.get("vibVnfmInstance"))
+		elif flask.request.method == "PUT":
+			return self.put_vib_vnf_managers()
+		elif flask.request.method == "PATCH":
+			return self.patch_vib_vnf_managers()
+		elif flask.request.method == "DELETE":
+			return self.delete_vib_vnf_managers()
+
+	def im_vib_vnfm_managerId(self, managerId):
+
+		if flask.request.method == "GET":
+			return self.get_vib_vnfm_managerId(managerId)
+		elif flask.request.method == "POST":
+			return self.post_vib_vnfm_managerId()
+		elif flask.request.method == "PUT":
+			return self.put_vib_vnfm_managerId()
+		elif flask.request.method == "PATCH":
+			return self.patch_vib_vnfm_managerId(managerId, flask.request.values.get("vibVnfmInstance"))
+		elif flask.request.method == "DELETE":
+			return self.delete_vib_vnfm_managerId(managerId)
+	
+	def im_ms_running_subscription(self):
+
+		if flask.request.method == "GET":
+			return self.get_ms_running_subscription()
+		elif flask.request.method == "POST":
+			return self.post_ms_running_subscription()
+		elif flask.request.method == "PUT":
+			return self.put_ms_running_subscription()
+		elif flask.request.method == "PATCH":
+			return self.patch_ms_running_subscription()
+		elif flask.request.method == "DELETE":
+			return self.delete_ms_running_subscription()
+	
+	def im_msrs_subscriptionId(self, subscriptionId):
+
+		if flask.request.method == "GET":
+			return self.get_msrs_subscriptionId(subscriptionId)
+		elif flask.request.method == "POST":
+			return self.post_msrs_subscriptionId(subscriptionId)
+		elif flask.request.method == "PUT":
+			return self.put_msrs_subscriptionId()
+		elif flask.request.method == "PATCH":
+			if "agentArguments" in flask.request.values:
+				return self.patch_msrs_subscriptionId(subscriptionId, flask.request.values.get("agentArguments"))
+			else:
+				return self.patch_msrs_subscriptionId(subscriptionId, None)
+		elif flask.request.method == "DELETE":
+			return self.delete_msrs_subscriptionId(subscriptionId)
+
+	def im_ms_subscription(self):
+
+		if flask.request.method == "GET":
+			return self.get_ms_subscription()
+		elif flask.request.method == "POST":
+			return self.post_ms_subscription(flask.request.values.get("vnfIndicatorSubscriptionRequest"))
+		elif flask.request.method == "PUT":
+			return self.put_ms_subscription()
+		elif flask.request.method == "PATCH":
+			return self.parch_ms_subscription()
+		elif flask.request.method == "DELETE":
+			return self.delete_ms_subscription()
+
+	def im_mss_subscriptionId(self, subscriptionId):
+
+		if flask.request.method == "GET":
+			return self.get_mss_subscriptionId(subscriptionId)
+		elif flask.request.method == "POST":
+			return self.post_mss_subscriptionId()
+		elif flask.request.method == "PUT":
+			return self.put_mss_subscriptionId()
+		elif flask.request.method == "PATCH":
+			return self.patch_mss_subscriptionId(subscriptionId, flask.request.values.get("vnfIndicatorSubscriptionRequest"))
+		elif flask.request.method == "DELETE":
+			return self.delete_mss_subscriptionId(subscriptionId)
+
+	def im_ms_agent(self):
+
+		if flask.request.method == "GET":
+			return self.get_ms_agent()
+		elif flask.request.method == "POST":
+			return self.post_ms_agent(flask.request.values.get("vibMaInstance"))
+		elif flask.request.method == "PUT":
+			return self.put_ms_agent()
+		elif flask.request.method == "PATCH":
+			return self.patch_ms_agent()
+		elif flask.request.method == "DELETE":
+			return self.delete_ms_agent()
+	
+	def im_msa_agentId(self, agentId):
+
+		if flask.request.method == "GET":
+			return self.get_msa_agentId(agentId)
+		elif flask.request.method == "POST":
+			return self.post_msa_agentId()
+		elif flask.request.method == "PUT":
+			return self.put_msa_agentId()
+		elif flask.request.method == "PATCH":
+			return self.patch_msa_agentId(agentId, flask.request.values.get("vibMaInstance"))
+		elif flask.request.method == "DELETE":
+			return self.delete_msa_agentId(agentId)
+
 	# ================================ Ve-Vnfm-em Operations (VNFM -> EMS) ================================
 
 	'''
@@ -1407,7 +1535,6 @@ class OperationAgent:
 
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "post_vib_subscriptions", vibSubscriptionInstance), "AS", "IM")
 		subscription = self.__asIr.sendMessage(request)
-		print(subscription.messageData)
 		if type(subscription.messageData) == tuple:
 			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING SUBSCRIPTION OPERATION (" + str(subscription.messageData[1]) + ")", 400
 
@@ -1809,12 +1936,12 @@ class OperationAgent:
 	'''
 	def get_vib_p_platformId(self, platformId):
 		
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement("VIB", "get_vib_p_platformId", platformId), "AS", "IM")
-		platform = self.asIr.sendMessage(request)
-		if type(platform) == tuple:
-			return ("ERROR CODE #3 (AS): IM/VIB ERROR DURING PLATFORM OPERATION (" + platform[1] + ")", 3), 400
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "get_vib_p_platformId", platformId), "AS", "IM")
+		platform = self.__asIr.sendMessage(request)
+		if type(platform.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING PLATFORM OPERATION (" + str(platform.messageData[1]) + ")", 400
 
-		return json.dumps(platform.toDictionary())
+		return json.dumps(platform.messageData.toDictionary())
 
 	'''
 	PATH: 		 /im/vib/platforms/{platformId}
@@ -1830,16 +1957,16 @@ class OperationAgent:
 		try:
 			vibPlatformInstance = VibModels.VibPlatformInstance().fromDictionary(json.loads(vibPlatformInstance))
 			if platformId != vibPlatformInstance.platformId:
-				return ("ERROR CODE #0 (AS): INVALID PLATFORM INSTANCE PROVIDED", 0), 400
+				return "ERROR CODE #0 (AS): INVALID PLATFORM INSTANCE PROVIDED", 400
 		except:
-			return ("ERROR CODE #0 (AS): INVALID PLATFORM INSTANCE PROVIDED", 0), 400
+			return "ERROR CODE #0 (AS): INVALID PLATFORM INSTANCE PROVIDED", 400
 
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement("VIB", "patch_vib_p_platformId", vibPlatformInstance), "AS", "IM")
-		platform = self.asIr.sendMessage(request)
-		if type(platform) == tuple:
-			return ("ERROR CODE #3 (AS): IM/VIB ERROR DURING PLATFORM INSTANCE OPERATION (" + platform[1] + ")", 3), 400
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "patch_vib_p_platformId", vibPlatformInstance), "AS", "IM")
+		platform = self.__asIr.sendMessage(request)
+		if type(platform.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING PLATFORM INSTANCE OPERATION (" + str(platform.messageData[1]) + ")", 400
 
-		return json.dumps(platform.toDictionary())
+		return json.dumps(platform.messageData.toDictionary())
 
 	'''
 	PATH: 		 /im/vib/platforms/{platformId}
@@ -1852,12 +1979,12 @@ class OperationAgent:
 	'''
 	def delete_vib_p_platformId(self, platformId):
 		
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement("VIB", "delete_vib_p_platformId", platformId), "AS", "IM")
-		platform = self.asIr.sendMessage(request)
-		if type(platform) == tuple:
-			return ("ERROR CODE #3 (AS): IM/VIB ERROR DURING PLATFORM INSTANCE OPERATION (" + platform[1] + ")", 3), 400
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "delete_vib_p_platformId", platformId), "AS", "IM")
+		platform = self.__asIr.sendMessage(request)
+		if type(platform.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING PLATFORM INSTANCE OPERATION (" + str(platform.messageData[1]) + ")", 400
 
-		return json.dumps(platform.toDictionary())
+		return json.dumps(platform.messageData.toDictionary())
 
 	'''
 	PATH: 		 /im/vib/platforms/{platformId}
@@ -1881,12 +2008,12 @@ class OperationAgent:
 	'''
 	def get_vib_vnf_managers(self):
 		
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement("VIB", "get_vib_vnf_managers", None), "AS", "IM")
-		managers = self.asIr.sendMessage(request)
-		if type(managers) == tuple:
-			return ("ERROR CODE #3 (AS): IM/VIB ERROR DURING VNF MANAGER OPERATION (" + managers[1] + ")", 3), 400
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "get_vib_vnf_managers", None), "AS", "IM")
+		managers = self.__asIr.sendMessage(request)
+		if type(managers.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING VNF MANAGER OPERATION (" + str(managers.messageData[1]) + ")", 400
 
-		return [json.dumps(m.toDictionary()) for m in managers], 200
+		return json.dumps([m.toDictionary() for m in managers.messageData]), 200
 
 	'''
 	PATH: 		 /im/vib/v_managers
@@ -1902,14 +2029,14 @@ class OperationAgent:
 		try:
 			vibVnfmInstance = VibModels.VibVnfmInstance().fromDictionary(json.loads(vibVnfmInstance))
 		except:
-			return ("ERROR CODE #0 (AS): INVALID VNF MANAGER INSTANCE PROVIDED", 0), 400
+			return "ERROR CODE #0 (AS): INVALID VNF MANAGER INSTANCE PROVIDED", 400
 
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement("VIB", "post_vib_vnfm_managers", vibVnfmInstance), "AS", "IM")
-		manager = self.asIr.sendMessage(request)
-		if type(manager) == tuple:
-			return ("ERROR CODE #3 (AS): IM/VIB ERROR DURING PLATFORM OPERATION (" + manager[1] + ")", 3), 400
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "post_vib_vnf_managers", vibVnfmInstance), "AS", "IM")
+		manager = self.__asIr.sendMessage(request)
+		if type(manager.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING PLATFORM OPERATION (" + str(manager.messageData[1]) + ")", 400
 
-		return json.dumps(manager.toDictionary())
+		return json.dumps(manager.messageData.toDictionary())
 
 	'''
 	PATH: 		 /im/vib/v_managers
@@ -1934,12 +2061,12 @@ class OperationAgent:
 	'''
 	def get_vib_vnfm_managerId(self, managerId):
 		
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement("VIB", "get_vib_vnfm_managerId", managerId), "AS", "IM")
-		manager = self.asIr.sendMessage(request)
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "get_vib_vnfm_managerId", managerId), "AS", "IM")
+		manager = self.__asIr.sendMessage(request)
 		if type(manager.messageData) == tuple:
-			return ("ERROR CODE #3 (AS): IM/VIB ERROR DURING VNF MANAGER OPERATION (" + manager[1] + ")", 3), 400
+			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING VNF MANAGER OPERATION (" + str(manager.messageData[1]) + ")", 400
 
-		return json.dumps(manager.toDictionary())
+		return json.dumps(manager.messageData.toDictionary())
 
 	'''
 	PATH: 		 /im/vib/v_managers/{managerId}
@@ -1953,18 +2080,18 @@ class OperationAgent:
 	def patch_vib_vnfm_managerId(self, managerId, vibVnfmInstance):
 		
 		try:
-			vibVnfmInstance = VibModels.VibPlatformInstance().fromDictionary(json.loads(vibVnfmInstance))
+			vibVnfmInstance = VibModels.VibVnfmInstance().fromDictionary(json.loads(vibVnfmInstance))
 			if managerId != vibVnfmInstance.vnfmId:
-				return ("ERROR CODE #0 (AS): INVALID VNF MANAGER INSTANCE PROVIDED", 0), 400
+				return "ERROR CODE #0 (AS): INVALID VNF MANAGER INSTANCE PROVIDED", 400
 		except:
-			return ("ERROR CODE #0 (AS): INVALID VNF MANAGER INSTANCE PROVIDED", 0), 400
+			return "ERROR CODE #0 (AS): INVALID VNF MANAGER INSTANCE PROVIDED", 400
 
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement("VIB", "patch_vib_vnfm_managerId", vibVnfmInstance), "AS", "IM")
-		manager = self.asIr.sendMessage(request)
-		if type(manager) == tuple:
-			return ("ERROR CODE #3 (AS): IM/VIB ERROR DURING VNF MANAGER INSTANCE OPERATION (" + manager[1] + ")", 3), 400
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "patch_vib_vnfm_managerId", vibVnfmInstance), "AS", "IM")
+		manager = self.__asIr.sendMessage(request)
+		if type(manager.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING VNF MANAGER INSTANCE OPERATION (" + str(manager.messageData[1]) + ")", 400
 
-		return json.dumps(manager.toDictionary())
+		return json.dumps(manager.messageData.toDictionary())
 
 	'''
 	PATH: 		 /im/vib/v_managers/{managerId}
@@ -1977,12 +2104,12 @@ class OperationAgent:
 	'''
 	def delete_vib_vnfm_managerId(self, managerId):
 		
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement("VIB", "delete_vib_vnfm_managerId", managerId), "AS", "IM")
-		manager = self.asIr.sendMessage(request)
-		if type(manager) == tuple:
-			return ("ERROR CODE #3 (AS): IM/VIB ERROR DURING PLATFORM INSTANCE OPERATION (" + manager[1] + ")", 3), 400
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "delete_vib_vnfm_managerId", managerId), "AS", "IM")
+		manager = self.__asIr.sendMessage(request)
+		if type(manager.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING PLATFORM INSTANCE OPERATION (" + str(manager.messageData[1]) + ")", 400
 
-		return json.dumps(manager.toDictionary())
+		return json.dumps(manager.messageData.toDictionary())
 
 	'''
 	PATH: 		 /im/vib/v_managers/{managerId}
@@ -1992,4 +2119,369 @@ class OperationAgent:
 	def post_vib_vnfm_managerId(self):
 		return "NOT AVAILABLE", 405
 	def put_vib_vnfm_managerId(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/ms/running_subscription
+	ACTION: 	 GET
+	DESCRIPTION: Get the running subscription table that
+				 is deployed in the monitoring subsystem.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + ?? [0..N]
+				 - Integer error code (HTTP)
+	'''
+	def get_ms_running_subscription(self):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "get_ms_running_subscription", None), "AS", "IM")
+		subscriptions = self.__asIr.sendMessage(request)
+		if type(subscriptions.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/MS ERROR DURING PLATFORM INSTANCE OPERATION (" + str(subscriptions.messageData[1]) + ")", 400
+
+		return json.dumps(list(subscriptions.messageData.keys()))
+
+	'''
+	PATH: 		 /im/ms/running_subscription
+	N/A ACTIONS: POST, PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def post_ms_running_subscription(self):
+		return "NOT AVAILABLE", 405
+	def put_ms_running_subscription(self):
+		return "NOT AVAILABLE", 405
+	def patch_ms_running_subscription(self):
+		return "NOT AVAILABLE", 405
+	def delete_ms_running_subscription(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/ms/running_subscription/{subscriptionId}
+	ACTION: 	 GET
+	DESCRIPTION: Return "True" if the required subscription is a 
+				 running subscription, or "False" if it is not.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + Boolean [1]
+				 - Integer error code (HTTP)
+	'''
+	def get_msrs_subscriptionId(self, subscriptionId):
+		
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "get_msrs_subscriptionId", subscriptionId), "AS", "IM")
+		subscription = self.__asIr.sendMessage(request)
+		if type(subscription.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/MS ERROR DURING PLATFORM INSTANCE OPERATION (" + str(subscription.messageData[1]) + ")", 400
+
+		return json.dumps(subscription.messageData)
+
+	'''
+	PATH: 		 /im/ms/running_subscription/{subscriptionId}
+	ACTION: 	 POST
+	DESCRIPTION: Get an subscription from the VIB and prepere
+				 it for the execution in the agent.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibSubscriptionInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def post_msrs_subscriptionId(self, subscriptionId):
+		
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "post_msrs_subscriptionId", subscriptionId), "AS", "IM")
+		subscription = self.__asIr.sendMessage(request)
+		if type(subscription.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/MS ERROR DURING PLATFORM INSTANCE OPERATION (" + str(subscription.messageData[1]) + ")", 400
+
+		return json.dumps(subscription.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/ms/running_subscription/{subscriptionId}
+	ACTION: 	 PATCH
+	DESCRIPTION: Start or stop a monitoring agent of the given
+				 subscription instance.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibSubscriptionInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def patch_msrs_subscriptionId(self, subscriptionId, agentArguments):
+		
+		if agentArguments == None:
+			request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "patch_msrs_subscriptionId", (subscriptionId, )), "AS", "IM")
+		else:
+			request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "patch_msrs_subscriptionId", (subscriptionId, json.loads(agentArguments))), "AS", "IM")
+		subscription = self.__asIr.sendMessage(request)
+		if type(subscription.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/MS ERROR DURING PLATFORM INSTANCE OPERATION (" + str(subscription.messageData[1]) + ")", 400
+
+		return json.dumps(subscription.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/ms/running_subscription/{subscriptionId}
+	ACTION: 	 DELETE
+	DESCRIPTION: Remove a subscription from the running subs-
+				 cription, as well as its monitoring agent.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibSubscriptionInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def delete_msrs_subscriptionId(self, subscriptionId):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "delete_msrs_subscriptionId", subscriptionId), "AS", "IM")
+		subscription = self.__asIr.sendMessage(request)
+		if type(subscription.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/MS ERROR DURING PLATFORM INSTANCE OPERATION (" + str(subscription.messageData[1]) + ")", 400
+
+		return json.dumps(subscription.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/ms/running_subscription/{subscriptionId}
+	N/A ACTIONS: PUT
+	**Do not change these methods**
+	'''
+	def put_msrs_subscriptionId(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/ms/subscription
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve all the available subscriptions in
+				 the database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibSubscriptionInstance [0..N]
+				 - Integer error code (HTTP)
+	'''
+	def get_ms_subscription(self):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "get_ms_subscription", None), "AS", "IM")
+		subscription = self.__asIr.sendMessage(request)
+		if type(subscription.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/MS ERROR DURING SUBSCRIPTION INSTANCE OPERATION (" + str(subscription.messageData[1]) + ")", 400
+
+		return json.dumps([s.toDictionary() for s in subscription.messageData])
+
+	'''
+	PATH: 		 /im/ms/subscription
+	ACTION: 	 POST
+	DESCRIPTION: Request the insertion of a new subscription in
+				 the database and make it available to be used
+				 as a running subscription.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibSubscriptionInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def post_ms_subscription(self, vnfIndicatorSubscriptionRequest):
+
+		try:
+			vnfIndicatorSubscriptionRequest = AsModels.VnfIndicatorSubscriptionRequest().fromDictionary(json.loads(vnfIndicatorSubscriptionRequest))
+		except:
+			return "ERROR CODE #0 (AS): INVALID VNF INDICATOR SUBSCRIPTION REQUEST PROVIDED", 400		
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "post_ms_subscription", vnfIndicatorSubscriptionRequest), "AS", "IM")
+		subscription = self.__asIr.sendMessage(request)
+		if type(subscription.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/MS ERROR DURING SUBSCRIPTION OPERATION (" + str(subscription.messageData[1]) + ")", 400
+
+		return json.dumps(subscription.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/ms/subscription
+	N/A ACTIONS: PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def put_ms_subscription(self):
+		return "NOT AVAILABLE", 405
+	def patch_ms_subscription(self):
+		return "NOT AVAILABLE", 405
+	def delete_ms_subscription(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/ms/subscription/{subscriptionId}
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve a particular subscription in
+				 the database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibSubscriptionInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def get_mss_subscriptionId(self, subscriptionId):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "get_mss_subscriptionId", subscriptionId), "AS", "IM")
+		subscription = self.__asIr.sendMessage(request)
+		if type(subscription.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/MS ERROR DURING SUBSCRIPTION INSTANCE OPERATION (" + str(subscription.messageData[1]) + ")", 400
+
+		return json.dumps(subscription.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/ms/subscription/{subscriptionId}
+	ACTION: 	 PATCH
+	DESCRIPTION: Update a particular subscription in the
+				 database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VnfIndicatorSubscription [1]
+				 - Integer error code (HTTP)
+	'''
+	def patch_mss_subscriptionId(self, subscriptionId, vnfIndicatorSubscription):
+
+		try:
+			vnfIndicatorSubscription = AsModels.VnfIndicatorSubscription().fromDictionary(json.loads(vnfIndicatorSubscription))
+			if subscriptionId != vnfIndicatorSubscription.id:
+				return "ERROR CODE #0 (AS): INVALID VNF INDICATOR SUBSCRIPTION PROVIDED", 400
+		except:
+			return "ERROR CODE #0 (AS): INVALID VNF INDICATOR SUBSCRIPTION INSTANCE PROVIDED", 400
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "patch_mss_subscriptionId", vnfIndicatorSubscription), "AS", "IM")
+		subscription = self.__asIr.sendMessage(request)
+		if type(subscription.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/MS ERROR DURING SUBSCRIPTION INSTANCE OPERATION (" + str(subscription.messageData[1]) + ")", 400
+
+		return json.dumps(subscription.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/ms/subscription/{subscriptionId}
+	ACTION: 	 DELETE
+	DESCRIPTION: Delete a particular subscription in
+				 the database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibSubscriptionInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def delete_mss_subscriptionId(self, subscriptionId):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "delete_mss_subscriptionId", subscriptionId), "AS", "IM")
+		subscription = self.__asIr.sendMessage(request)
+		if type(subscription.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/MS ERROR DURING SUBSCRIPTION INSTANCE OPERATION (" + str(subscription.messageData[1]) + ")", 400
+
+		return json.dumps(subscription.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/ms/subscription/{subscriptionId}
+	N/A ACTIONS: POST, PUT
+	**Do not change these methods**
+	'''
+	def post_mss_subscriptionId(self):
+		return "NOT AVAILABLE", 405
+	def put_mss_subscriptionId(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/ms/agent
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve all the available monitoring agent
+				 in the database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibMaInstance [0..N]
+				 - Integer error code (HTTP)
+	'''
+	def get_ms_agent(self):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "get_ms_agent", None), "AS", "IM")
+		agents = self.__asIr.sendMessage(request)
+		if type(agents.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/MS ERROR DURING MONITORING AGENT INSTANCE OPERATION (" + str(agents.messageData[1]) + ")", 400
+
+		return json.dumps([a.toDictionary() for a in agents.messageData])
+
+	'''
+	PATH: 		 /im/ms/agent
+	ACTION: 	 POST
+	DESCRIPTION: Request the insertion of a new monitoring agent
+				 in the database and make it available to be used
+				 as a running subscription.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibMaInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def post_ms_agent(self, vibMaInstance):
+
+		try:
+			vibMaInstance = VibModels.VibMaInstance().fromDictionary(json.loads(vibMaInstance))
+		except:
+			return "ERROR CODE #0 (AS): INVALID VNF MONITORING AGENT PROVIDED", 400		
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "post_ms_agent", vibMaInstance), "AS", "IM")
+		agent = self.__asIr.sendMessage(request)
+		if type(agent.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/MS ERROR DURING MONITORING AGENT OPERATION (" + str(agent.messageData[1]) + ")", 400
+
+		return json.dumps(agent.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/ms/subscription
+	N/A ACTIONS: PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def put_ms_agent(self):
+		return "NOT AVAILABLE", 405
+	def patch_ms_agent(self):
+		return "NOT AVAILABLE", 405
+	def delete_ms_agent(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/ms/agent/{agentId}
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve a particular monitoring agent in
+				 the database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibMaInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def get_msa_agentId(self, agentId):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "get_msa_agentId", agentId), "AS", "IM")
+		agent = self.__asIr.sendMessage(request)
+		if type(agent.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/MS ERROR DURING MONITORING AGENT INSTANCE OPERATION (" + str(agent.messageData[1]) + ")", 400
+
+		return agent.messageData.toDictionary()
+
+	'''
+	PATH: 		 /im/ms/agent/{agentId}
+	ACTION: 	 PATCH
+	DESCRIPTION: Update a particular monitoring agent in the
+				 database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibMaInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def patch_msa_agentId(self, agentId, vibMaInstance):
+
+		try:
+			vibMaInstance = VibModels.VibMaInstance().fromDictionary(json.loads(vibMaInstance))
+			if agentId != vibMaInstance.maId:
+				return "ERROR CODE #0 (AS): INVALID MONITORING AGENT INSTANCE PROVIDED", 400
+		except:
+			return "ERROR CODE #0 (AS): INVALID MONITORING AGENT INSTANCE PROVIDED", 400
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "patch_msa_agentId", vibMaInstance), "AS", "IM")
+		agent = self.__asIr.sendMessage(request)
+		if type(agent.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/MS ERROR DURING MONITORING AGENT INSTANCE OPERATION (" + str(agent.messageData[1]) + ")", 400
+
+		return json.dumps(agent.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/ms/agent/{agentId}
+	ACTION: 	 DELETE
+	DESCRIPTION: Delete a particular monitoring agent in
+				 the database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibMaInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def delete_msa_agentId(self, agentId):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "delete_msa_agentId", agentId), "AS", "IM")
+		agent = self.__asIr.sendMessage(request)
+		if type(agent.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/MS ERROR DURING MONITORING AGENT INSTANCE OPERATION (" + str(agent.messageData[1]) + ")", 400
+
+		return json.dumps(agent.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/ms/agent/{agentId}
+	N/A ACTIONS: POST, PUT
+	**Do not change these methods**
+	'''
+	def post_msa_agentId(self):
+		return "NOT AVAILABLE", 405
+	def put_msa_agentId(self):
 		return "NOT AVAILABLE", 405
