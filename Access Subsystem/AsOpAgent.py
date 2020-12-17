@@ -16,10 +16,10 @@ import AsAuthAgent
 CLASS: OperationAgent
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 05 Nov. 2020
-L. UPDATE: 16 Dez. 2020 (Fulber-Garcia; Vib platforms/vnf managers operations
-						 access implemented [not tested yet]; Tests of vnf o-
-						 peration access -- success; Test of vib operations
-				         except platforms and vnfm tables -- success)
+L. UPDATE: 17 Dez. 2020 (Fulber-Garcia; Complementary tests of vib ope-
+						 rations (platforms and vnfm tables) -- success;
+						 Implementation and tests of access operations of
+						 monitoring subsystem)
 DESCRIPTION: Operation agent implementation. This class
 			 has the kernel functionalites of the access
 			 subsystem. It holds the implementation of all
