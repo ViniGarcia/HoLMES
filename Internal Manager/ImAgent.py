@@ -222,10 +222,10 @@ class ImAgent:
 				return self.__get_as_a_authId(irManagement)
 			elif irManagement.operationId == "get_as_running_auth":
 				return self.__get_as_running_auth(irManagement)
-			elif irManagement.operationId == "post_as_running_auth":
-				return self.__post_as_running_auth(irManagement)
 			elif irManagement.operationId == "get_as_ra_authId":
 				return self.__get_as_ra_authId(irManagement)
+			elif irManagement.operationId == "post_as_ra_authId":
+				return self.__post_as_ra_authId(irManagement)
 			else:
 				return -8
 		elif irManagement.operationId.endswith("credential") or irManagement.operationId.endswith("credentialId"):
@@ -244,10 +244,10 @@ class ImAgent:
 		elif irManagement.operationId.endswith("driver") or irManagement.operationId.endswith("driverId"):
 			if irManagement.operationId == "get_as_vnfm_running_driver":
 				return self.__get_as_vnfm_running_driver(irManagement)
-			elif irManagement.operationId == "post_as_vnfm_running_driver":
-				return self.__post_as_vnfm_running_driver(irManagement)
 			elif irManagement.operationId == "get_as_vrd_driverId":
 				return self.__get_as_vrd_driverId(irManagement)
+			elif irManagement.operationId == "post_as_vrd_driverId":
+				return self.__post_as_vrd_driverId(irManagement)
 			elif irManagement.operationId == "get_as_vnfm_driver":
 				return self.__get_as_vnfm_driver(irManagement)
 			elif irManagement.operationId == "post_as_vnfm_driver":
@@ -281,8 +281,10 @@ class ImAgent:
 		elif irManagement.operationId.endswith("driver") or irManagement.operationId.endswith("driverId"): 
 			if irManagement.operationId == "get_vs_running_driver":
 				return self.__get_vs_running_driver(irManagement)
-			elif irManagement.operationId == "post_vs_running_driver":
-				return self.__post_vs_running_driver(irManagement)
+			elif irManagement.operationId == "get_vs_rs_driverId":
+				return self.__get_vs_rs_driverId(irManagement) 
+			elif irManagement.operationId == "post_vs_rs_driverId":
+				return self.__post_vs_rs_driverId(irManagement)
 			elif irManagement.operationId == "get_vs_driver":
 				return self.__get_vs_driver(irManagement)
 			elif irManagement.operationId == "post_vs_driver":
@@ -898,17 +900,6 @@ class ImAgent:
 
 		return self.asAuthAgent.getRunningAuthenticator()
 
-	def __post_as_running_auth(self, irManagement):
-
-		if type(irManagement.operationArgs) != str:
-			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (authId is expected)", 1)
-
-		result = self.asAuthAgent.setupAuthentication(irManagement.operationArgs)
-		if result < 0:
-			return ("ERROR CODE #6: AN ERROR OCCURED WHEN SETUPING THE AUTHENTICATION AGENT (" + str(result) + ")", 6)
-
-		return irManagement.operationArgs
-
 	def __get_as_ra_authId(self, irManagement):
 
 		if type(irManagement.operationArgs) != str:
@@ -918,6 +909,17 @@ class ImAgent:
 			return True
 
 		return False
+
+	def __post_as_ra_authId(self, irManagement):
+
+		if type(irManagement.operationArgs) != str:
+			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (authId is expected)", 1)
+
+		result = self.asAuthAgent.setupAuthentication(irManagement.operationArgs)
+		if result < 0:
+			return ("ERROR CODE #6: AN ERROR OCCURED WHEN SETUPING THE AUTHENTICATION AGENT (" + str(result) + ")", 6)
+
+		return irManagement.operationArgs
 
 	def __get_as_credential(self, irManagement):
 
@@ -945,19 +947,6 @@ class ImAgent:
 			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (None is expected)", 1)
 		
 		return self.asOpAgent.getRunningDriver()
-
-	def __post_as_vnfm_running_driver(self, irManagement):
-
-		if type(irManagement.operationArgs) != VibModels.VibVnfmInstance:
-			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (VibVnfmInstance is expected)", 1)
-		if irManagement.operationArgs.validate()[1] != 0:
-			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (VibVnfmInstance is not valid)", 1)
-
-		result = self.asOpAgent.setupDriver(irManagement.operationArgs)
-		if result < 0:
-			return ("ERROR CODE #6: AN ERROR OCCURED WHEN SETUPING THE VNFM RUNNING DRIVER (" + str(result) + ")", 6)
-
-		return irManagement.operationArgs
 	
 	def __get_as_vrd_driverId(self, irManagement):
 
@@ -968,6 +957,20 @@ class ImAgent:
 			return True
 
 		return False
+
+	def __post_as_vrd_driverId(self, irManagement):
+
+		if type(irManagement.operationArgs) != str:
+			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (vnfmId is expected)", 1)
+		driver = self.__get_vib_vnfm_managerId(irManagement)
+		if type(driver) == tuple:
+			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (vnfmId is unreacheable)", 1)
+
+		result = self.asOpAgent.setupDriver(driver)
+		if result < 0:
+			return ("ERROR CODE #6: AN ERROR OCCURED WHEN SETUPING THE VNFM RUNNING DRIVER (" + str(result) + ")", 6)
+
+		return driver
 
 	def __get_as_vnfm_driver(self, irManagement):
 
@@ -1081,7 +1084,17 @@ class ImAgent:
 
 		return self.vsAgent.get_p_id()
 
-	def __post_vs_running_driver(self, irManagement):
+	def __get_vs_rs_driverId(self, irManagement):
+
+		if type(irManagement.operationArgs) != str:
+			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (platformId is expected)", 1)
+
+		if self.vsAgent.get_p_id() == irManagement.operationArgs:
+			return True
+
+		return False
+
+	def __post_vs_rs_driverId(self, irManagement):
 
 		platform = self.__get_vib_p_platformId(irManagement)
 		if type(platform) == tuple:
@@ -1098,28 +1111,40 @@ class ImAgent:
 		if irManagement.operationArgs != None:
 			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (None is expected)", 1)
 
-		return list(self.vsAgent.get_p_operations().keys())
+		if self.vsAgent.get_p_id() != None:
+			return list(self.vsAgent.get_p_operations().keys())
+		else:
+			return []
 
 	def __get_vs_rdo_monitoring(self, irManagement):
 
 		if irManagement.operationArgs != None:
 			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (None is expected)", 1)
 
-		return list(self.vsAgent.get_po_monitoring().keys())
+		if self.vsAgent.get_p_id() != None:
+			return list(self.vsAgent.get_po_monitoring().keys())
+		else:
+			return []
 
 	def __get_vs_rdo_modification(self, irManagement):
 
 		if irManagement.operationArgs != None:
 			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (None is expected)", 1)
 
-		return list(self.vsAgent.get_po_modification().keys())
+		if self.vsAgent.get_p_id() != None:
+			return list(self.vsAgent.get_po_modification().keys())
+		else:
+			return []
 
 	def __get_vs_rdo_other(self, irManagement):
 
 		if irManagement.operationArgs != None:
 			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (None is expected)", 1)
 
-		return list(self.vsAgent.get_po_other().keys())
+		if self.vsAgent.get_p_id() != None:
+			return list(self.vsAgent.get_po_other().keys())
+		else:
+			return []
 
 	def __get_vs_driver(self, irManagement):
 

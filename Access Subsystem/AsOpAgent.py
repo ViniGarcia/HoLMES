@@ -16,10 +16,8 @@ import AsAuthAgent
 CLASS: OperationAgent
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 05 Nov. 2020
-L. UPDATE: 17 Dez. 2020 (Fulber-Garcia; Complementary tests of vib ope-
-						 rations (platforms and vnfm tables) -- success;
-						 Implementation and tests of access operations of
-						 monitoring subsystem)
+L. UPDATE: 17 Dez. 2020 (Fulber-Garcia; Implementation and tests of access operations of
+						 access subsystem and vnf subsystem)
 DESCRIPTION: Operation agent implementation. This class
 			 has the kernel functionalites of the access
 			 subsystem. It holds the implementation of all
@@ -181,6 +179,28 @@ class OperationAgent:
 		self.__aiAs.add_url_rule("/im/ms/subscription/<subscriptionId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_mss_subscriptionId)
 		self.__aiAs.add_url_rule("/im/ms/agent", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_ms_agent)
 		self.__aiAs.add_url_rule("/im/ms/agent/<agentId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_msa_agentId)
+
+		self.__aiAs.add_url_rule("/im/as/authenticator", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_authenticator)
+		self.__aiAs.add_url_rule("/im/as/authenticator/<authenticatorId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_a_authenticatorId)
+		self.__aiAs.add_url_rule("/im/as/r_authenticator", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_running_authenticator)
+		self.__aiAs.add_url_rule("/im/as/r_authenticator/<authenticatorId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_ra_authenticatorId)
+		self.__aiAs.add_url_rule("/im/as/credential", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_credential)
+		self.__aiAs.add_url_rule("/im/as/credential/<userId>/<vnfId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_c_credentialId)
+		self.__aiAs.add_url_rule("/im/as/vnfm/running_driver", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_vnfm_running_driver)
+		self.__aiAs.add_url_rule("/im/as/vnfm/running_driver/<driverId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_vrd_driverId)
+		self.__aiAs.add_url_rule("/im/as/vnfm/driver", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_vnfm_driver)
+		self.__aiAs.add_url_rule("/im/as/vnfm/driver/<driverId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_vnfm_driverId)
+
+		self.__aiAs.add_url_rule("/im/vs/vnf_instance", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vs_vnf_instance)
+		self.__aiAs.add_url_rule("/im/vs/vnf_instance/<instanceId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vs_vnfi_instanceId)
+		self.__aiAs.add_url_rule("/im/vs/running_driver", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vs_running_driver)
+		self.__aiAs.add_url_rule("/im/vs/running_driver/<driverId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vs_rs_driverId)
+		self.__aiAs.add_url_rule("/im/vs/driver", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vs_driver)
+		self.__aiAs.add_url_rule("/im/vs/driver/<driverId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vsd_driverId)
+		self.__aiAs.add_url_rule("/im/vs/running_driver/operations", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vs_rd_operations)
+		self.__aiAs.add_url_rule("/im/vs/running_driver/operations/monitoring", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vs_rdo_monitoring)
+		self.__aiAs.add_url_rule("/im/vs/running_driver/operations/modification", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vs_rdo_modification)
+		self.__aiAs.add_url_rule("/im/vs/running_driver/operations/other", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vs_rdo_other)
 
 	# ================================ Ve-Vnfm-em Operations (EMS -> VNFM) ================================
 
@@ -957,6 +977,266 @@ class OperationAgent:
 		elif flask.request.method == "DELETE":
 			return self.delete_msa_agentId(agentId)
 
+	def im_as_authenticator(self):
+
+		if flask.request.method == "GET":
+			return self.get_as_authenticator()
+		elif flask.request.method == "POST":
+			return self.post_as_authenticator()
+		elif flask.request.method == "PUT":
+			return self.put_as_authenticator()
+		elif flask.request.method == "PATCH":
+			return self.patch_as_authenticator()
+		elif flask.request.method == "DELETE":
+			return self.delete_as_authenticator()
+
+	def im_as_a_authenticatorId(self, authenticatorId):
+
+		if flask.request.method == "GET":
+			return self.get_as_a_authenticatorId(authenticatorId)
+		elif flask.request.method == "POST":
+			return self.post_as_a_authenticatorId()
+		elif flask.request.method == "PUT":
+			return self.put_as_a_authenticatorId()
+		elif flask.request.method == "PATCH":
+			return self.patch_as_a_authenticatorId()
+		elif flask.request.method == "DELETE":
+			return self.delete_as_a_authenticatorId()
+
+	def im_as_running_authenticator(self):
+
+		if flask.request.method == "GET":
+			return self.get_as_running_authenticator()
+		elif flask.request.method == "POST":
+			return self.post_as_running_authenticator()
+		elif flask.request.method == "PUT":
+			return self.put_as_running_authenticator()
+		elif flask.request.method == "PATCH":
+			return self.patch_as_running_authenticator()
+		elif flask.request.method == "DELETE":
+			return self.delete_as_running_authenticator()
+
+	def im_as_ra_authenticatorId(self, authenticatorId):
+
+		if flask.request.method == "GET":
+			return self.get_as_ra_authenticatorId(authenticatorId)
+		elif flask.request.method == "POST":
+			return self.post_as_ra_authenticatorId(authenticatorId)
+		elif flask.request.method == "PUT":
+			return self.put_as_ra_authenticatorId()
+		elif flask.request.method == "PATCH":
+			return self.patch_as_ra_authenticatorId()
+		elif flask.request.method == "DELETE":
+			return self.delete_as_ra_authenticatorId()
+
+	def im_as_credential(self):
+
+		if flask.request.method == "GET":
+			return self.get_as_credential()
+		elif flask.request.method == "POST":
+			return self.post_as_credential(flask.request.values.get("vibCredentialInstance"))
+		elif flask.request.method == "PUT":
+			return self.put_as_credential()
+		elif flask.request.method == "PATCH":
+			return self.patch_as_credential()
+		elif flask.request.method == "DELETE":
+			return self.delete_as_credential()
+
+	def im_as_c_credentialId(self, userId, vnfId):
+
+		if flask.request.method == "GET":
+			return self.get_as_c_credentialId(userId, vnfId)
+		elif flask.request.method == "POST":
+			return self.post_as_c_credentialId()
+		elif flask.request.method == "PUT":
+			return self.put_as_c_credentialId()
+		elif flask.request.method == "PATCH":
+			return self.patch_as_c_credentialId(userId, vnfId, flask.request.values.get("vibCredentialInstance"))
+		elif flask.request.method == "DELETE":
+			return self.delete_as_c_credentialId(userId, vnfId)
+
+	def im_as_vnfm_running_driver(self):
+
+		if flask.request.method == "GET":
+			return self.get_as_vnfm_running_driver()
+		elif flask.request.method == "POST":
+			return self.post_as_vnfm_running_driver()
+		elif flask.request.method == "PUT":
+			return self.put_as_vnfm_running_driver()
+		elif flask.request.method == "PATCH":
+			return self.patch_as_vnfm_running_driver()
+		elif flask.request.method == "DELETE":
+			return self.delete_as_vnfm_running_driver()
+
+	def im_as_vrd_driverId(self, driverId):
+
+		if flask.request.method == "GET":
+			return self.get_as_vrd_driverId(driverId)
+		elif flask.request.method == "POST":
+			return self.post_as_vrd_driverId(driverId)
+		elif flask.request.method == "PUT":
+			return self.put_as_vrd_driverId()
+		elif flask.request.method == "PATCH":
+			return self.patch_as_vrd_driverId()
+		elif flask.request.method == "DELETE":
+			return self.delete_as_vrd_driverId()
+
+	def im_as_vnfm_driver(self):
+
+		if flask.request.method == "GET":
+			return self.get_as_vnfm_driver()
+		elif flask.request.method == "POST":
+			return self.post_as_vnfm_driver(flask.request.values.get("vibVnfmInstance"))
+		elif flask.request.method == "PUT":
+			return self.put_as_vnfm_driver()
+		elif flask.request.method == "PATCH":
+			return self.patch_as_vnfm_driver()
+		elif flask.request.method == "DELETE":
+			return self.delete_as_vnfm_driver()
+
+	def im_as_vnfm_driverId(self, driverId):
+
+		if flask.request.method == "GET":
+			return self.get_as_vd_driverId(driverId)
+		elif flask.request.method == "POST":
+			return self.post_as_vd_driverId()
+		elif flask.request.method == "PUT":
+			return self.put_as_vd_driverId()
+		elif flask.request.method == "PATCH":
+			return self.patch_as_vd_driverId(driverId, flask.request.values.get("vibVnfmInstance"))
+		elif flask.request.method == "DELETE":
+			return self.delete_as_vd_driverId(driverId)
+
+	def im_vs_vnf_instance(self):
+
+		if flask.request.method == "GET":
+			return self.get_vs_vnf_instance()
+		elif flask.request.method == "POST":
+			return self.post_vs_vnf_instance(flask.request.values.get("vibVnfInstance"))
+		elif flask.request.method == "PUT":
+			return self.put_vs_vnf_instance()
+		elif flask.request.method == "PATCH":
+			return self.patch_vs_vnf_instance()
+		elif flask.request.method == "DELETE":
+			return self.delete_vs_vnf_instance()
+
+	def im_vs_vnfi_instanceId(self, instanceId):
+
+		if flask.request.method == "GET":
+			return self.get_vs_vnfi_instanceId(instanceId)
+		elif flask.request.method == "POST":
+			return self.post_vs_vnfi_instanceId()
+		elif flask.request.method == "PUT":
+			return self.put_vs_vnfi_instanceId()
+		elif flask.request.method == "PATCH":
+			return self.patch_vs_vnfi_instanceId(instanceId, flask.request.values.get("vibVnfInstance"))
+		elif flask.request.method == "DELETE":
+			return self.delete_vs_vnfi_instanceId(instanceId)
+
+	def im_vs_running_driver(self):
+
+		if flask.request.method == "GET":
+			return self.get_vs_running_driver()
+		elif flask.request.method == "POST":
+			return self.post_vs_running_driver()
+		elif flask.request.method == "PUT":
+			return self.put_vs_running_driver()
+		elif flask.request.method == "PATCH":
+			return self.patch_vs_running_driver()
+		elif flask.request.method == "DELETE":
+			return self.delete_vs_running_driver()
+	
+	def im_vs_rs_driverId(self, driverId):
+
+		if flask.request.method == "GET":
+			return self.get_vs_rs_driverId(driverId)
+		elif flask.request.method == "POST":
+			return self.post_vs_rs_driverId(driverId)
+		elif flask.request.method == "PUT":
+			return self.put_vs_rs_driverId()
+		elif flask.request.method == "PATCH":
+			return self.patch_vs_rs_driverId()
+		elif flask.request.method == "DELETE":
+			return self.delete_vs_rs_driverId()
+
+	def im_vs_driver(self):
+
+		if flask.request.method == "GET":
+			return self.get_vs_driver()
+		elif flask.request.method == "POST":
+			return self.post_vs_driver(flask.request.values.get("vibPlatformInstance"))
+		elif flask.request.method == "PUT":
+			return self.put_vs_driver()
+		elif flask.request.method == "PATCH":
+			return self.patch_vs_driver()
+		elif flask.request.method == "DELETE":
+			return self.delete_vs_driver()
+
+	def im_vsd_driverId(self, driverId):
+
+		if flask.request.method == "GET":
+			return self.get_vsd_driverId(driverId)
+		elif flask.request.method == "POST":
+			return self.post_vsd_driverId()
+		elif flask.request.method == "PUT":
+			return self.put_vsd_driverId()
+		elif flask.request.method == "PATCH":
+			return self.patch_vsd_driverId(driverId, flask.request.values.get("vibPlatformInstance"))
+		elif flask.request.method == "DELETE":
+			return self.delete_vsd_driverId(driverId)
+
+	def im_vs_rd_operations(self):
+
+		if flask.request.method == "GET":
+			return self.get_vs_rd_operations()
+		elif flask.request.method == "POST":
+			return self.post_vs_rd_operations()
+		elif flask.request.method == "PUT":
+			return self.put_vs_rd_operations()
+		elif flask.request.method == "PATCH":
+			return self.patch_vs_rd_operations()
+		elif flask.request.method == "DELETE":
+			return self.delete_vs_rd_operations()
+
+	def im_vs_rdo_monitoring(self):
+
+		if flask.request.method == "GET":
+			return self.get_vs_rdo_monitoring()
+		elif flask.request.method == "POST":
+			return self.post_vs_rdo_monitoring()
+		elif flask.request.method == "PUT":
+			return self.put_vs_rdo_monitoring()
+		elif flask.request.method == "PATCH":
+			return self.patch_vs_rdo_monitoring()
+		elif flask.request.method == "DELETE":
+			return self.delete_vs_rdo_monitoring()
+
+	def im_vs_rdo_modification(self):
+
+		if flask.request.method == "GET":
+			return self.get_vs_rdo_modification()
+		elif flask.request.method == "POST":
+			return self.post_vs_rdo_modification()
+		elif flask.request.method == "PUT":
+			return self.put_vs_rdo_modification()
+		elif flask.request.method == "PATCH":
+			return self.patch_vs_rdo_modification()
+		elif flask.request.method == "DELETE":
+			return self.delete_vs_rdo_modification()
+
+	def im_vs_rdo_other(self):
+
+		if flask.request.method == "GET":
+			return self.get_vs_rdo_other()
+		elif flask.request.method == "POST":
+			return self.post_vs_rdo_other()
+		elif flask.request.method == "PUT":
+			return self.put_vs_rdo_other()
+		elif flask.request.method == "PATCH":
+			return self.patch_vs_rdo_other()
+		elif flask.request.method == "DELETE":
+			return self.delete_vs_rdo_other()
+	
 	# ================================ Ve-Vnfm-em Operations (VNFM -> EMS) ================================
 
 	'''
@@ -1645,7 +1925,7 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vib/m_agents
 	ACTION: 	 POST
-	DESCRIPTION: Send a new management agents instance to the VIB
+	DESCRIPTION: Send a new management agent instance to the VIB
 				 database.
 	ARGUMENT: 	 VibMaInstance (JSON Dictionary)
 	RETURN: 	 - 200 (HTTP) + VibMaInstance [1]
@@ -2364,7 +2644,7 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/ms/agent
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve all the available monitoring agent
+	DESCRIPTION: Retrieve all the available monitoring agents
 				 in the database.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibMaInstance [0..N]
@@ -2484,4 +2764,936 @@ class OperationAgent:
 	def post_msa_agentId(self):
 		return "NOT AVAILABLE", 405
 	def put_msa_agentId(self):
+		return "NOT AVAILABLE", 405
+
+
+	'''
+	PATH: 		 /im/as/authenticator
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve all the available authenticator agents
+				 in the database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + String [0..N]
+				 - Integer error code (HTTP)
+	'''
+	def get_as_authenticator(self):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "get_as_auth", None), "AS", "IM")
+		authenticators = self.__asIr.sendMessage(request)
+		if type(authenticators.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/AS ERROR DURING AUTHENTICATOR INSTANCE OPERATION (" + str(authenticators.messageData[1]) + ")", 400
+
+		return json.dumps(authenticators.messageData)
+
+	'''
+	PATH: 		 /im/as/authenticator
+	N/A ACTIONS: POST, PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def post_as_authenticator(self):
+		return "NOT AVAILABLE", 405
+	def put_as_authenticator(self):
+		return "NOT AVAILABLE", 405
+	def patch_as_authenticator(self):
+		return "NOT AVAILABLE", 405
+	def delete_as_authenticator(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/as/authenticator/{authenticatorId}
+	ACTION: 	 GET
+	DESCRIPTION: Inform if a particular authenticator agent is avai-
+				 lable in the system.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + Boolean [1]
+				 - Integer error code (HTTP)
+	'''
+	def get_as_a_authenticatorId(self, authenticatorId):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "get_as_a_authId", authenticatorId), "AS", "IM")
+		authenticators = self.__asIr.sendMessage(request)
+		if type(authenticators.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/AS ERROR DURING AUTHENTICATOR INSTANCE OPERATION (" + str(authenticators.messageData[1]) + ")", 400
+
+		return json.dumps(authenticators.messageData)
+
+	'''
+	PATH: 		 /im/as/authenticator/{authenticatorId}
+	N/A ACTIONS: POST, PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def post_as_a_authenticatorId(self):
+		return "NOT AVAILABLE", 405
+	def put_as_a_authenticatorId(self):
+		return "NOT AVAILABLE", 405
+	def patch_as_a_authenticatorId(self):
+		return "NOT AVAILABLE", 405
+	def delete_as_a_authenticatorId(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/as/r_authenticator
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve the currently running authenticator agent
+				 in the system.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + String [1]
+				 - Integer error code (HTTP)
+	'''
+	def get_as_running_authenticator(self):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "get_as_running_auth", None), "AS", "IM")
+		authenticators = self.__asIr.sendMessage(request)
+		if type(authenticators.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/AS ERROR DURING AUTHENTICATOR INSTANCE OPERATION (" + str(authenticators.messageData[1]) + ")", 400
+
+		return json.dumps(authenticators.messageData)
+
+	'''
+	PATH: 		 /im/as/r_authenticator
+	N/A ACTIONS: POST, PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def post_as_running_authenticator(self):
+		return "NOT AVAILABLE", 405
+	def put_as_running_authenticator(self):
+		return "NOT AVAILABLE", 405
+	def patch_as_running_authenticator(self):
+		return "NOT AVAILABLE", 405
+	def delete_as_running_authenticator(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/as/r_authenticator/{authenticatorId}
+	ACTION: 	 GET
+	DESCRIPTION: Inform if a particular authenticator agent is the
+				 running authenticator in the system.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + String [1]
+				 - Integer error code (HTTP)
+	'''
+	def get_as_ra_authenticatorId(self, authenticatorId):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "get_as_ra_authId", authenticatorId), "AS", "IM")
+		authenticators = self.__asIr.sendMessage(request)
+		if type(authenticators.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/AS ERROR DURING AUTHENTICATOR INSTANCE OPERATION (" + str(authenticators.messageData[1]) + ")", 400
+
+		return json.dumps(authenticators.messageData)
+
+	'''
+	PATH: 		 /im/as/r_authenticator/{authenticatorId}
+	ACTION: 	 POST
+	DESCRIPTION: Request a particular authenticator agent as the
+				 running authenticator in the system.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + String [1]
+				 - Integer error code (HTTP)
+	'''
+	def post_as_ra_authenticatorId(self, authenticatorId):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "post_as_ra_authId", authenticatorId), "AS", "IM")
+		authenticators = self.__asIr.sendMessage(request)
+		if type(authenticators.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/AS ERROR DURING AUTHENTICATOR INSTANCE OPERATION (" + str(authenticators.messageData[1]) + ")", 400
+
+		return json.dumps(authenticators.messageData)
+
+	'''
+	PATH: 		 /im/as/r_authenticator/{authenticatorId}
+	N/A ACTIONS: PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def put_as_ra_authenticatorId(self):
+		return "NOT AVAILABLE", 405
+	def patch_as_ra_authenticatorId(self):
+		return "NOT AVAILABLE", 405
+	def delete_as_ra_authenticatorId(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/as/credential
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve all the available credential instances
+				 in the database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibCredentialInstance [0..N]
+				 - Integer error code (HTTP)
+	'''
+	def get_as_credential(self):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "get_as_credential", None), "AS", "IM")
+		credentials = self.__asIr.sendMessage(request)
+		if type(credentials.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/AS ERROR DURING AUTHENTICATOR INSTANCE OPERATION (" + str(credentials.messageData[1]) + ")", 400
+
+		return json.dumps([c.toDictionary() for c in credentials.messageData])
+
+	'''
+	PATH: 		 /im/as/credential
+	ACTION: 	 POST
+	DESCRIPTION: Send a new crecential instance to the VIB
+				 database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibCredentialInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def post_as_credential(self, vibCredentialInstance):
+
+		try:
+			vibCredentialInstance = VibModels.VibCredentialInstance().fromDictionary(json.loads(vibCredentialInstance))
+		except:
+			return "ERROR CODE #0 (AS): INVALID CREDENTIAL INSTANCE PROVIDED", 400
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "post_as_credential", vibCredentialInstance), "AS", "IM")
+		credential = self.__asIr.sendMessage(request)
+		if type(credential.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/AS ERROR DURING CREDENTIAL OPERATION (" + str(credential.messageData[1]) + ")", 400
+
+		return json.dumps(credential.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/as/credential
+	N/A ACTIONS: PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def put_as_credential(self):
+		return "NOT AVAILABLE", 405
+	def patch_as_credential(self):
+		return "NOT AVAILABLE", 405
+	def delete_as_credential(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/as/credential/{userId}/{vnfId}
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve a particular credential instance in
+				 the database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibCredentialInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def get_as_c_credentialId(self, userId, vnfId):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "get_as_c_credentialId", (userId, vnfId)), "AS", "IM")
+		credential = self.__asIr.sendMessage(request)
+		if type(credential.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/AS ERROR DURING CREDENTIAL INSTANCE OPERATION (" + str(credential.messageData[1]) + ")", 400
+
+		return json.dumps(credential.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/as/credential/{userId}/{vnfId}
+	ACTION: 	 PATCH
+	DESCRIPTION: Update a particular credential instance in the
+				 database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibCredentialInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def patch_as_c_credentialId(self, userId, vnfId, vibCredentialInstance):
+
+		try:
+			vibCredentialInstance = VibModels.VibCredentialInstance().fromDictionary(json.loads(vibCredentialInstance))
+			if userId != vibCredentialInstance.userId or vnfId != vibCredentialInstance.vnfId:
+				return "ERROR CODE #0 (AS): INVALID CREDENTIAL INSTANCE PROVIDED", 400
+		except:
+			return "ERROR CODE #0 (AS): INVALID CREDENTIAL INSTANCE PROVIDED", 400
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "patch_as_c_credentialId", vibCredentialInstance), "AS", "IM")
+		credential = self.__asIr.sendMessage(request)
+		if type(credential.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/AS ERROR DURING CREDENTIAL INSTANCE OPERATION (" + str(credential.messageData[1]) + ")", 400
+
+		return json.dumps(credential.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/as/credential/{userId}/{vnfId}
+	ACTION: 	 DELETE
+	DESCRIPTION: Delete a particular credential instance in
+				 the database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibCredentialInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def delete_as_c_credentialId(self, userId, vnfId):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "delete_as_c_credentialId", (userId, vnfId)), "AS", "IM")
+		credential = self.__asIr.sendMessage(request)
+		if type(credential.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/AS ERROR DURING MONITORING AGENT INSTANCE OPERATION (" + str(credential.messageData[1]) + ")", 400
+
+		return json.dumps(credential.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/as/credential/{userId}/{vnfId}
+	N/A ACTIONS: POST, PUT
+	**Do not change these methods**
+	'''
+	def post_as_c_credentialId(self):
+		return "NOT AVAILABLE", 405
+	def put_as_c_credentialId(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/as/vnfm/running_driver
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve the vnfm driver running in the access 
+				 subsystem.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + String [1]
+				 - Integer error code (HTTP)
+	'''
+	def get_as_vnfm_running_driver(self):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "get_as_vnfm_running_driver", None), "AS", "IM")
+		driver = self.__asIr.sendMessage(request)
+		if type(driver.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/AS ERROR DURING VNFM DRIVER INSTANCE OPERATION (" + str(driver.messageData[1]) + ")", 400
+
+		return json.dumps(driver.messageData)
+
+	'''
+	PATH: 		 /im/as/vnfm/running_driver
+	N/A ACTIONS: POST, PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def post_as_running_driver(self):
+		return "NOT AVAILABLE", 405
+	def put_as_running_driver(self):
+		return "NOT AVAILABLE", 405
+	def patch_as_running_driver(self):
+		return "NOT AVAILABLE", 405
+	def delete_as_running_driver(self):
+		return "NOT AVAILABLE", 405	
+
+	'''
+	PATH: 		 /im/as/vnfm/running_driver/{driverId}
+	ACTION: 	 GET
+	DESCRIPTION: Inform if a particular vnfm driver is the
+				 running driver in the system.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + Boolean [1]
+				 - Integer error code (HTTP)
+	'''
+	def get_as_vrd_driverId(self, driverId):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "get_as_vrd_driverId", driverId), "AS", "IM")
+		driver = self.__asIr.sendMessage(request)
+		if type(driver.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/AS ERROR DURING VNFM DRIVER INSTANCE OPERATION (" + str(driver.messageData[1]) + ")", 400
+
+		return json.dumps(driver.messageData)
+
+	'''
+	PATH: 		 /im/as/vnfm/running_driver/{driverId}
+	ACTION: 	 POST
+	DESCRIPTION: Request a particular vnfm driver as the
+				 running driver in the system.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibVnfmInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def post_as_vrd_driverId(self, driverId):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "post_as_vrd_driverId", driverId), "AS", "IM")
+		driver = self.__asIr.sendMessage(request)
+		if type(driver.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/AS ERROR DURING VNFM DRIVER INSTANCE OPERATION (" + str(driver.messageData[1]) + ")", 400
+
+		return json.dumps(driver.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/as/vnfm/running_driver/{driverId}
+	N/A ACTIONS: PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def put_as_vrd_driverId(self):
+		return "NOT AVAILABLE", 405
+	def patch_as_vrd_driverId(self):
+		return "NOT AVAILABLE", 405
+	def delete_as_vrd_driverId(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/as/vnfm/driver
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve all the available vnfm drivers
+				 in the database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibVfnmInstance [0..N]
+				 - Integer error code (HTTP)
+	'''
+	def get_as_vnfm_driver(self):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "get_as_vnfm_driver", None), "AS", "IM")
+		drivers = self.__asIr.sendMessage(request)
+		if type(drivers.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/AS ERROR DURING VNFM DRIVER INSTANCE OPERATION (" + str(drivers.messageData[1]) + ")", 400
+
+		return json.dumps([d.toDictionary() for d in drivers.messageData])
+
+	'''
+	PATH: 		 /im/as/vnfm/driver
+	ACTION: 	 POST
+	DESCRIPTION: Request the insertion of a new vnfm driver
+				 in the database and make it available to be
+				 used as a running driver.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibVnfmInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def post_as_vnfm_driver(self, vibVnfmInstance):
+
+		try:
+			vibVnfmInstance = VibModels.VibVnfmInstance().fromDictionary(json.loads(vibVnfmInstance))
+		except:
+			return "ERROR CODE #0 (AS): INVALID VNFM DRIVER PROVIDED", 400		
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "post_as_vnfm_driver", vibVnfmInstance), "AS", "IM")
+		driver = self.__asIr.sendMessage(request)
+		if type(driver.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/AS ERROR DURING VNFM DRIVER OPERATION (" + str(driver.messageData[1]) + ")", 400
+
+		return json.dumps(driver.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/as/vnfm/driver
+	N/A ACTIONS: PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def put_ms_vnfm_driver(self):
+		return "NOT AVAILABLE", 405
+	def patch_ms_vnfm_driver(self):
+		return "NOT AVAILABLE", 405
+	def delete_ms_vnfm_driver(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/as/vnfm/driver/{driverId}
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve a particular vnfm driver in
+				 the database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibVnfmInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def get_as_vd_driverId(self, driverId):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "get_as_vd_driverId", driverId), "AS", "IM")
+		driver = self.__asIr.sendMessage(request)
+		if type(driver.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/AS ERROR DURING VNFM DRIVER INSTANCE OPERATION (" + str(driver.messageData[1]) + ")", 400
+
+		return driver.messageData.toDictionary()
+
+	'''
+	PATH: 		 /im/as/vnfm/driver/{driverId}
+	ACTION: 	 PATCH
+	DESCRIPTION: Update a particular vnfm driver in the
+				 database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibVnfmInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def patch_as_vd_driverId(self, driverId, vibVnfmInstance):
+
+		try:
+			vibVnfmInstance = VibModels.VibVnfmInstance().fromDictionary(json.loads(vibVnfmInstance))
+			if driverId != vibVnfmInstance.vnfmId:
+				return "ERROR CODE #0 (AS): INVALID VNFM DRIVER INSTANCE PROVIDED", 400
+		except:
+			return "ERROR CODE #0 (AS): INVALID VNFM DRIVER INSTANCE PROVIDED", 400
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "patch_as_vd_driverId", vibVnfmInstance), "AS", "IM")
+		driver = self.__asIr.sendMessage(request)
+		if type(driver.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/AS ERROR DURING VNFM DRIVER INSTANCE OPERATION (" + str(driver.messageData[1]) + ")", 400
+
+		return json.dumps(driver.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/as/vnfm/driver/{driverId}
+	ACTION: 	 DELETE
+	DESCRIPTION: Delete a particular vnfm driver in
+				 the database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibVnfmInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def delete_as_vd_driverId(self, driverId):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "delete_as_vd_driverId", driverId), "AS", "IM")
+		driver = self.__asIr.sendMessage(request)
+		if type(driver.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/MS ERROR DURING VNFM DRIVER INSTANCE OPERATION (" + str(driver.messageData[1]) + ")", 400
+
+		return json.dumps(driver.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/ms/agent/{agentId}
+	N/A ACTIONS: POST, PUT
+	**Do not change these methods**
+	'''
+	def post_as_vnfm_driverId(self):
+		return "NOT AVAILABLE", 405
+	def put_as_vnfm_driverId(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/vs/vnf_instance
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve all the available vnf instances
+				 in the database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibVnfInstance [0..N]
+				 - Integer error code (HTTP)
+	'''
+	def get_vs_vnf_instance(self):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "get_vs_vnf_instance", None), "AS", "IM")
+		instance = self.__asIr.sendMessage(request)
+		if type(instance.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VS ERROR DURING VNF INSTANCE OPERATION (" + str(instance.messageData[1]) + ")", 400
+
+		return json.dumps([i.toDictionary() for i in instance.messageData])
+
+	'''
+	PATH: 		 /im/vs/vnf_instance
+	ACTION: 	 POST
+	DESCRIPTION: Request the insertion of a new vnf instance
+				 in the database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibVnfInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def post_vs_vnf_instance(self, vibVnfInstance):
+
+		try:
+			vibVnfInstance = VibModels.VibVnfInstance().fromDictionary(json.loads(vibVnfInstance))
+		except:
+			return "ERROR CODE #0 (AS): INVALID VNF INSTANCE PROVIDED", 400		
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "post_vs_vnf_instance", vibVnfInstance), "AS", "IM")
+		instance = self.__asIr.sendMessage(request)
+		if type(instance.messageData) == tuple:
+			print(instance.messageData)
+			return "ERROR CODE #3 (AS): IM/VS ERROR DURING VNF INSTANCE OPERATION (" + str(instance.messageData[1]) + ")", 400
+
+		return json.dumps(instance.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/vs/vnf_instance
+	N/A ACTIONS: PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def put_vs_vnf_instance(self):
+		return "NOT AVAILABLE", 405
+	def patch_vs_vnf_instance(self):
+		return "NOT AVAILABLE", 405
+	def delete_vs_vnf_instance(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/vs/vnf_instance/{instanceId}
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve a particular vnf instance in
+				 the database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibVnfInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def get_vs_vnfi_instanceId(self, instanceId):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "get_vs_vnfi_instanceId", instanceId), "AS", "IM")
+		instance = self.__asIr.sendMessage(request)
+		if type(instance.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VS ERROR DURING VNF INSTANCE OPERATION (" + str(instance.messageData[1]) + ")", 400
+
+		return json.dumps(instance.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/vs/vnf_instance/{instanceId}
+	ACTION: 	 PATCH
+	DESCRIPTION: Update a particular vnf instance in the
+				 database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibVnfInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def patch_vs_vnfi_instanceId(self, instanceId, vibVnfInstance):
+
+		try:
+			vibVnfInstance = VibModels.VibVnfInstance().fromDictionary(json.loads(vibVnfInstance))
+			if instanceId != vibVnfInstance.vnfId:
+				return "ERROR CODE #0 (AS): INVALID VNF INSTANCE PROVIDED", 400
+		except:
+			return "ERROR CODE #0 (AS): INVALID VNF INSTANCE PROVIDED", 400
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "patch_vs_vnfi_instanceId", vibVnfInstance), "AS", "IM")
+		instance = self.__asIr.sendMessage(request)
+		if type(instance.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VS ERROR DURING VNF INSTANCE OPERATION (" + str(instance.messageData[1]) + ")", 400
+
+		return json.dumps(instance.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/vs/vnf_instance/{instanceId}
+	ACTION: 	 DELETE
+	DESCRIPTION: Delete a particular vnf instance in
+				 the database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibVnfInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def delete_vs_vnfi_instanceId(self, instanceId):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "delete_vs_vnfi_instanceId", instanceId), "AS", "IM")
+		instance = self.__asIr.sendMessage(request)
+		if type(instance.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VS ERROR DURING VNF INSTANCE OPERATION (" + str(instance.messageData[1]) + ")", 400
+
+		return json.dumps(instance.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/vs/vnf_instance/{instanceId}
+	N/A ACTIONS: POST, PUT
+	**Do not change these methods**
+	'''
+	def post_vs_vnfi_instanceId(self):
+		return "NOT AVAILABLE", 405
+	def put_vs_vnfi_instanceId(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/vs/running_driver/
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve the vnf driver running in the access 
+				 subsystem.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + String [1]
+				 - Integer error code (HTTP)
+	'''
+	def get_vs_running_driver(self):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "get_vs_running_driver", None), "AS", "IM")
+		driver = self.__asIr.sendMessage(request)
+		if type(driver.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VS ERROR DURING VNF DRIVER OPERATION (" + str(driver.messageData[1]) + ")", 400
+
+		return json.dumps(driver.messageData)
+
+	'''
+	PATH: 		 /im/vs/running_driver
+	N/A ACTIONS: POST, PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def post_vs_running_driver(self):
+		return "NOT AVAILABLE", 405
+	def put_vs_running_driver(self):
+		return "NOT AVAILABLE", 405
+	def patch_vs_running_driver(self):
+		return "NOT AVAILABLE", 405
+	def delete_vs_running_driver(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/vs/running_driver/{driverId}
+	ACTION: 	 GET
+	DESCRIPTION: Inform if a particular vnfm driver is the
+				 running driver in the system.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + Boolean [1]
+				 - Integer error code (HTTP)
+	'''
+	def get_vs_rs_driverId(self, driverId):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "get_vs_rs_driverId", driverId), "AS", "IM")
+		driver = self.__asIr.sendMessage(request)
+		if type(driver.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VS ERROR DURING VNF DRIVER OPERATION (" + str(driver.messageData[1]) + ")", 400
+
+		return json.dumps(driver.messageData)
+
+	'''
+	PATH: 		 /im/vs/running_driver/{driverId}
+	ACTION: 	 POST
+	DESCRIPTION: Request a particular vnf driver as the
+				 running driver in the system.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + Boolean [1]
+				 - Integer error code (HTTP)
+	'''
+	def post_vs_rs_driverId(self, driverId):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "post_vs_rs_driverId", driverId), "AS", "IM")
+		driver = self.__asIr.sendMessage(request)
+		if type(driver.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VS ERROR DURING VNF DRIVER OPERATION (" + str(driver.messageData[1]) + ")", 400
+
+		return json.dumps(driver.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/vs/running_driver/{driverId}
+	N/A ACTIONS: POST, PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def put_vs_rs_driverId(self):
+		return "NOT AVAILABLE", 405
+	def patch_vs_rs_driverId(self):
+		return "NOT AVAILABLE", 405
+	def delete_vs_rs_driverId(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/vs/driver
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve all the available vnf platforms
+				 in the database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibPlatformInstance [0..N]
+				 - Integer error code (HTTP)
+	'''
+	def get_vs_driver(self):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "get_vs_driver", None), "AS", "IM")
+		platforms = self.__asIr.sendMessage(request)
+		if type(platforms.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VS ERROR DURING VNF PLATFORM OPERATION (" + str(platforms.messageData[1]) + ")", 400
+
+		return json.dumps([p.toDictionary() for p in platforms.messageData])
+
+	'''
+	PATH: 		 /im/vs/driver
+	ACTION: 	 POST
+	DESCRIPTION: Request the insertion of a new vnf platform
+				 in the database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibPlatformInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def post_vs_driver(self, vibPlatformInstance):
+
+		try:
+			vibPlatformInstance = VibModels.VibPlatformInstance().fromDictionary(json.loads(vibPlatformInstance))
+		except:
+			return "ERROR CODE #0 (AS): INVALID VNF PLATFORM PROVIDED", 400		
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "post_vs_driver", vibPlatformInstance), "AS", "IM")
+		platform = self.__asIr.sendMessage(request)
+		if type(platform.messageData) == tuple:
+			print(platform.messageData)
+			return "ERROR CODE #3 (AS): IM/VS ERROR DURING VNF PLATFORM OPERATION (" + str(platform.messageData[1]) + ")", 400
+
+		return json.dumps(platform.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/vs/vnf_instance
+	N/A ACTIONS: PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def put_vs_driver(self):
+		return "NOT AVAILABLE", 405
+	def patch_vs_driver(self):
+		return "NOT AVAILABLE", 405
+	def delete_vs_driver(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/vs/driver/{driverId}
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve a particular vnf platform in
+				 the database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibPlatformInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def get_vsd_driverId(self, driverId):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "get_vsd_driverId", driverId), "AS", "IM")
+		platform = self.__asIr.sendMessage(request)
+		if type(platform.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VS ERROR DURING VNF PLATFORM OPERATION (" + str(platform.messageData[1]) + ")", 400
+
+		return json.dumps(platform.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/vs/driver/{driverId}
+	ACTION: 	 PATCH
+	DESCRIPTION: Update a particular vnf platform in the
+				 database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibVnfInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def patch_vsd_driverId(self, driverId, vibPlatformInstance):
+
+		try:
+			vibPlatformInstance = VibModels.VibPlatformInstance().fromDictionary(json.loads(vibPlatformInstance))
+			if driverId != vibPlatformInstance.platformId:
+				return "ERROR CODE #0 (AS): INVALID VNF PLATFORM PROVIDED", 400
+		except:
+			return "ERROR CODE #0 (AS): INVALID VNF PLATFORM PROVIDED", 400
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "patch_vsd_driverId", vibPlatformInstance), "AS", "IM")
+		platform = self.__asIr.sendMessage(request)
+		if type(platform.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VS ERROR DURING VNF PLATFORM OPERATION (" + str(platform.messageData[1]) + ")", 400
+
+		return json.dumps(platform.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/vs/driver/{driverId}
+	ACTION: 	 DELETE
+	DESCRIPTION: Delete a particular vnf platform in
+				 the database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibPlatformInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def delete_vsd_driverId(self, driverId):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "delete_vsd_driverId", driverId), "AS", "IM")
+		platform = self.__asIr.sendMessage(request)
+		if type(platform.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VS ERROR DURING VNF INSTANCE OPERATION (" + str(platform.messageData[1]) + ")", 400
+
+		return json.dumps(platform.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/vs/driver/{driverId}
+	N/A ACTIONS: POST, PUT
+	**Do not change these methods**
+	'''
+	def post_vsd_driverId(self):
+		return "NOT AVAILABLE", 405
+	def put_vsd_driverId(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/vs/running_driver/operations
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve the available operations of the 
+				 running platform driver.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + String [0..N]
+				 - Integer error code (HTTP)
+	'''
+	def get_vs_rd_operations(self):
+		
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "get_vs_rd_operations", None), "AS", "IM")
+		operations = self.__asIr.sendMessage(request)
+		if type(operations.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VS ERROR DURING VNF RUNNING PLATFORM OPERATION (" + str(operations.messageData[1]) + ")", 400
+
+		return json.dumps(operations.messageData)
+
+	'''
+	PATH: 		 /im/vs/running_driver/operations
+	N/A ACTIONS: POST, PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def post_vs_rd_operations(self):
+		return "NOT AVAILABLE", 405
+	def put_vs_rd_operations(self):
+		return "NOT AVAILABLE", 405
+	def patch_vs_rd_operations(self):
+		return "NOT AVAILABLE", 405
+	def delete_vs_rd_operations(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/vs/running_driver/operations/monitoring
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve the available monitoring operations
+				 of the running platform driver.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + String [0..N]
+				 - Integer error code (HTTP)
+	'''
+	def get_vs_rdo_monitoring(self):
+		
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "get_vs_rdo_monitoring", None), "AS", "IM")
+		operations = self.__asIr.sendMessage(request)
+		if type(operations.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VS ERROR DURING VNF RUNNING PLATFORM OPERATION (" + str(operations.messageData[1]) + ")", 400
+
+		return json.dumps(operations.messageData)
+
+	'''
+	PATH: 		 /im/vs/running_driver/operations/monitoring
+	N/A ACTIONS: POST, PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def post_vs_rdo_monitoring(self):
+		return "NOT AVAILABLE", 405
+	def put_vs_rdo_monitoring(self):
+		return "NOT AVAILABLE", 405
+	def patch_vs_rdo_monitoring(self):
+		return "NOT AVAILABLE", 405
+	def delete_vs_rdo_monitoring(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/vs/running_driver/operations/modification
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve the available modification operations
+				 of the running platform driver.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + String [0..N]
+				 - Integer error code (HTTP)
+	'''
+	def get_vs_rdo_modification(self):
+		
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "get_vs_rdo_modification", None), "AS", "IM")
+		operations = self.__asIr.sendMessage(request)
+		if type(operations.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VS ERROR DURING VNF RUNNING PLATFORM OPERATION (" + str(operations.messageData[1]) + ")", 400
+
+		return json.dumps(operations.messageData)
+
+	'''
+	PATH: 		 /im/vs/running_driver/operations/modification
+	N/A ACTIONS: POST, PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def post_vs_rdo_modification(self):
+		return "NOT AVAILABLE", 405
+	def put_vs_rdo_modification(self):
+		return "NOT AVAILABLE", 405
+	def patch_vs_rdo_modification(self):
+		return "NOT AVAILABLE", 405
+	def delete_vs_rdo_modification(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/vs/running_driver/operations/other
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve the available other operations
+				 of the running platform driver.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + String [0..N]
+				 - Integer error code (HTTP)
+	'''
+	def get_vs_rdo_other(self):
+		
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "get_vs_rdo_other", None), "AS", "IM")
+		operations = self.__asIr.sendMessage(request)
+		if type(operations.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VS ERROR DURING VNF RUNNING PLATFORM OPERATION (" + str(operations.messageData[1]) + ")", 400
+
+		return json.dumps(operations.messageData)
+
+	'''
+	PATH: 		 /im/vs/running_driver/operations/other
+	N/A ACTIONS: POST, PUT, PATCH, DELETE
+	**Do not change these methods**
+	'''
+	def post_vs_rdo_other(self):
+		return "NOT AVAILABLE", 405
+	def put_vs_rdo_other(self):
+		return "NOT AVAILABLE", 405
+	def patch_vs_rdo_other(self):
+		return "NOT AVAILABLE", 405
+	def delete_vs_rdo_other(self):
 		return "NOT AVAILABLE", 405
