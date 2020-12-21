@@ -100,12 +100,12 @@ vibSubscriptionInstance = imAgent.requestOperation(irManagement)
 print(vibSubscriptionInstance, "\n")
 
 #INVALID UPDATE IN THE NON-KEY VALUES OF THE SUBSCRIPTION
-#vibSubscriptionInstance.visFilter.vnfInstanceSubscriptionFilter.vnfInstanceIds.append("VNF02")
+#vibSubscriptionInstance.visFilter.vnfInstanceSubscriptionFilter.vnfInstanceIds.append("VNF03")
 irManagement = IrModels.IrManagement().fromData("VIB", "patch_vib_s_subscriptionId", vibSubscriptionInstance)
 print(imAgent.requestOperation(irManagement), "\n")
 
 #VALID UPDATE IN THE NON-KEY VALUES OF THE SUBSCRIPTION
-#vibSubscriptionInstance.visFilter.filter.vnfInstanceIds.remove("VNF02")
+#vibSubscriptionInstance.visFilter.filter.vnfInstanceIds.remove("VNF03")
 vibSubscriptionInstance.visCallback = "http://127.0.0.1:5001/response"
 irManagement = IrModels.IrManagement().fromData("VIB", "patch_vib_s_subscriptionId", vibSubscriptionInstance)
 print(imAgent.requestOperation(irManagement), "\n")
@@ -170,7 +170,7 @@ vsAgent = VsAgent.VsAgent()
 imAgent = ImAgent.ImAgent().setupAgent(vibManager, msManager, asAuthAgent, asOpAgent, vsAgent)
 
 #INSERTING AN TESTING VNF INSTANCE
-vibVnfInstance = VibModels.VibVnfInstance().fromData("VNF02", "127.0.0.1", "Click-On-OSv", [], None)
+vibVnfInstance = VibModels.VibVnfInstance().fromData("VNF03", "127.0.0.1", "Click-On-OSv", [], None)
 irManagement = IrModels.IrManagement().fromData("VIB", "post_vib_instances", vibVnfInstance)
 print(imAgent.requestOperation(irManagement), "\n")
 
@@ -179,7 +179,7 @@ irManagement = IrModels.IrManagement().fromData("VIB", "get_vib_instances", None
 print(imAgent.requestOperation(irManagement), "\n")
 
 #GETTING THE RECENTLY INSERTED VNF INSTANCE
-irManagement = IrModels.IrManagement().fromData("VIB", "get_vib_i_instanceId", "VNF02")
+irManagement = IrModels.IrManagement().fromData("VIB", "get_vib_i_instanceId", "VNF03")
 vibVnfInstance = imAgent.requestOperation(irManagement)
 print(vibVnfInstance, "\n")
 
@@ -195,7 +195,7 @@ irManagement = IrModels.IrManagement().fromData("VIB", "patch_vib_i_instanceId",
 print(imAgent.requestOperation(irManagement), "\n")
 
 #CHECKING IF UPDATE OCCURED SUCCESSFULY
-irManagement = IrModels.IrManagement().fromData("VIB", "get_vib_i_instanceId", "VNF02")
+irManagement = IrModels.IrManagement().fromData("VIB", "get_vib_i_instanceId", "VNF03")
 print(imAgent.requestOperation(irManagement), "\n")
 
 #INVALID DELETING OPERATION
@@ -203,7 +203,7 @@ irManagement = IrModels.IrManagement().fromData("VIB", "delete_vib_i_instanceId"
 print(imAgent.requestOperation(irManagement), "\n")
 
 #DELETING THE INSERTED VNF INSTANCE
-irManagement = IrModels.IrManagement().fromData("VIB", "delete_vib_i_instanceId", "VNF02")
+irManagement = IrModels.IrManagement().fromData("VIB", "delete_vib_i_instanceId", "VNF03")
 print(imAgent.requestOperation(irManagement), "\n")
 '''
 
@@ -422,11 +422,11 @@ irManagement = IrModels.IrManagement().fromData("VS", "get_vs_vnf_instance", Non
 print(imAgent.requestOperation(irManagement), "\n")
 
 #INSERTING NEW VNF INSTANCE
-irManagement = IrModels.IrManagement().fromData("VS", "post_vs_vnf_instance", VibModels.VibVnfInstance().fromData("VNF02", "127.0.0.1:5000", "Click-On-OSv", [], False))
+irManagement = IrModels.IrManagement().fromData("VS", "post_vs_vnf_instance", VibModels.VibVnfInstance().fromData("VNF03", "127.0.0.1:5000", "Click-On-OSv", [], False))
 print(imAgent.requestOperation(irManagement), "\n")
 
 #GETTING THE RECENTLY INSERTED VNF INSTANCE
-irManagement = IrModels.IrManagement().fromData("VS", "get_vs_vnfi_instanceId", "VNF02")
+irManagement = IrModels.IrManagement().fromData("VS", "get_vs_vnfi_instanceId", "VNF03")
 vibVnfInstance = imAgent.requestOperation(irManagement)
 print(vibVnfInstance, "\n")
 
@@ -436,7 +436,7 @@ irManagement = IrModels.IrManagement().fromData("VS", "patch_vs_vnfi_instanceId"
 print(imAgent.requestOperation(irManagement), "\n")
 
 #UPDATING THE RECENTLY INSERTED VNF
-vibVnfInstance.vnfId = "VNF02"
+vibVnfInstance.vnfId = "VNF03"
 irManagement = IrModels.IrManagement().fromData("VS", "patch_vs_vnfi_instanceId", vibVnfInstance)
 print(imAgent.requestOperation(irManagement), "\n")
 
@@ -445,7 +445,7 @@ irManagement = IrModels.IrManagement().fromData("VS", "delete_vs_vnfi_instanceId
 print(imAgent.requestOperation(irManagement), "\n")
 
 #DELETING THE RECENTLY INSERTED VNF INSTANCE
-irManagement = IrModels.IrManagement().fromData("VS", "delete_vs_vnfi_instanceId", "VNF02")
+irManagement = IrModels.IrManagement().fromData("VS", "delete_vs_vnfi_instanceId", "VNF03")
 print(imAgent.requestOperation(irManagement), "\n")
 
 #CHECK THE RUNNING VS DRIVER - NONE IS EXPECTED
@@ -673,6 +673,8 @@ if __name__ == '__main__':
 	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
 
+	input("\nCONTINUE...")
+
 	print("\nLOG 1.1.1.1.2: RUNNING TEST ROUTINES OF IM/VIB -- CREDENTIAL TABLE (/im/vib/credentials/<userId>/<vnfId>)")
 	vibCredentialInstance = VibModels.VibCredentialInstance().fromData("USER02", "VNF01", "PolentaFrita", None)
 	imRequest = ("/im/vib/credentials/USER02/VNF01", {"vibCredentialInstance":json.dumps(vibCredentialInstance.toDictionary())})
@@ -687,6 +689,8 @@ if __name__ == '__main__':
 	print("#POST:", responseData.content, "[" + str(responseData.status_code) + "]")
 	responseData = requests.put("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#PUT:", responseData.content, "[" + str(responseData.status_code) + "]")
+
+	input("\nCONTINUE...")
 
 	print("\nLOG 1.1.1.2: RUNNING TEST ROUTINES OF IM/VIB -- SUBSCRIPTION TABLE\n")
 
@@ -706,6 +710,8 @@ if __name__ == '__main__':
 	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
 
+	input("\nCONTINUE...")
+
 	print("\nLOG 1.1.1.2.2: RUNNING TEST ROUTINES OF IM/VIB -- SUBSCRIPTION TABLE (/im/vib/subscriptions/<subscriptionId>)")
 	vibSubscriptionInstance = VibModels.VibSubscriptionInstance().fromData("1234567890", vnfIndicatorNotificationsFilter, "http://127.0.0.1:5000/response", {"self":"127.0.0.2"})
 	imRequest = ("/im/vib/subscriptions/1234567890", {"vibSubscriptionInstance":json.dumps(vibSubscriptionInstance.toDictionary())})
@@ -720,6 +726,8 @@ if __name__ == '__main__':
 	print("#POST:", responseData.content, "[" + str(responseData.status_code) + "]")
 	responseData = requests.put("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#PUT:", responseData.content, "[" + str(responseData.status_code) + "]")
+
+	input("\nCONTINUE...")
 
 	print("\nLOG 1.1.1.3: RUNNING TEST ROUTINES OF IM/VIB -- MANAGEMENT AGENT TABLE\n")
 
@@ -738,6 +746,8 @@ if __name__ == '__main__':
 	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
 
+	input("\nCONTINUE...")
+
 	print("\nLOG 1.1.1.3.2: RUNNING TEST ROUTINES OF IM/VIB -- MANAGEMENT AGENT TABLE (/im/vib/management_agents/<agentId>)")
 	vibMaInstance = VibModels.VibMaInstance().fromData("DummyAgent", "C:/Users/55559/Desktop/EMSPlatformTesting/DummyMonitoringAgent2.py", "Click-On-OSv")
 	imRequest = ("/im/vib/management_agents/DummyAgent", {"vibMaInstance":json.dumps(vibMaInstance.toDictionary())})
@@ -753,10 +763,12 @@ if __name__ == '__main__':
 	responseData = requests.put("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#PUT:", responseData.content, "[" + str(responseData.status_code) + "]")
 
+	input("\nCONTINUE...")
+
 	print("\nLOG 1.1.1.4: RUNNING TEST ROUTINES OF IM/VIB -- VNF INSTANCE TABLE\n")
 
 	print("LOG 1.1.1.4.1: RUNNING TEST ROUTINES OF IM/VIB -- VNF INSTANCE TABLE (/im/vib/vnf_instances)")
-	vibVnfInstance = VibModels.VibVnfInstance().fromData("VNF02", "127.0.0.1", "Click-On-OSv", ["EXT01"], True)
+	vibVnfInstance = VibModels.VibVnfInstance().fromData("VNF03", "127.0.0.1", "Click-On-OSv", ["EXT01"], True)
 	imRequest = ("/im/vib/vnf_instances", {"vibVnfInstance":json.dumps(vibVnfInstance.toDictionary())})
 
 	responseData = requests.get("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
@@ -770,9 +782,11 @@ if __name__ == '__main__':
 	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
 
+	input("\nCONTINUE...")
+
 	print("\nLOG 1.1.1.4.2: RUNNING TEST ROUTINES OF IM/VIB -- VNF INSTANCE TABLE (/im/vib/vnf_instances/<vnfId>)")
-	vibVnfInstance = VibModels.VibVnfInstance().fromData("VNF02", "127.0.0.2", "Click-On-OSv", ["EXT01"], True)
-	imRequest = ("/im/vib/vnf_instances/VNF02", {"vibVnfInstance":json.dumps(vibVnfInstance.toDictionary())})
+	vibVnfInstance = VibModels.VibVnfInstance().fromData("VNF03", "127.0.0.2", "Click-On-OSv", ["EXT01"], True)
+	imRequest = ("/im/vib/vnf_instances/VNF03", {"vibVnfInstance":json.dumps(vibVnfInstance.toDictionary())})
 
 	responseData = requests.patch("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#PATCH:", responseData.content, "[" + str(responseData.status_code) + "]")
@@ -784,6 +798,8 @@ if __name__ == '__main__':
 	print("#POST:", responseData.content, "[" + str(responseData.status_code) + "]")
 	responseData = requests.put("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#PUT:", responseData.content, "[" + str(responseData.status_code) + "]")
+
+	input("\nCONTINUE...")
 
 	print("\nLOG 1.1.1.5: RUNNING TEST ROUTINES OF IM/VIB -- PLATFORM TABLE\n")
 
@@ -802,6 +818,8 @@ if __name__ == '__main__':
 	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
 
+	input("\nCONTINUE...")
+
 	print("\nLOG 1.1.1.5.2: RUNNING TEST ROUTINES OF IM/VIB -- PLATFORM TABLE (/im/vib/platforms/<platformId>)")
 	vibVnfInstance = VibModels.VibPlatformInstance().fromData("Coven-On-OSv", "C:/Users/55559/Desktop/EMSPlatformTesting/DummyPlatformDriver2.py")
 	imRequest = ("/im/vib/platforms/Coven-On-OSv", {"vibPlatformInstance":json.dumps(vibPlatformInstance.toDictionary())})
@@ -816,6 +834,8 @@ if __name__ == '__main__':
 	print("#POST:", responseData.content, "[" + str(responseData.status_code) + "]")
 	responseData = requests.put("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#PUT:", responseData.content, "[" + str(responseData.status_code) + "]")
+
+	input("\nCONTINUE...")
 
 	print("\nLOG 1.1.1.6: RUNNING TEST ROUTINES OF IM/VIB -- VNF MANAGER TABLE\n")
 
@@ -834,6 +854,8 @@ if __name__ == '__main__':
 	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
 
+	input("\nCONTINUE...")
+
 	print("\nLOG 1.1.1.6.2: RUNNING TEST ROUTINES OF IM/VIB -- VNF MANAGER TABLE (/im/vib/vnf_managers/<vnfmId>)")
 	vibVnfmInstance = VibModels.VibVnfmInstance().fromData("Vines", "C:/Users/55559/Desktop/EMSPlatformTesting/DummyVnfmDriver2.py")
 	imRequest = ("/im/vib/vnf_managers/Vines", {"vibVnfmInstance":json.dumps(vibVnfmInstance.toDictionary())})
@@ -849,6 +871,8 @@ if __name__ == '__main__':
 	responseData = requests.put("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#PUT:", responseData.content, "[" + str(responseData.status_code) + "]")
 	
+	input("\nCONTINUE...")
+
 	print("#LOG 1.1.2: RUNNING TEST ROUTINES OF IM/MS\n")
 
 	print("LOG 1.1.2.1: RUNNING TEST ROUTINES OF IM/MS (/im/ms/running_subscription)")
@@ -865,6 +889,8 @@ if __name__ == '__main__':
 	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
 	
+	input("\nCONTINUE...")
+
 	print("\nLOG 1.1.2.2: RUNNING TEST ROUTINES OF IM/MS (/im/ms/running_subscription/<subscriptionId>)")
 	imRequest = ("/im/ms/running_subscription/48de2e18-406d-11eb-b2b5-782bcbee2213", {"agentArguments":json.dumps([{}])})
 
@@ -883,6 +909,8 @@ if __name__ == '__main__':
 	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
 	
+	input("\nCONTINUE...")
+
 	print("\nLOG 1.1.2.3: RUNNING TEST ROUTINES OF IM/MS (/im/ms/subscription)")
 	vnfIndicatorNotificationsFilter = AsModels.VnfIndicatorNotificationsFilter().fromData(AsModels.VnfInstanceSubscriptionFilter().fromData([], [], ["VNF01"], []), [], ["CooRunningAgent"])
 	vnfIndicatorSubscriptionRequest = AsModels.VnfIndicatorSubscriptionRequest().fromData(vnfIndicatorNotificationsFilter, "http://127.0.0.1:5000/response", None)
@@ -900,6 +928,8 @@ if __name__ == '__main__':
 	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
 
+	input("\nCONTINUE...")
+
 	print("\nLOG 1.1.2.4: RUNNING TEST ROUTINES OF IM/MS (/im/ms/subscription/<subscriptionId>)")
 	vnfIndicatorSubscription.callbackUri = "http://127.0.0.1:5001/response"
 	imRequest = ("/im/ms/subscription/" + vnfIndicatorSubscription.id, {"vnfIndicatorSubscription":json.dumps(vnfIndicatorSubscription.toDictionary())})
@@ -914,6 +944,8 @@ if __name__ == '__main__':
 	print("#POST:", responseData.content, "[" + str(responseData.status_code) + "]")
 	responseData = requests.put("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#PUT:", responseData.content, "[" + str(responseData.status_code) + "]")
+
+	input("\nCONTINUE...")
 
 	print("\nLOG 1.1.2.5: RUNNING TEST ROUTINES OF IM/MS (/im/ms/agent)")
 	vibMaInstance = VibModels.VibMaInstance().fromData("DummyAgent", "C:/Users/55559/Desktop/EMSPlatformTesting/DummyMonitoringAgent.py", "Click-On-OSv")
@@ -930,6 +962,8 @@ if __name__ == '__main__':
 	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
 
+	input("\nCONTINUE...")
+
 	print("\nLOG 1.1.1.2.6: RUNNING TEST ROUTINES OF IM/MS (/im/ms/agent/<agentId>)")
 	imRequest = ("/im/ms/agent/DummyAgent", {"vibMaInstance":json.dumps(vibMaInstance.toDictionary())})
 
@@ -943,6 +977,8 @@ if __name__ == '__main__':
 	print("#POST:", responseData.content, "[" + str(responseData.status_code) + "]")
 	responseData = requests.put("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#PUT:", responseData.content, "[" + str(responseData.status_code) + "]")
+
+	input("\nCONTINUE...")
 
 	print("#LOG 1.1.3: RUNNING TEST ROUTINES OF IM/AS\n")
 
@@ -960,6 +996,8 @@ if __name__ == '__main__':
 	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
 
+	input("\nCONTINUE...")
+
 	print("\nLOG 1.1.3.2: RUNNING TEST ROUTINES OF IM/AS (/im/as/authenticator/<authenticatorId>)")
 	imRequest = ("/im/as/authenticator/PlainText", {})
 
@@ -974,6 +1012,8 @@ if __name__ == '__main__':
 	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
 	
+	input("\nCONTINUE...")
+
 	print("\nLOG 1.1.3.3: RUNNING TEST ROUTINES OF IM/AS (/im/as/running_authenticator)")
 	imRequest = ("/im/as/running_authenticator", {})
 
@@ -988,6 +1028,8 @@ if __name__ == '__main__':
 	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
 	
+	input("\nCONTINUE...")
+
 	print("\nLOG 1.1.3.4: RUNNING TEST ROUTINES OF IM/AS (/im/as/running_authenticator/<authenticatorId>)")
 	imRequest = ("/im/as/running_authenticator/PlainText", {})
 
@@ -1001,6 +1043,8 @@ if __name__ == '__main__':
 	print("#PATCH:", responseData.content, "[" + str(responseData.status_code) + "]")
 	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
+
+	input("\nCONTINUE...")
 
 	print("\nLOG 1.1.3.5: RUNNING TEST ROUTINES OF IM/AS (/im/as/credential)")
 	vibCredentialInstance = VibModels.VibCredentialInstance().fromData("USER02", "VNF01", "BatataFrita", None)
@@ -1017,6 +1061,8 @@ if __name__ == '__main__':
 	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
 	
+	input("\nCONTINUE...")
+
 	print("\nLOG 1.1.3.6: RUNNING TEST ROUTINES OF IM/AS (/im/vib/vnf_managers/<vnfmId>)")
 	vibCredentialInstance = VibModels.VibCredentialInstance().fromData("USER02", "VNF01", "PolentaFrita", None)
 	imRequest = ("/im/as/credential/USER02/VNF01", {"vibCredentialInstance":json.dumps(vibCredentialInstance.toDictionary())})
@@ -1032,6 +1078,8 @@ if __name__ == '__main__':
 	responseData = requests.put("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#PUT:", responseData.content, "[" + str(responseData.status_code) + "]")
 
+	input("\nCONTINUE...")
+
 	print("\nLOG 1.1.3.7: RUNNING TEST ROUTINES OF IM/AS (/im/as/vnfm/running_driver)")
 	imRequest = ("/im/as/vnfm/running_driver", {})
 
@@ -1046,6 +1094,8 @@ if __name__ == '__main__':
 	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
 
+	input("\nCONTINUE...")
+
 	print("\nLOG 1.1.3.8: RUNNING TEST ROUTINES OF IM/AS (/im/as/vnfm/running_driver/<vnfmId>)")
 	imRequest = ("/im/as/vnfm/running_driver/DummyVnfmDriver", {})
 
@@ -1059,6 +1109,8 @@ if __name__ == '__main__':
 	print("#PATCH:", responseData.content, "[" + str(responseData.status_code) + "]")
 	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
+
+	input("\nCONTINUE...")
 
 	print("\nLOG 1.1.3.9: RUNNING TEST ROUTINES OF IM/AS (/im/as/vnfm/driver)")
 	vibVnfmInstance = VibModels.VibVnfmInstance().fromData("Vines", "C:/Users/55559/Desktop/EMSPlatformTesting/DummyVnfmDriver2.py")
@@ -1075,6 +1127,8 @@ if __name__ == '__main__':
 	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
 
+	input("\nCONTINUE...")
+
 	print("\nLOG 1.1.3.10: RUNNING TEST ROUTINES OF IM/AS (/im/as/vnfm/driver/<vnfmId>)")
 	imRequest = ("/im/as/vnfm/driver/Vines", {"vibVnfmInstance":json.dumps(vibVnfmInstance.toDictionary())})
 
@@ -1089,10 +1143,12 @@ if __name__ == '__main__':
 	responseData = requests.put("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#PUT:", responseData.content, "[" + str(responseData.status_code) + "]")
 
+	input("\nCONTINUE...")
+
 	print("#LOG 1.1.4: RUNNING TEST ROUTINES OF IM/VS\n")
 
 	print("\nLOG 1.1.4.1: RUNNING TEST ROUTINES OF IM/VS (/im/vs/vnf_instance)")
-	vibVnfInstance = VibModels.VibVnfInstance().fromData("VNF02", "127.0.0.1", "Click-On-OSv", ["EXT01"], True)
+	vibVnfInstance = VibModels.VibVnfInstance().fromData("VNF03", "127.0.0.1", "Click-On-OSv", ["EXT01"], True)
 	imRequest = ("/im/vs/vnf_instance", {"vibVnfInstance":json.dumps(vibVnfInstance.toDictionary())})
 
 	responseData = requests.get("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
@@ -1106,9 +1162,11 @@ if __name__ == '__main__':
 	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
 
+	input("\nCONTINUE...")
+
 	print("\nLOG 1.1.4.2: RUNNING TEST ROUTINES OF IM/VS (/im/vs/vnf_instance/<vnfId>)")
-	vibVnfInstance = VibModels.VibVnfInstance().fromData("VNF02", "127.0.0.2", "Click-On-OSv", ["EXT01"], True)
-	imRequest = ("/im/vs/vnf_instance/VNF02", {"vibVnfInstance":json.dumps(vibVnfInstance.toDictionary())})
+	vibVnfInstance = VibModels.VibVnfInstance().fromData("VNF03", "127.0.0.2", "Click-On-OSv", ["EXT01"], True)
+	imRequest = ("/im/vs/vnf_instance/VNF03", {"vibVnfInstance":json.dumps(vibVnfInstance.toDictionary())})
 
 	responseData = requests.patch("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#PATCH:", responseData.content, "[" + str(responseData.status_code) + "]")
@@ -1120,6 +1178,8 @@ if __name__ == '__main__':
 	print("#POST:", responseData.content, "[" + str(responseData.status_code) + "]")
 	responseData = requests.put("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#PUT:", responseData.content, "[" + str(responseData.status_code) + "]")
+
+	input("\nCONTINUE...")
 
 	print("\nLOG 1.1.4.3: RUNNING TEST ROUTINES OF IM/VS (/im/vs/running_driver)")
 	imRequest = ("/im/vs/running_driver", {})
@@ -1135,6 +1195,8 @@ if __name__ == '__main__':
 	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
 
+	input("\nCONTINUE...")
+
 	print("\nLOG 1.1.4.4: RUNNING TEST ROUTINES OF IM/VS (/im/vs/running_driver/<platformId>)")
 	imRequest = ("/im/vs/running_driver/Click-On-OSv", {})
 
@@ -1148,6 +1210,8 @@ if __name__ == '__main__':
 	print("#PATCH:", responseData.content, "[" + str(responseData.status_code) + "]")
 	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
+
+	input("\nCONTINUE...")
 
 	print("\nLOG 1.1.4.5: RUNNING TEST ROUTINES OF IM/VS (/im/vs/driver/)")
 	vibPlatformInstance = VibModels.VibPlatformInstance().fromData("Coven-On-OSv", "C:/Users/55559/Desktop/EMSPlatformTesting/DummyPlatformDriver.py")
@@ -1164,6 +1228,8 @@ if __name__ == '__main__':
 	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
 
+	input("\nCONTINUE...")
+
 	print("\nLOG 1.1.4.6: RUNNING TEST ROUTINES OF IM/VS (/im/vs/driver/<vnfId>)")
 	vibPlatformInstance = VibModels.VibPlatformInstance().fromData("Coven-On-OSv", "C:/Users/55559/Desktop/EMSPlatformTesting/DummyPlatformDriver.py")
 	imRequest = ("/im/vs/driver/Coven-On-OSv", {"vibPlatformInstance":json.dumps(vibPlatformInstance.toDictionary())})
@@ -1179,6 +1245,8 @@ if __name__ == '__main__':
 	responseData = requests.put("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#PUT:", responseData.content, "[" + str(responseData.status_code) + "]")
 
+	input("\nCONTINUE...")
+
 	print("\nLOG 1.1.4.7: RUNNING TEST ROUTINES OF IM/VS (/im/vs/running_driver/operations)")
 	imRequest = ("/im/vs/running_driver/operations", {})
 	
@@ -1192,6 +1260,8 @@ if __name__ == '__main__':
 	print("#PATCH:", responseData.content, "[" + str(responseData.status_code) + "]")
 	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
+
+	input("\nCONTINUE...")
 
 	print("\nLOG 1.1.4.8: RUNNING TEST ROUTINES OF IM/VS (/im/vs/running_driver/operations/monitoring)")
 	imRequest = ("/im/vs/running_driver/operations/monitoring", {})
@@ -1207,6 +1277,8 @@ if __name__ == '__main__':
 	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
 
+	input("\nCONTINUE...")
+
 	print("\nLOG 1.1.4.9: RUNNING TEST ROUTINES OF IM/VS (/im/vs/running_driver/operations/modification)")
 	imRequest = ("/im/vs/running_driver/operations/modification", {})
 	
@@ -1221,6 +1293,8 @@ if __name__ == '__main__':
 	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
 
+	input("\nCONTINUE...")
+
 	print("\nLOG 1.1.4.10: RUNNING TEST ROUTINES OF IM/VS (/im/vs/running_driver/operations/other)")
 	imRequest = ("/im/vs/running_driver/operations/other", {})
 	
@@ -1234,5 +1308,34 @@ if __name__ == '__main__':
 	print("#PATCH:", responseData.content, "[" + str(responseData.status_code) + "]")
 	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
+
+	input("\nCONTINUE...")
+
+	print("#LOG 1.1: RUNNING TEST ROUTINES OF VS\n")
+
+	print("#LOG 1.1.1: RUNNING TEST ROUTINES OF VS/Click-On-OSv\n")
+
+	print("LOG 1.1.1.1: RUNNING TEST ROUTINES OF VS/Click-On-OSv (/vnf/operation/<vnfId>/<operationId>)")
+	imRequest = ("/vnf/operation/VNF01/get_click_running", {"operationArguments":json.dumps({})})
+	responseData = requests.post("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#", responseData.content, "[" + str(responseData.status_code) + "]")
+
+	imRequest = ("/vnf/operation/VNF01/get_click_metrics", {"operationArguments":json.dumps({})})
+	responseData = requests.post("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#", responseData.content, "[" + str(responseData.status_code) + "]")
+
+	input("\nCONTINUE...")
+
+	print("#LOG 1.1.2: RUNNING TEST ROUTINES OF VS/Click-On-OSv-S\n")
+
+	print("LOG 1.1.1.1: RUNNING TEST ROUTINES OF VS/Click-On-OSv-S (/vnf/operation/<vnfId>/<operationId>)")
+
+	imRequest = ("/vnf/operation/VNF02/get_click_running", {"operationArguments":json.dumps({})})
+	responseData = requests.post("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#", responseData.content, "[" + str(responseData.status_code) + "]")
+
+	imRequest = ("/vnf/operation/VNF02/get_click_metrics", {"operationArguments":json.dumps({})})
+	responseData = requests.post("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#", responseData.content, "[" + str(responseData.status_code) + "]")
 
 	emsProcess.terminate()
