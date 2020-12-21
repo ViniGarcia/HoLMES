@@ -16,8 +16,7 @@ import AsAuthAgent
 CLASS: OperationAgent
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 05 Nov. 2020
-L. UPDATE: 17 Dez. 2020 (Fulber-Garcia; Implementation and tests of access operations of
-						 access subsystem and vnf subsystem)
+L. UPDATE: 20 Dez. 2020 (Fulber-Garcia; Refactoring methods)
 DESCRIPTION: Operation agent implementation. This class
 			 has the kernel functionalites of the access
 			 subsystem. It holds the implementation of all
@@ -164,14 +163,14 @@ class OperationAgent:
 		self.__aiAs.add_url_rule("/im/vib/credentials/<userId>/<vnfId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_c_credentialId)
 		self.__aiAs.add_url_rule("/im/vib/subscriptions", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_subscriptions)
 		self.__aiAs.add_url_rule("/im/vib/subscriptions/<subscriptionId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_s_subscriptionId)
-		self.__aiAs.add_url_rule("/im/vib/m_agents", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_m_agents)
-		self.__aiAs.add_url_rule("/im/vib/m_agents/<agentId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_ma_agentId)
-		self.__aiAs.add_url_rule("/im/vib/instances", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_instances)
-		self.__aiAs.add_url_rule("/im/vib/instances/<instanceId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_i_instanceId)
+		self.__aiAs.add_url_rule("/im/vib/management_agents", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_management_agents)
+		self.__aiAs.add_url_rule("/im/vib/management_agents/<agentId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_ma_agentId)
+		self.__aiAs.add_url_rule("/im/vib/vnf_instances", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_vnf_instances)
+		self.__aiAs.add_url_rule("/im/vib/vnf_instances/<vnfId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_vnfi_vnfId)
 		self.__aiAs.add_url_rule("/im/vib/platforms", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_platforms)
 		self.__aiAs.add_url_rule("/im/vib/platforms/<platformId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_p_platformId)
-		self.__aiAs.add_url_rule("/im/vib/v_managers", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_vnf_managers)
-		self.__aiAs.add_url_rule("/im/vib/v_managers/<managerId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_vnfm_managerId)
+		self.__aiAs.add_url_rule("/im/vib/vnf_managers", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_vnf_managers)
+		self.__aiAs.add_url_rule("/im/vib/vnf_managers/<managerId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_vnfm_managerId)
 
 		self.__aiAs.add_url_rule("/im/ms/running_subscription", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_ms_running_subscription)
 		self.__aiAs.add_url_rule("/im/ms/running_subscription/<subscriptionId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_msrs_subscriptionId)
@@ -182,21 +181,21 @@ class OperationAgent:
 
 		self.__aiAs.add_url_rule("/im/as/authenticator", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_authenticator)
 		self.__aiAs.add_url_rule("/im/as/authenticator/<authenticatorId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_a_authenticatorId)
-		self.__aiAs.add_url_rule("/im/as/r_authenticator", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_running_authenticator)
-		self.__aiAs.add_url_rule("/im/as/r_authenticator/<authenticatorId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_ra_authenticatorId)
+		self.__aiAs.add_url_rule("/im/as/running_authenticator", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_running_authenticator)
+		self.__aiAs.add_url_rule("/im/as/running_authenticator/<authenticatorId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_ra_authenticatorId)
 		self.__aiAs.add_url_rule("/im/as/credential", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_credential)
 		self.__aiAs.add_url_rule("/im/as/credential/<userId>/<vnfId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_c_credentialId)
 		self.__aiAs.add_url_rule("/im/as/vnfm/running_driver", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_vnfm_running_driver)
-		self.__aiAs.add_url_rule("/im/as/vnfm/running_driver/<driverId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_vrd_driverId)
+		self.__aiAs.add_url_rule("/im/as/vnfm/running_driver/<vnfmId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_vrd_vnfmId)
 		self.__aiAs.add_url_rule("/im/as/vnfm/driver", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_vnfm_driver)
-		self.__aiAs.add_url_rule("/im/as/vnfm/driver/<driverId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_vnfm_driverId)
+		self.__aiAs.add_url_rule("/im/as/vnfm/driver/<vnfmId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_vd_vnfmId)
 
 		self.__aiAs.add_url_rule("/im/vs/vnf_instance", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vs_vnf_instance)
 		self.__aiAs.add_url_rule("/im/vs/vnf_instance/<instanceId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vs_vnfi_instanceId)
 		self.__aiAs.add_url_rule("/im/vs/running_driver", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vs_running_driver)
-		self.__aiAs.add_url_rule("/im/vs/running_driver/<driverId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vs_rs_driverId)
+		self.__aiAs.add_url_rule("/im/vs/running_driver/<platformId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vs_rs_platformId)
 		self.__aiAs.add_url_rule("/im/vs/driver", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vs_driver)
-		self.__aiAs.add_url_rule("/im/vs/driver/<driverId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vsd_driverId)
+		self.__aiAs.add_url_rule("/im/vs/driver/<platformId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vsd_platformId)
 		self.__aiAs.add_url_rule("/im/vs/running_driver/operations", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vs_rd_operations)
 		self.__aiAs.add_url_rule("/im/vs/running_driver/operations/monitoring", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vs_rdo_monitoring)
 		self.__aiAs.add_url_rule("/im/vs/running_driver/operations/modification", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vs_rdo_modification)
@@ -792,18 +791,18 @@ class OperationAgent:
 		elif flask.request.method == "DELETE":
 			return self.delete_vib_s_subscriptionId(subscriptionId)
 
-	def im_vib_m_agents(self):
+	def im_vib_management_agents(self):
 
 		if flask.request.method == "GET":
-			return self.get_vib_m_agents()
+			return self.get_vib_management_agents()
 		elif flask.request.method == "POST":
-			return self.post_vib_m_agents(flask.request.values.get("vibMaInstance"))
+			return self.post_vib_management_agents(flask.request.values.get("vibMaInstance"))
 		elif flask.request.method == "PUT":
-			return self.put_vib_m_agents()
+			return self.put_vib_management_agents()
 		elif flask.request.method == "PATCH":
-			return self.patch_vib_m_agents()
+			return self.patch_vib_management_agents()
 		elif flask.request.method == "DELETE":
-			return self.delete_vib_m_agents()
+			return self.delete_vib_management_agents()
 
 	def im_vib_ma_agentId(self, agentId):
 
@@ -818,31 +817,31 @@ class OperationAgent:
 		elif flask.request.method == "DELETE":
 			return self.delete_vib_ma_agentId(agentId)
 
-	def im_vib_instances(self):
+	def im_vib_vnf_instances(self):
 
 		if flask.request.method == "GET":
-			return self.get_vib_instances()
+			return self.get_vib_vnf_instances()
 		elif flask.request.method == "POST":
-			return self.post_vib_instances(flask.request.values.get("vibVnfInstance"))
+			return self.post_vib_vnf_instances(flask.request.values.get("vibVnfInstance"))
 		elif flask.request.method == "PUT":
-			return self.put_vib_instances()
+			return self.put_vib_vnf_instances()
 		elif flask.request.method == "PATCH":
-			return self.patch_vib_instances()
+			return self.patch_vib_vnf_instances()
 		elif flask.request.method == "DELETE":
-			return self.delete_vib_instances()
+			return self.delete_vib_vnf_instances()
 
-	def im_vib_i_instanceId(self, instanceId):
+	def im_vib_vnfi_vnfId(self, vnfId):
 
 		if flask.request.method == "GET":
-			return self.get_vib_i_instanceId(instanceId)
+			return self.get_vib_vnfi_vnfId(vnfId)
 		elif flask.request.method == "POST":
-			return self.post_vib_i_instanceId()
+			return self.post_vib_vnfi_vnfId()
 		elif flask.request.method == "PUT":
-			return self.put_vib_i_instanceId()
+			return self.put_vib_vnfi_vnfId()
 		elif flask.request.method == "PATCH":
-			return self.patch_vib_i_instanceId(instanceId, flask.request.values.get("vibVnfInstance"))
+			return self.patch_vib_vnfi_vnfId(vnfId, flask.request.values.get("vibVnfInstance"))
 		elif flask.request.method == "DELETE":
-			return self.delete_vib_i_instanceId(instanceId)
+			return self.delete_vib_vnfi_vnfId(vnfId)
 
 	def im_vib_platforms(self):
 
@@ -934,7 +933,7 @@ class OperationAgent:
 		elif flask.request.method == "PUT":
 			return self.put_ms_subscription()
 		elif flask.request.method == "PATCH":
-			return self.parch_ms_subscription()
+			return self.patch_ms_subscription()
 		elif flask.request.method == "DELETE":
 			return self.delete_ms_subscription()
 
@@ -947,7 +946,7 @@ class OperationAgent:
 		elif flask.request.method == "PUT":
 			return self.put_mss_subscriptionId()
 		elif flask.request.method == "PATCH":
-			return self.patch_mss_subscriptionId(subscriptionId, flask.request.values.get("vnfIndicatorSubscriptionRequest"))
+			return self.patch_mss_subscriptionId(subscriptionId, flask.request.values.get("vnfIndicatorSubscription"))
 		elif flask.request.method == "DELETE":
 			return self.delete_mss_subscriptionId(subscriptionId)
 
@@ -1068,18 +1067,18 @@ class OperationAgent:
 		elif flask.request.method == "DELETE":
 			return self.delete_as_vnfm_running_driver()
 
-	def im_as_vrd_driverId(self, driverId):
+	def im_as_vrd_vnfmId(self, vnfmId):
 
 		if flask.request.method == "GET":
-			return self.get_as_vrd_driverId(driverId)
+			return self.get_as_vrd_vnfmId(vnfmId)
 		elif flask.request.method == "POST":
-			return self.post_as_vrd_driverId(driverId)
+			return self.post_as_vrd_vnfmId(vnfmId)
 		elif flask.request.method == "PUT":
-			return self.put_as_vrd_driverId()
+			return self.put_as_vrd_vnfmId()
 		elif flask.request.method == "PATCH":
-			return self.patch_as_vrd_driverId()
+			return self.patch_as_vrd_vnfmId()
 		elif flask.request.method == "DELETE":
-			return self.delete_as_vrd_driverId()
+			return self.delete_as_vrd_vnfmId()
 
 	def im_as_vnfm_driver(self):
 
@@ -1094,18 +1093,18 @@ class OperationAgent:
 		elif flask.request.method == "DELETE":
 			return self.delete_as_vnfm_driver()
 
-	def im_as_vnfm_driverId(self, driverId):
+	def im_as_vd_vnfmId(self, vnfmId):
 
 		if flask.request.method == "GET":
-			return self.get_as_vd_driverId(driverId)
+			return self.get_as_vd_vnfmId(vnfmId)
 		elif flask.request.method == "POST":
-			return self.post_as_vd_driverId()
+			return self.post_as_vd_vnfmId()
 		elif flask.request.method == "PUT":
-			return self.put_as_vd_driverId()
+			return self.put_as_vd_vnfmId()
 		elif flask.request.method == "PATCH":
-			return self.patch_as_vd_driverId(driverId, flask.request.values.get("vibVnfmInstance"))
+			return self.patch_as_vd_vnfmId(vnfmId, flask.request.values.get("vibVnfmInstance"))
 		elif flask.request.method == "DELETE":
-			return self.delete_as_vd_driverId(driverId)
+			return self.delete_as_vd_vnfmId(vnfmId)
 
 	def im_vs_vnf_instance(self):
 
@@ -1146,18 +1145,18 @@ class OperationAgent:
 		elif flask.request.method == "DELETE":
 			return self.delete_vs_running_driver()
 	
-	def im_vs_rs_driverId(self, driverId):
+	def im_vs_rs_platformId(self, platformId):
 
 		if flask.request.method == "GET":
-			return self.get_vs_rs_driverId(driverId)
+			return self.get_vs_rs_platformId(platformId)
 		elif flask.request.method == "POST":
-			return self.post_vs_rs_driverId(driverId)
+			return self.post_vs_rs_platformId(platformId)
 		elif flask.request.method == "PUT":
-			return self.put_vs_rs_driverId()
+			return self.put_vs_rs_platformId()
 		elif flask.request.method == "PATCH":
-			return self.patch_vs_rs_driverId()
+			return self.patch_vs_rs_platformId()
 		elif flask.request.method == "DELETE":
-			return self.delete_vs_rs_driverId()
+			return self.delete_vs_rs_platformId()
 
 	def im_vs_driver(self):
 
@@ -1172,18 +1171,18 @@ class OperationAgent:
 		elif flask.request.method == "DELETE":
 			return self.delete_vs_driver()
 
-	def im_vsd_driverId(self, driverId):
+	def im_vsd_platformId(self, platformId):
 
 		if flask.request.method == "GET":
-			return self.get_vsd_driverId(driverId)
+			return self.get_vsd_platformId(platformId)
 		elif flask.request.method == "POST":
-			return self.post_vsd_driverId()
+			return self.post_vsd_platformId()
 		elif flask.request.method == "PUT":
-			return self.put_vsd_driverId()
+			return self.put_vsd_platformId()
 		elif flask.request.method == "PATCH":
-			return self.patch_vsd_driverId(driverId, flask.request.values.get("vibPlatformInstance"))
+			return self.patch_vsd_platformId(platformId, flask.request.values.get("vibPlatformInstance"))
 		elif flask.request.method == "DELETE":
-			return self.delete_vsd_driverId(driverId)
+			return self.delete_vsd_platformId(platformId)
 
 	def im_vs_rd_operations(self):
 
@@ -1589,7 +1588,7 @@ class OperationAgent:
 		if "vnfAuth" in request.vnfConfigurationData.vnfSpecificData:
 			instance.messageData.vnfExtAgents = request.vnfConfigurationData.vnfSpecificData["vnfAuth"]
 
-		instance = self.__asIr.sendMessage(IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "patch_vib_i_instanceId", instance.messageData), "AS", "IM"))
+		instance = self.__asIr.sendMessage(IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "patch_vib_vnfi_vnfId", instance.messageData), "AS", "IM"))
 		if type(instance.messageData) == VibModels.VibVnfInstance:
 			return vnfConfigModifications, 200
 		return instance.messageData[0], 400
@@ -1622,7 +1621,7 @@ class OperationAgent:
 	'''
 	def post_vnf_operation(self, vnfId, operationId, operationArguments):
 
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "get_vib_i_instanceId", vnfId), "AS", "IM")
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "get_vib_vnfi_vnfId", vnfId), "AS", "IM")
 		instance = self.__asIr.sendMessage(request)
 		if type(instance) == tuple:
 			return instance[0]
@@ -1657,8 +1656,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vib/credentials
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve the available credentials from the VIB
-				 database.
+	DESCRIPTION: Retrieve all the available credentials of the
+				 VIB database.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibCredentialInstance [0..N]
 				 - Integer error code (HTTP)
@@ -1675,7 +1674,7 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vib/credentials
 	ACTION: 	 POST
-	DESCRIPTION: Send a new credential instance to the VIB
+	DESCRIPTION: Send a new credential to be saved in the VIB
 				 database.
 	ARGUMENT: 	 VibCredentialInstance (JSON Dictionary)
 	RETURN: 	 - 200 (HTTP) + VibCredentialInstance [1]
@@ -1691,14 +1690,13 @@ class OperationAgent:
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "post_vib_credentials", vibCredentialInstance), "AS", "IM")
 		credential = self.__asIr.sendMessage(request)
 		if type(credential.messageData) == tuple:
-			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING CREDENTIAL OPERATION (" + str(credential[1]) + ")", 400
+			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING CREDENTIAL OPERATION (" + str(credential.messageData[1]) + ")", 400
 
 		return json.dumps(credential.messageData.toDictionary())
 
 	'''
 	PATH: 		 /im/vib/credentials
 	N/A ACTIONS: PUT, PATCH, DELETE
-	**Do not change these methods**
 	'''
 	def put_vib_credentials(self):
 		return "NOT AVAILABLE", 405
@@ -1710,7 +1708,7 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vib/credentials/{userId}/{vnfId}
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve a credential instance from the VIB
+	DESCRIPTION: Retrieve a particular credential from the VIB
 				 database.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibCredentialInstance [1]
@@ -1728,8 +1726,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vib/credentials/{userId}/{vnfId}
 	ACTION: 	 PATCH
-	DESCRIPTION: Send updates to a credential instance already
-				 in the VIB database.
+	DESCRIPTION: Send updates to a particular credential already
+				 saved in the VIB database.
 	ARGUMENT: 	 VibCredentialInstance (JSON Dictionary)
 	RETURN: 	 - 200 (HTTP) + VibCredentialInstance [1]
 				 - Integer error code (HTTP)
@@ -1753,8 +1751,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vib/credentials/{userId}/{vnfId}
 	ACTION: 	 DELETE
-	DESCRIPTION: Delete a credential instance in the VIB data-
-				 base.
+	DESCRIPTION: Delete a particular credential from the VIB
+				 database.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibCredentialInstance [1]
 				 - Integer error code (HTTP)
@@ -1771,7 +1769,6 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vib/credentials/{userId}/{vnfId}
 	N/A ACTIONS: POST, PUT
-	**Do not change these methods**
 	'''
 	def post_vib_c_credentialId(self):
 		return "NOT AVAILABLE", 405
@@ -1781,8 +1778,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vib/subscriptions
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve the available subscriptions from the VIB
-				 database.
+	DESCRIPTION: Retrieve all the available subscriptions of the
+				 VIB database.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibSubscriptionInstance [0..N]
 				 - Integer error code (HTTP)
@@ -1800,7 +1797,7 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vib/subscriptions
 	ACTION: 	 POST
-	DESCRIPTION: Send a new subscription instance to the VIB
+	DESCRIPTION: Send a new subscription to be saved in the VIB
 				 database.
 	ARGUMENT: 	 VibSubscriptionInstance (JSON Dictionary)
 	RETURN: 	 - 200 (HTTP) + VibSubscriptionInstance [1]
@@ -1823,7 +1820,6 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vib/subscriptions
 	N/A ACTIONS: PUT, PATCH, DELETE
-	**Do not change these methods**
 	'''
 	def put_vib_subscriptions(self):
 		return "NOT AVAILABLE", 405
@@ -1835,7 +1831,7 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vib/subscriptions/{subscriptionId}
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve a subscription instance from the VIB
+	DESCRIPTION: Retrieve a particular subscription from the VIB
 				 database.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibSubscriptionInstance [1]
@@ -1853,8 +1849,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vib/subscriptions/{subscriptionId}
 	ACTION: 	 PATCH
-	DESCRIPTION: Send updates to a subscription instance already
-				 in the VIB database.
+	DESCRIPTION: Send updates to a particular subscription already
+				 saved in the VIB database.
 	ARGUMENT: 	 VibSubscriptionInstance (JSON Dictionary)
 	RETURN: 	 - 200 (HTTP) + VibSubscriptionInstance [1]
 				 - Integer error code (HTTP)
@@ -1878,8 +1874,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vib/subscriptions/{subscriptionId}
 	ACTION: 	 DELETE
-	DESCRIPTION: Delete a subscription instance in the VIB data-
-				 base.
+	DESCRIPTION: Delete a particular subscription from the VIB
+				 database.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibSubscriptionInstance [1]
 				 - Integer error code (HTTP)
@@ -1896,7 +1892,6 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vib/subscriptions/{subscriptionId}
 	N/A ACTIONS: POST, PUT
-	**Do not change these methods**
 	'''
 	def post_vib_s_subscriptionId(self):
 		return "NOT AVAILABLE", 405
@@ -1904,18 +1899,18 @@ class OperationAgent:
 		return "NOT AVAILABLE", 405
 
 	'''
-	PATH: 		 /im/vib/m_agents
+	PATH: 		 /im/vib/management_agents
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve the available management agents from the VIB
-				 database.
+	DESCRIPTION: Retrieve all the available management agents of
+				 the VIB database.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibMaInstance [0..N]
 				 - Integer error code (HTTP)
 	
 	'''
-	def get_vib_m_agents(self):
+	def get_vib_management_agents(self):
 		
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "get_vib_m_agents", None), "AS", "IM")
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "get_vib_management_agents", None), "AS", "IM")
 		agents = self.__asIr.sendMessage(request)
 		if type(agents.messageData) == tuple:
 			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING MANAGEMENT AGENT OPERATION (" + str(agents.messageData[1]) + ")", 400
@@ -1923,22 +1918,22 @@ class OperationAgent:
 		return json.dumps([a.toDictionary() for a in agents.messageData]), 200
 
 	'''
-	PATH: 		 /im/vib/m_agents
+	PATH: 		 /im/vib/management_agents
 	ACTION: 	 POST
-	DESCRIPTION: Send a new management agent instance to the VIB
-				 database.
+	DESCRIPTION: Send a new management agent to be saved in the
+				 VIB database.
 	ARGUMENT: 	 VibMaInstance (JSON Dictionary)
 	RETURN: 	 - 200 (HTTP) + VibMaInstance [1]
 				 - Integer error code (HTTP)
 	'''
-	def post_vib_m_agents(self, vibMaInstance):
+	def post_vib_management_agents(self, vibMaInstance):
 		
 		try:
 			vibMaInstance = VibModels.VibMaInstance().fromDictionary(json.loads(vibMaInstance))
 		except:
 			return "ERROR CODE #0 (AS): INVALID MANAGEMENT AGENT INSTANCE PROVIDED", 400
 
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "post_vib_m_agents", vibMaInstance), "AS", "IM")
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "post_vib_management_agents", vibMaInstance), "AS", "IM")
 		agent = self.__asIr.sendMessage(request)
 		if type(agent.messageData) == tuple:
 			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING MANAGEMENT AGENT OPERATION (" + str(agent.messageData[1]) + ")", 400
@@ -1946,22 +1941,21 @@ class OperationAgent:
 		return json.dumps(agent.messageData.toDictionary())
 
 	'''
-	PATH: 		 /im/vib/m_agents
+	PATH: 		 /im/vib/management_agents
 	N/A ACTIONS: PUT, PATCH, DELETE
-	**Do not change these methods**
 	'''
-	def put_vib_m_agents(self):
+	def put_vib_management_agents(self):
 		return "NOT AVAILABLE", 405
-	def patch_vib_m_agents(self):
+	def patch_vib_management_agents(self):
 		return "NOT AVAILABLE", 405
-	def delete_vib_m_agents(self):
+	def delete_vib_management_agents(self):
 		return "NOT AVAILABLE", 405
 
 	'''
-	PATH: 		 /im/vib/m_agents/{agentId}
+	PATH: 		 /im/vib/management_agents/{agentId}
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve a management agent instance from the VIB
-				 database.
+	DESCRIPTION: Retrieve a particular management agent from the
+				 VIB database.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibMaInstance [1]
 				 - Integer error code (HTTP)
@@ -1976,10 +1970,10 @@ class OperationAgent:
 		return json.dumps(agent.messageData.toDictionary())
 
 	'''
-	PATH: 		 /im/vib/m_agents/{agentId}
+	PATH: 		 /im/vib/management_agents/{agentId}
 	ACTION: 	 PATCH
-	DESCRIPTION: Send updates to a management agent instance already
-				 in the VIB database.
+	DESCRIPTION: Send updates to a particular management agent
+				 already saved in the VIB database.
 	ARGUMENT: 	 VibMaInstance (JSON Dictionary)
 	RETURN: 	 - 200 (HTTP) + VibMaInstance [1]
 				 - Integer error code (HTTP)
@@ -2001,10 +1995,10 @@ class OperationAgent:
 		return json.dumps(agent.messageData.toDictionary())
 
 	'''
-	PATH: 		 /im/vib/m_agents/{agentId}
+	PATH: 		 /im/vib/management_agents/{agentId}
 	ACTION: 	 DELETE
-	DESCRIPTION: Delete a management agent instance in the VIB data-
-				 base.
+	DESCRIPTION: Delete a particular management agent from the VIB
+				 database.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibMaInstance [1]
 				 - Integer error code (HTTP)
@@ -2019,9 +2013,8 @@ class OperationAgent:
 		return json.dumps(agent.messageData.toDictionary())
 
 	'''
-	PATH: 		 /im/vib/m_agents/{agentId}
+	PATH: 		 /im/vib/management_agents/{agentId}
 	N/A ACTIONS: POST, PUT
-	**Do not change these methods**
 	'''
 	def post_vib_ma_agentId(self):
 		return "NOT AVAILABLE", 405
@@ -2029,18 +2022,18 @@ class OperationAgent:
 		return "NOT AVAILABLE", 405
 
 	'''
-	PATH: 		 /im/vib/instances
+	PATH: 		 /im/vib/vnf_instances
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve the available vnf instances from the VIB
-				 database.
+	DESCRIPTION: Retrieve all the available VNF instances of the
+				 VIB database.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibVnfInstance [0..N]
 				 - Integer error code (HTTP)
 	
 	'''
-	def get_vib_instances(self):
+	def get_vib_vnf_instances(self):
 		
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "get_vib_instances", None), "AS", "IM")
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "get_vib_vnf_instances", None), "AS", "IM")
 		instances = self.__asIr.sendMessage(request)
 		if type(instances.messageData) == tuple:
 			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING VNF INSTANCE OPERATION (" + str(instances.messageData[1]) + ")", 400
@@ -2048,21 +2041,22 @@ class OperationAgent:
 		return json.dumps([i.toDictionary() for i in instances.messageData]), 200
 
 	'''
-	PATH: 		 /im/vib/instances
+	PATH: 		 /im/vib/vnf_instances
 	ACTION: 	 POST
-	DESCRIPTION: Send a new vnf instance to the VIB database.
+	DESCRIPTION: Send a new VNF instance to be saved in the VIB
+				 database.
 	ARGUMENT: 	 VibVnfInstance (JSON Dictionary)
 	RETURN: 	 - 200 (HTTP) + VibVnfInstance [1]
 				 - Integer error code (HTTP)
 	'''
-	def post_vib_instances(self, vibVnfInstance):
+	def post_vib_vnf_instances(self, vibVnfInstance):
 		
 		try:
 			vibVnfInstance = VibModels.VibVnfInstance().fromDictionary(json.loads(vibVnfInstance))
 		except:
 			return "ERROR CODE #0 (AS): INVALID VNF INSTANCE PROVIDED", 400
 
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "post_vib_instances", vibVnfInstance), "AS", "IM")
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "post_vib_vnf_instances", vibVnfInstance), "AS", "IM")
 		instance = self.__asIr.sendMessage(request)
 		if type(instance.messageData) == tuple:
 			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING VNF INSTANCE OPERATION (" + str(instance.messageData[1]) + ")", 400
@@ -2070,29 +2064,28 @@ class OperationAgent:
 		return json.dumps(instance.messageData.toDictionary())
 
 	'''
-	PATH: 		 /im/vib/instances
+	PATH: 		 /im/vib/vnf_instances
 	N/A ACTIONS: PUT, PATCH, DELETE
-	**Do not change these methods**
 	'''
-	def put_vib_instances(self):
+	def put_vib_vnf_instances(self):
 		return "NOT AVAILABLE", 405
-	def patch_vib_instances(self):
+	def patch_vib_vnf_instances(self):
 		return "NOT AVAILABLE", 405
-	def delete_vib_instances(self):
+	def delete_vib_vnf_instances(self):
 		return "NOT AVAILABLE", 405
 
 	'''
-	PATH: 		 /im/vib/instances/{instanceId}
+	PATH: 		 /im/vib/vnf_instances/{vnfId}
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve a vnf instance from the VIB
+	DESCRIPTION: Retrieve a particular VNF instance from the VIB
 				 database.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibVnfInstance [1]
 				 - Integer error code (HTTP)
 	'''
-	def get_vib_i_instanceId(self, instanceId):
+	def get_vib_vnfi_vnfId(self, vnfId):
 		
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "get_vib_i_instanceId", instanceId), "AS", "IM")
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "get_vib_vnfi_vnfId", vnfId), "AS", "IM")
 		instance = self.__asIr.sendMessage(request)
 		if type(instance.messageData) == tuple:
 			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING VNF INSTANCE OPERATION (" + str(instance.messageData[1]) + ")", 400
@@ -2100,24 +2093,24 @@ class OperationAgent:
 		return json.dumps(instance.messageData.toDictionary())
 
 	'''
-	PATH: 		 /im/vib/instances/{instanceId}
+	PATH: 		 /im/vib/vnf_instances/{vnfId}
 	ACTION: 	 PATCH
-	DESCRIPTION: Send updates to a vnf instance instance already
-				 in the VIB database.
+	DESCRIPTION: Send updates to a particular VNF instance already
+				 saved in the VIB database.
 	ARGUMENT: 	 VibVnfInstance (JSON Dictionary)
 	RETURN: 	 - 200 (HTTP) + VibVnfInstance [1]
 				 - Integer error code (HTTP)
 	'''
-	def patch_vib_i_instanceId(self, instanceId, vibVnfInstance):
+	def patch_vib_vnfi_vnfId(self, vnfId, vibVnfInstance):
 		
 		try:
 			vibVnfInstance = VibModels.VibVnfInstance().fromDictionary(json.loads(vibVnfInstance))
-			if instanceId != vibVnfInstance.vnfId:
+			if vnfId != vibVnfInstance.vnfId:
 				return "ERROR CODE #0 (AS): INVALID VNF INSTANCE PROVIDED", 400
 		except:
 			return "ERROR CODE #0 (AS): INVALID VNF INSTANCE PROVIDED", 400
 
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "patch_vib_i_instanceId", vibVnfInstance), "AS", "IM")
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "patch_vib_vnfi_vnfId", vibVnfInstance), "AS", "IM")
 		instance = self.__asIr.sendMessage(request)
 		if type(instance.messageData) == tuple:
 			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING VNF INSTANCE OPERATION (" + str(instance.messageData[1]) + ")", 400
@@ -2125,36 +2118,36 @@ class OperationAgent:
 		return json.dumps(instance.messageData.toDictionary())
 
 	'''
-	PATH: 		 /im/vib/instances/{instanceId}
+	PATH: 		 /im/vib/vnf_instances/{vnfId}
 	ACTION: 	 DELETE
-	DESCRIPTION: Delete a vnf instance in the VIB database.
+	DESCRIPTION: Delete a particular VNF instance from the VIB
+				 database.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibVnfInstance [1]
 				 - Integer error code (HTTP)
 	'''
-	def delete_vib_i_instanceId(self, instanceId):
+	def delete_vib_vnfi_vnfId(self, vnfId):
 		
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "delete_vib_i_instanceId", instanceId), "AS", "IM")
-		instance = self.asIr.sendMessage(request)
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "delete_vib_vnfi_vnfId", vnfId), "AS", "IM")
+		instance = self.__asIr.sendMessage(request)
 		if type(instance.messageData) == tuple:
 			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING VNF INSTANCE OPERATION (" + str(instance.messageData[1]) + ")", 400
 
 		return json.dumps(instance.messageData.toDictionary())
 
 	'''
-	PATH: 		 /im/vib/instances/{instanceId}
+	PATH: 		 /im/vib/vnf_instances/{vnfId}
 	N/A ACTIONS: POST, PUT
-	**Do not change these methods**
 	'''
-	def post_vib_i_instanceId(self):
+	def post_vib_vnfi_vnfId(self):
 		return "NOT AVAILABLE", 405
-	def put_vib_i_instanceId(self):
+	def put_vib_vnfi_vnfId(self):
 		return "NOT AVAILABLE", 405
 
 	'''
 	PATH: 		 /im/vib/platforms
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve the available platforms instances from the
+	DESCRIPTION: Retrieve all the available platforms of the
 				 VIB database.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibPlatformInstance [0..N]
@@ -2173,7 +2166,7 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vib/platforms
 	ACTION: 	 POST
-	DESCRIPTION: Send a new platform instance to the VIB
+	DESCRIPTION: Send a new platform to be saved in the VIB
 				 database.
 	ARGUMENT: 	 VibPlatformInstance (JSON Dictionary)
 	RETURN: 	 - 200 (HTTP) + VibPlatformInstance [1]
@@ -2196,7 +2189,6 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vib/platforms
 	N/A ACTIONS: PUT, PATCH, DELETE
-	**Do not change these methods**
 	'''
 	def put_vib_platforms(self):
 		return "NOT AVAILABLE", 405
@@ -2208,7 +2200,7 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vib/platforms/{platformId}
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve a platform instance from the
+	DESCRIPTION: Retrieve a particular platform from the
 				 VIB database.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibPlatformInstance [1]
@@ -2226,8 +2218,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vib/platforms/{platformId}
 	ACTION: 	 PATCH
-	DESCRIPTION: Send updates to a platform instance already
-				 in the VIB database.
+	DESCRIPTION: Send updates to a particular platform already
+				 saved in the VIB database.
 	ARGUMENT: 	 VibPlatformInstance (JSON Dictionary)
 	RETURN: 	 - 200 (HTTP) + VibPlatformInstance [1]
 				 - Integer error code (HTTP)
@@ -2251,7 +2243,7 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vib/platforms/{platformId}
 	ACTION: 	 DELETE
-	DESCRIPTION: Delete a platform instance in the VIB
+	DESCRIPTION: Delete a particular platform from the VIB
 				 database.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibPlatformInstance [1]
@@ -2269,7 +2261,6 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vib/platforms/{platformId}
 	N/A ACTIONS: POST, PUT
-	**Do not change these methods**
 	'''
 	def post_vib_p_platformId(self):
 		return "NOT AVAILABLE", 405
@@ -2277,10 +2268,10 @@ class OperationAgent:
 		return "NOT AVAILABLE", 405
 
 	'''
-	PATH: 		 /im/vib/v_managers
+	PATH: 		 /im/vib/vnf_managers
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve the available vnf managers instances
-				 from the VIB database.
+	DESCRIPTION: Retrieve all the available VNF managers of
+				 the VIB database.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibVnfmInstance [0..N]
 				 - Integer error code (HTTP)
@@ -2296,9 +2287,9 @@ class OperationAgent:
 		return json.dumps([m.toDictionary() for m in managers.messageData]), 200
 
 	'''
-	PATH: 		 /im/vib/v_managers
+	PATH: 		 /im/vib/vnf_managers
 	ACTION: 	 POST
-	DESCRIPTION: Send a new vnf manager instance to the
+	DESCRIPTION: Send a new VNF manager to be saved in the
 				 VIB database.
 	ARGUMENT: 	 VibVnfmInstance (JSON Dictionary)
 	RETURN: 	 - 200 (HTTP) + VibVnfmInstance [1]
@@ -2319,9 +2310,8 @@ class OperationAgent:
 		return json.dumps(manager.messageData.toDictionary())
 
 	'''
-	PATH: 		 /im/vib/v_managers
+	PATH: 		 /im/vib/vnf_managers
 	N/A ACTIONS: PUT, PATCH, DELETE
-	**Do not change these methods**
 	'''
 	def put_vib_vnf_managers(self):
 		return "NOT AVAILABLE", 405
@@ -2331,9 +2321,9 @@ class OperationAgent:
 		return "NOT AVAILABLE", 405
 
 	'''
-	PATH: 		 /im/vib/v_managers/{managerId}
+	PATH: 		 /im/vib/vnf_managers/{managerId}
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve a vnf manager instance from
+	DESCRIPTION: Retrieve a particular VNF manager from
 				 the VIB database.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibVnfmInstance [1]
@@ -2349,10 +2339,10 @@ class OperationAgent:
 		return json.dumps(manager.messageData.toDictionary())
 
 	'''
-	PATH: 		 /im/vib/v_managers/{managerId}
+	PATH: 		 /im/vib/vnf_managers/{managerId}
 	ACTION: 	 PATCH
-	DESCRIPTION: Send updates to a vnf manager instance
-				 already in the VIB database.
+	DESCRIPTION: Send updates to a particular VNF manager
+				 already saved in the VIB database.
 	ARGUMENT: 	 VibManagerInstance (JSON Dictionary)
 	RETURN: 	 - 200 (HTTP) + VibManagerInstance [1]
 				 - Integer error code (HTTP)
@@ -2374,10 +2364,10 @@ class OperationAgent:
 		return json.dumps(manager.messageData.toDictionary())
 
 	'''
-	PATH: 		 /im/vib/v_managers/{managerId}
+	PATH: 		 /im/vib/vnf_managers/{managerId}
 	ACTION: 	 DELETE
-	DESCRIPTION: Delete a vnf manager instance in
-				 the VIB database.
+	DESCRIPTION: Delete a particular VNF manager from the
+				 VIB database.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibVnfmInstance [1]
 				 - Integer error code (HTTP)
@@ -2392,9 +2382,8 @@ class OperationAgent:
 		return json.dumps(manager.messageData.toDictionary())
 
 	'''
-	PATH: 		 /im/vib/v_managers/{managerId}
+	PATH: 		 /im/vib/vnf_managers/{managerId}
 	N/A ACTIONS: POST, PUT
-	**Do not change these methods**
 	'''
 	def post_vib_vnfm_managerId(self):
 		return "NOT AVAILABLE", 405
@@ -2404,10 +2393,10 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/ms/running_subscription
 	ACTION: 	 GET
-	DESCRIPTION: Get the running subscription table that
-				 is deployed in the monitoring subsystem.
+	DESCRIPTION: Retrieve all the running subscriptions of
+				 the monitoring subsystem.
 	ARGUMENT: 	 --
-	RETURN: 	 - 200 (HTTP) + ?? [0..N]
+	RETURN: 	 - 200 (HTTP) + String [0..N]
 				 - Integer error code (HTTP)
 	'''
 	def get_ms_running_subscription(self):
@@ -2422,7 +2411,6 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/ms/running_subscription
 	N/A ACTIONS: POST, PUT, PATCH, DELETE
-	**Do not change these methods**
 	'''
 	def post_ms_running_subscription(self):
 		return "NOT AVAILABLE", 405
@@ -2436,8 +2424,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/ms/running_subscription/{subscriptionId}
 	ACTION: 	 GET
-	DESCRIPTION: Return "True" if the required subscription is a 
-				 running subscription, or "False" if it is not.
+	DESCRIPTION: Return "True" if a required subscription
+				 is running, or "False" if it is not.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + Boolean [1]
 				 - Integer error code (HTTP)
@@ -2454,8 +2442,9 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/ms/running_subscription/{subscriptionId}
 	ACTION: 	 POST
-	DESCRIPTION: Get an subscription from the VIB and prepere
-				 it for the execution in the agent.
+	DESCRIPTION: Retrieve the required subscription from
+				 the VIB and prepare it to be executed in
+				 the monitoring subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibSubscriptionInstance [1]
 				 - Integer error code (HTTP)
@@ -2472,9 +2461,9 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/ms/running_subscription/{subscriptionId}
 	ACTION: 	 PATCH
-	DESCRIPTION: Start or stop a monitoring agent of the given
-				 subscription instance.
-	ARGUMENT: 	 --
+	DESCRIPTION: Start or stop the execution of the required
+				 running subscription in the monitoring subsytem.
+	ARGUMENT: 	 Tuple [START: (String, ); STOP: (String, String); 1]
 	RETURN: 	 - 200 (HTTP) + VibSubscriptionInstance [1]
 				 - Integer error code (HTTP)
 	'''
@@ -2493,8 +2482,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/ms/running_subscription/{subscriptionId}
 	ACTION: 	 DELETE
-	DESCRIPTION: Remove a subscription from the running subs-
-				 cription, as well as its monitoring agent.
+	DESCRIPTION: Delete a particular running subscription from
+				 the monitoring subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibSubscriptionInstance [1]
 				 - Integer error code (HTTP)
@@ -2511,7 +2500,6 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/ms/running_subscription/{subscriptionId}
 	N/A ACTIONS: PUT
-	**Do not change these methods**
 	'''
 	def put_msrs_subscriptionId(self):
 		return "NOT AVAILABLE", 405
@@ -2520,7 +2508,7 @@ class OperationAgent:
 	PATH: 		 /im/ms/subscription
 	ACTION: 	 GET
 	DESCRIPTION: Retrieve all the available subscriptions in
-				 the database.
+				 the monitoring subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibSubscriptionInstance [0..N]
 				 - Integer error code (HTTP)
@@ -2537,9 +2525,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/ms/subscription
 	ACTION: 	 POST
-	DESCRIPTION: Request the insertion of a new subscription in
-				 the database and make it available to be used
-				 as a running subscription.
+	DESCRIPTION: Send a new subscription to be saved in the
+				 monitoring subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibSubscriptionInstance [1]
 				 - Integer error code (HTTP)
@@ -2561,7 +2548,6 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/ms/subscription
 	N/A ACTIONS: PUT, PATCH, DELETE
-	**Do not change these methods**
 	'''
 	def put_ms_subscription(self):
 		return "NOT AVAILABLE", 405
@@ -2573,8 +2559,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/ms/subscription/{subscriptionId}
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve a particular subscription in
-				 the database.
+	DESCRIPTION: Retrieve a particular subscription from the
+				 monitoring subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibSubscriptionInstance [1]
 				 - Integer error code (HTTP)
@@ -2591,8 +2577,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/ms/subscription/{subscriptionId}
 	ACTION: 	 PATCH
-	DESCRIPTION: Update a particular subscription in the
-				 database.
+	DESCRIPTION: Send updates to a particular subscription
+				 already saved in the monitoring subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VnfIndicatorSubscription [1]
 				 - Integer error code (HTTP)
@@ -2616,8 +2602,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/ms/subscription/{subscriptionId}
 	ACTION: 	 DELETE
-	DESCRIPTION: Delete a particular subscription in
-				 the database.
+	DESCRIPTION: Delete a particular subscription from the
+				 monitoring subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibSubscriptionInstance [1]
 				 - Integer error code (HTTP)
@@ -2634,7 +2620,6 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/ms/subscription/{subscriptionId}
 	N/A ACTIONS: POST, PUT
-	**Do not change these methods**
 	'''
 	def post_mss_subscriptionId(self):
 		return "NOT AVAILABLE", 405
@@ -2645,7 +2630,7 @@ class OperationAgent:
 	PATH: 		 /im/ms/agent
 	ACTION: 	 GET
 	DESCRIPTION: Retrieve all the available monitoring agents
-				 in the database.
+				 in the monitoring subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibMaInstance [0..N]
 				 - Integer error code (HTTP)
@@ -2662,9 +2647,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/ms/agent
 	ACTION: 	 POST
-	DESCRIPTION: Request the insertion of a new monitoring agent
-				 in the database and make it available to be used
-				 as a running subscription.
+	DESCRIPTION: Send a new monitoring agent to be saved in
+				 the monitoring subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibMaInstance [1]
 				 - Integer error code (HTTP)
@@ -2686,7 +2670,6 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/ms/subscription
 	N/A ACTIONS: PUT, PATCH, DELETE
-	**Do not change these methods**
 	'''
 	def put_ms_agent(self):
 		return "NOT AVAILABLE", 405
@@ -2698,8 +2681,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/ms/agent/{agentId}
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve a particular monitoring agent in
-				 the database.
+	DESCRIPTION: Retrieve a particular monitoring agent from
+				 the monitoring subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibMaInstance [1]
 				 - Integer error code (HTTP)
@@ -2716,8 +2699,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/ms/agent/{agentId}
 	ACTION: 	 PATCH
-	DESCRIPTION: Update a particular monitoring agent in the
-				 database.
+	DESCRIPTION: Send updates to a particular monitoring agent
+			     already saved in the monitoring subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibMaInstance [1]
 				 - Integer error code (HTTP)
@@ -2741,8 +2724,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/ms/agent/{agentId}
 	ACTION: 	 DELETE
-	DESCRIPTION: Delete a particular monitoring agent in
-				 the database.
+	DESCRIPTION: Delete a particular monitoring agent from the
+				 monitoring subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibMaInstance [1]
 				 - Integer error code (HTTP)
@@ -2759,7 +2742,6 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/ms/agent/{agentId}
 	N/A ACTIONS: POST, PUT
-	**Do not change these methods**
 	'''
 	def post_msa_agentId(self):
 		return "NOT AVAILABLE", 405
@@ -2770,8 +2752,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/as/authenticator
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve all the available authenticator agents
-				 in the database.
+	DESCRIPTION: Retrieve all the available authenticators of
+				 the access subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + String [0..N]
 				 - Integer error code (HTTP)
@@ -2788,7 +2770,6 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/as/authenticator
 	N/A ACTIONS: POST, PUT, PATCH, DELETE
-	**Do not change these methods**
 	'''
 	def post_as_authenticator(self):
 		return "NOT AVAILABLE", 405
@@ -2802,8 +2783,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/as/authenticator/{authenticatorId}
 	ACTION: 	 GET
-	DESCRIPTION: Inform if a particular authenticator agent is avai-
-				 lable in the system.
+	DESCRIPTION: Return "True" if a required autheticator is
+				 a available, or "False" if it is not.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + Boolean [1]
 				 - Integer error code (HTTP)
@@ -2820,7 +2801,6 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/as/authenticator/{authenticatorId}
 	N/A ACTIONS: POST, PUT, PATCH, DELETE
-	**Do not change these methods**
 	'''
 	def post_as_a_authenticatorId(self):
 		return "NOT AVAILABLE", 405
@@ -2832,10 +2812,10 @@ class OperationAgent:
 		return "NOT AVAILABLE", 405
 
 	'''
-	PATH: 		 /im/as/r_authenticator
+	PATH: 		 /im/as/running_authenticator
 	ACTION: 	 GET
 	DESCRIPTION: Retrieve the currently running authenticator agent
-				 in the system.
+				 in the access subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + String [1]
 				 - Integer error code (HTTP)
@@ -2850,9 +2830,8 @@ class OperationAgent:
 		return json.dumps(authenticators.messageData)
 
 	'''
-	PATH: 		 /im/as/r_authenticator
+	PATH: 		 /im/as/running_authenticator
 	N/A ACTIONS: POST, PUT, PATCH, DELETE
-	**Do not change these methods**
 	'''
 	def post_as_running_authenticator(self):
 		return "NOT AVAILABLE", 405
@@ -2864,10 +2843,10 @@ class OperationAgent:
 		return "NOT AVAILABLE", 405
 
 	'''
-	PATH: 		 /im/as/r_authenticator/{authenticatorId}
+	PATH: 		 /im/as/running_authenticator/{authenticatorId}
 	ACTION: 	 GET
-	DESCRIPTION: Inform if a particular authenticator agent is the
-				 running authenticator in the system.
+	DESCRIPTION: Return "True" if a required authenticator is
+				 running, or "False" if it is not.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + String [1]
 				 - Integer error code (HTTP)
@@ -2882,10 +2861,10 @@ class OperationAgent:
 		return json.dumps(authenticators.messageData)
 
 	'''
-	PATH: 		 /im/as/r_authenticator/{authenticatorId}
+	PATH: 		 /im/as/running_authenticator/{authenticatorId}
 	ACTION: 	 POST
-	DESCRIPTION: Request a particular authenticator agent as the
-				 running authenticator in the system.
+	DESCRIPTION: Retrieve the required authenticator and execute
+				 it in the access subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + String [1]
 				 - Integer error code (HTTP)
@@ -2900,9 +2879,8 @@ class OperationAgent:
 		return json.dumps(authenticators.messageData)
 
 	'''
-	PATH: 		 /im/as/r_authenticator/{authenticatorId}
+	PATH: 		 /im/as/running_authenticator/{authenticatorId}
 	N/A ACTIONS: PUT, PATCH, DELETE
-	**Do not change these methods**
 	'''
 	def put_as_ra_authenticatorId(self):
 		return "NOT AVAILABLE", 405
@@ -2914,8 +2892,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/as/credential
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve all the available credential instances
-				 in the database.
+	DESCRIPTION: Retrieve all the available credentials in the
+				 access subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibCredentialInstance [0..N]
 				 - Integer error code (HTTP)
@@ -2932,8 +2910,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/as/credential
 	ACTION: 	 POST
-	DESCRIPTION: Send a new crecential instance to the VIB
-				 database.
+	DESCRIPTION: Send a new credential to be saved in the access
+				 subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibCredentialInstance [1]
 				 - Integer error code (HTTP)
@@ -2955,7 +2933,6 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/as/credential
 	N/A ACTIONS: PUT, PATCH, DELETE
-	**Do not change these methods**
 	'''
 	def put_as_credential(self):
 		return "NOT AVAILABLE", 405
@@ -2967,8 +2944,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/as/credential/{userId}/{vnfId}
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve a particular credential instance in
-				 the database.
+	DESCRIPTION: Retrieve a particular credential from the access
+				 subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibCredentialInstance [1]
 				 - Integer error code (HTTP)
@@ -2985,8 +2962,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/as/credential/{userId}/{vnfId}
 	ACTION: 	 PATCH
-	DESCRIPTION: Update a particular credential instance in the
-				 database.
+	DESCRIPTION: Send updates to a particular credential already
+				 saved in the access subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibCredentialInstance [1]
 				 - Integer error code (HTTP)
@@ -3010,8 +2987,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/as/credential/{userId}/{vnfId}
 	ACTION: 	 DELETE
-	DESCRIPTION: Delete a particular credential instance in
-				 the database.
+	DESCRIPTION: Delete a particular credential from the access
+				 subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibCredentialInstance [1]
 				 - Integer error code (HTTP)
@@ -3028,7 +3005,6 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/as/credential/{userId}/{vnfId}
 	N/A ACTIONS: POST, PUT
-	**Do not change these methods**
 	'''
 	def post_as_c_credentialId(self):
 		return "NOT AVAILABLE", 405
@@ -3038,8 +3014,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/as/vnfm/running_driver
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve the vnfm driver running in the access 
-				 subsystem.
+	DESCRIPTION: Retrieve the currently running vnfm driver in
+				 the access subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + String [1]
 				 - Integer error code (HTTP)
@@ -3056,29 +3032,28 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/as/vnfm/running_driver
 	N/A ACTIONS: POST, PUT, PATCH, DELETE
-	**Do not change these methods**
 	'''
-	def post_as_running_driver(self):
+	def post_as_vnfm_running_driver(self):
 		return "NOT AVAILABLE", 405
-	def put_as_running_driver(self):
+	def put_as_vnfm_running_driver(self):
 		return "NOT AVAILABLE", 405
-	def patch_as_running_driver(self):
+	def patch_as_vnfm_running_driver(self):
 		return "NOT AVAILABLE", 405
-	def delete_as_running_driver(self):
+	def delete_as_vnfm_running_driver(self):
 		return "NOT AVAILABLE", 405	
 
 	'''
-	PATH: 		 /im/as/vnfm/running_driver/{driverId}
+	PATH: 		 /im/as/vnfm/running_driver/{vnfmId}
 	ACTION: 	 GET
-	DESCRIPTION: Inform if a particular vnfm driver is the
-				 running driver in the system.
+	DESCRIPTION: Return "True" if a required VNF manager is
+				 running, or "False" if it is not.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + Boolean [1]
 				 - Integer error code (HTTP)
 	'''
-	def get_as_vrd_driverId(self, driverId):
+	def get_as_vrd_vnfmId(self, vnfmId):
 
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "get_as_vrd_driverId", driverId), "AS", "IM")
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "get_as_vrd_vnfmId", vnfmId), "AS", "IM")
 		driver = self.__asIr.sendMessage(request)
 		if type(driver.messageData) == tuple:
 			return "ERROR CODE #3 (AS): IM/AS ERROR DURING VNFM DRIVER INSTANCE OPERATION (" + str(driver.messageData[1]) + ")", 400
@@ -3086,17 +3061,18 @@ class OperationAgent:
 		return json.dumps(driver.messageData)
 
 	'''
-	PATH: 		 /im/as/vnfm/running_driver/{driverId}
+	PATH: 		 /im/as/vnfm/running_driver/{vnfmId}
 	ACTION: 	 POST
-	DESCRIPTION: Request a particular vnfm driver as the
-				 running driver in the system.
+	DESCRIPTION: Retrieve the required VNF manager from the
+				 VIB and prepare it to be executed in the
+				 access subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibVnfmInstance [1]
 				 - Integer error code (HTTP)
 	'''
-	def post_as_vrd_driverId(self, driverId):
+	def post_as_vrd_vnfmId(self, vnfmId):
 
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "post_as_vrd_driverId", driverId), "AS", "IM")
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "post_as_vrd_vnfmId", vnfmId), "AS", "IM")
 		driver = self.__asIr.sendMessage(request)
 		if type(driver.messageData) == tuple:
 			return "ERROR CODE #3 (AS): IM/AS ERROR DURING VNFM DRIVER INSTANCE OPERATION (" + str(driver.messageData[1]) + ")", 400
@@ -3104,22 +3080,21 @@ class OperationAgent:
 		return json.dumps(driver.messageData.toDictionary())
 
 	'''
-	PATH: 		 /im/as/vnfm/running_driver/{driverId}
+	PATH: 		 /im/as/vnfm/running_driver/{vnfmId}
 	N/A ACTIONS: PUT, PATCH, DELETE
-	**Do not change these methods**
 	'''
-	def put_as_vrd_driverId(self):
+	def put_as_vrd_vnfmId(self):
 		return "NOT AVAILABLE", 405
-	def patch_as_vrd_driverId(self):
+	def patch_as_vrd_vnfmId(self):
 		return "NOT AVAILABLE", 405
-	def delete_as_vrd_driverId(self):
+	def delete_as_vrd_vnfmId(self):
 		return "NOT AVAILABLE", 405
 
 	'''
 	PATH: 		 /im/as/vnfm/driver
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve all the available vnfm drivers
-				 in the database.
+	DESCRIPTION: Retrieve all the available VNF managers in
+				 the access subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibVfnmInstance [0..N]
 				 - Integer error code (HTTP)
@@ -3136,9 +3111,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/as/vnfm/driver
 	ACTION: 	 POST
-	DESCRIPTION: Request the insertion of a new vnfm driver
-				 in the database and make it available to be
-				 used as a running driver.
+	DESCRIPTION: Send a new VNF manager to be saved in the
+				 access subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibVnfmInstance [1]
 				 - Integer error code (HTTP)
@@ -3160,27 +3134,26 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/as/vnfm/driver
 	N/A ACTIONS: PUT, PATCH, DELETE
-	**Do not change these methods**
 	'''
-	def put_ms_vnfm_driver(self):
+	def put_as_vnfm_driver(self):
 		return "NOT AVAILABLE", 405
-	def patch_ms_vnfm_driver(self):
+	def patch_as_vnfm_driver(self):
 		return "NOT AVAILABLE", 405
-	def delete_ms_vnfm_driver(self):
+	def delete_as_vnfm_driver(self):
 		return "NOT AVAILABLE", 405
 
 	'''
-	PATH: 		 /im/as/vnfm/driver/{driverId}
+	PATH: 		 /im/as/vnfm/driver/{vnfmId}
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve a particular vnfm driver in
-				 the database.
+	DESCRIPTION: Retrieve a particular VNF manager from the
+				 access subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibVnfmInstance [1]
 				 - Integer error code (HTTP)
 	'''
-	def get_as_vd_driverId(self, driverId):
+	def get_as_vd_vnfmId(self, vnfmId):
 
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "get_as_vd_driverId", driverId), "AS", "IM")
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "get_as_vd_vnfmId", vnfmId), "AS", "IM")
 		driver = self.__asIr.sendMessage(request)
 		if type(driver.messageData) == tuple:
 			return "ERROR CODE #3 (AS): IM/AS ERROR DURING VNFM DRIVER INSTANCE OPERATION (" + str(driver.messageData[1]) + ")", 400
@@ -3188,24 +3161,24 @@ class OperationAgent:
 		return driver.messageData.toDictionary()
 
 	'''
-	PATH: 		 /im/as/vnfm/driver/{driverId}
+	PATH: 		 /im/as/vnfm/driver/{vnfmId}
 	ACTION: 	 PATCH
-	DESCRIPTION: Update a particular vnfm driver in the
-				 database.
+	DESCRIPTION: Send updates to a particular VNF manager
+				 already saved in the access subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibVnfmInstance [1]
 				 - Integer error code (HTTP)
 	'''
-	def patch_as_vd_driverId(self, driverId, vibVnfmInstance):
+	def patch_as_vd_vnfmId(self, vnfmId, vibVnfmInstance):
 
 		try:
 			vibVnfmInstance = VibModels.VibVnfmInstance().fromDictionary(json.loads(vibVnfmInstance))
-			if driverId != vibVnfmInstance.vnfmId:
+			if vnfmId != vibVnfmInstance.vnfmId:
 				return "ERROR CODE #0 (AS): INVALID VNFM DRIVER INSTANCE PROVIDED", 400
 		except:
 			return "ERROR CODE #0 (AS): INVALID VNFM DRIVER INSTANCE PROVIDED", 400
 
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "patch_as_vd_driverId", vibVnfmInstance), "AS", "IM")
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "patch_as_vd_vnfmId", vibVnfmInstance), "AS", "IM")
 		driver = self.__asIr.sendMessage(request)
 		if type(driver.messageData) == tuple:
 			return "ERROR CODE #3 (AS): IM/AS ERROR DURING VNFM DRIVER INSTANCE OPERATION (" + str(driver.messageData[1]) + ")", 400
@@ -3213,17 +3186,17 @@ class OperationAgent:
 		return json.dumps(driver.messageData.toDictionary())
 
 	'''
-	PATH: 		 /im/as/vnfm/driver/{driverId}
+	PATH: 		 /im/as/vnfm/driver/{vnfmId}
 	ACTION: 	 DELETE
-	DESCRIPTION: Delete a particular vnfm driver in
-				 the database.
+	DESCRIPTION: Delete a particular VNF manager from the
+				 access subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibVnfmInstance [1]
 				 - Integer error code (HTTP)
 	'''
-	def delete_as_vd_driverId(self, driverId):
+	def delete_as_vd_vnfmId(self, vnfmId):
 
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "delete_as_vd_driverId", driverId), "AS", "IM")
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "delete_as_vd_vnfmId", vnfmId), "AS", "IM")
 		driver = self.__asIr.sendMessage(request)
 		if type(driver.messageData) == tuple:
 			return "ERROR CODE #3 (AS): IM/MS ERROR DURING VNFM DRIVER INSTANCE OPERATION (" + str(driver.messageData[1]) + ")", 400
@@ -3231,20 +3204,19 @@ class OperationAgent:
 		return json.dumps(driver.messageData.toDictionary())
 
 	'''
-	PATH: 		 /im/ms/agent/{agentId}
+	PATH: 		 /im/as/vnfm/driver/{vnfmId}
 	N/A ACTIONS: POST, PUT
-	**Do not change these methods**
 	'''
-	def post_as_vnfm_driverId(self):
+	def post_as_vd_vnfmId(self):
 		return "NOT AVAILABLE", 405
-	def put_as_vnfm_driverId(self):
+	def put_as_vd_vnfmId(self):
 		return "NOT AVAILABLE", 405
 
 	'''
 	PATH: 		 /im/vs/vnf_instance
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve all the available vnf instances
-				 in the database.
+	DESCRIPTION: Retrieve all the available VNF instances
+				 in the VNF subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibVnfInstance [0..N]
 				 - Integer error code (HTTP)
@@ -3261,8 +3233,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vs/vnf_instance
 	ACTION: 	 POST
-	DESCRIPTION: Request the insertion of a new vnf instance
-				 in the database.
+	DESCRIPTION: Send a new VNF instance to be saved in
+				 the VNF instances.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibVnfInstance [1]
 				 - Integer error code (HTTP)
@@ -3285,7 +3257,6 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vs/vnf_instance
 	N/A ACTIONS: PUT, PATCH, DELETE
-	**Do not change these methods**
 	'''
 	def put_vs_vnf_instance(self):
 		return "NOT AVAILABLE", 405
@@ -3297,8 +3268,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vs/vnf_instance/{instanceId}
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve a particular vnf instance in
-				 the database.
+	DESCRIPTION: Retrieve a particular VNF instance
+				 from the VNF subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibVnfInstance [1]
 				 - Integer error code (HTTP)
@@ -3315,8 +3286,9 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vs/vnf_instance/{instanceId}
 	ACTION: 	 PATCH
-	DESCRIPTION: Update a particular vnf instance in the
-				 database.
+	DESCRIPTION: Send updates to a particular VNF
+				 instance already saved in the VNF
+				 subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibVnfInstance [1]
 				 - Integer error code (HTTP)
@@ -3340,8 +3312,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vs/vnf_instance/{instanceId}
 	ACTION: 	 DELETE
-	DESCRIPTION: Delete a particular vnf instance in
-				 the database.
+	DESCRIPTION: Delete a particular VNF instance
+				 from the VNF subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibVnfInstance [1]
 				 - Integer error code (HTTP)
@@ -3358,7 +3330,6 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vs/vnf_instance/{instanceId}
 	N/A ACTIONS: POST, PUT
-	**Do not change these methods**
 	'''
 	def post_vs_vnfi_instanceId(self):
 		return "NOT AVAILABLE", 405
@@ -3368,8 +3339,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vs/running_driver/
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve the vnf driver running in the access 
-				 subsystem.
+	DESCRIPTION: Retrieve the currently running VNF platform driver
+				 in the access subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + String [1]
 				 - Integer error code (HTTP)
@@ -3386,7 +3357,6 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vs/running_driver
 	N/A ACTIONS: POST, PUT, PATCH, DELETE
-	**Do not change these methods**
 	'''
 	def post_vs_running_driver(self):
 		return "NOT AVAILABLE", 405
@@ -3398,17 +3368,17 @@ class OperationAgent:
 		return "NOT AVAILABLE", 405
 
 	'''
-	PATH: 		 /im/vs/running_driver/{driverId}
+	PATH: 		 /im/vs/running_driver/{platformId}
 	ACTION: 	 GET
-	DESCRIPTION: Inform if a particular vnfm driver is the
-				 running driver in the system.
+	DESCRIPTION: Return "True" if a required VNF platform driver is
+				 running, or "False" if it is not.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + Boolean [1]
 				 - Integer error code (HTTP)
 	'''
-	def get_vs_rs_driverId(self, driverId):
+	def get_vs_rs_platformId(self, platformId):
 
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "get_vs_rs_driverId", driverId), "AS", "IM")
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "get_vs_rs_platformId", platformId), "AS", "IM")
 		driver = self.__asIr.sendMessage(request)
 		if type(driver.messageData) == tuple:
 			return "ERROR CODE #3 (AS): IM/VS ERROR DURING VNF DRIVER OPERATION (" + str(driver.messageData[1]) + ")", 400
@@ -3416,17 +3386,17 @@ class OperationAgent:
 		return json.dumps(driver.messageData)
 
 	'''
-	PATH: 		 /im/vs/running_driver/{driverId}
+	PATH: 		 /im/vs/running_driver/{platformId}
 	ACTION: 	 POST
-	DESCRIPTION: Request a particular vnf driver as the
-				 running driver in the system.
+	DESCRIPTION: Retrieve the required VNF platform from the VIB and
+				 prepare it to be executed in the VNF subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + Boolean [1]
 				 - Integer error code (HTTP)
 	'''
-	def post_vs_rs_driverId(self, driverId):
+	def post_vs_rs_platformId(self, platformId):
 
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "post_vs_rs_driverId", driverId), "AS", "IM")
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "post_vs_rs_platformId", platformId), "AS", "IM")
 		driver = self.__asIr.sendMessage(request)
 		if type(driver.messageData) == tuple:
 			return "ERROR CODE #3 (AS): IM/VS ERROR DURING VNF DRIVER OPERATION (" + str(driver.messageData[1]) + ")", 400
@@ -3434,22 +3404,21 @@ class OperationAgent:
 		return json.dumps(driver.messageData.toDictionary())
 
 	'''
-	PATH: 		 /im/vs/running_driver/{driverId}
+	PATH: 		 /im/vs/running_driver/{platformId}
 	N/A ACTIONS: POST, PUT, PATCH, DELETE
-	**Do not change these methods**
 	'''
-	def put_vs_rs_driverId(self):
+	def put_vs_rs_platformId(self):
 		return "NOT AVAILABLE", 405
-	def patch_vs_rs_driverId(self):
+	def patch_vs_rs_platformId(self):
 		return "NOT AVAILABLE", 405
-	def delete_vs_rs_driverId(self):
+	def delete_vs_rs_platformId(self):
 		return "NOT AVAILABLE", 405
 
 	'''
 	PATH: 		 /im/vs/driver
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve all the available vnf platforms
-				 in the database.
+	DESCRIPTION: Retrieve all the available VNF platforms in the
+				 VNF subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibPlatformInstance [0..N]
 				 - Integer error code (HTTP)
@@ -3466,8 +3435,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vs/driver
 	ACTION: 	 POST
-	DESCRIPTION: Request the insertion of a new vnf platform
-				 in the database.
+	DESCRIPTION: Send a new VNF platform to be saved in the VNF
+				 subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibPlatformInstance [1]
 				 - Integer error code (HTTP)
@@ -3490,7 +3459,6 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vs/vnf_instance
 	N/A ACTIONS: PUT, PATCH, DELETE
-	**Do not change these methods**
 	'''
 	def put_vs_driver(self):
 		return "NOT AVAILABLE", 405
@@ -3500,17 +3468,17 @@ class OperationAgent:
 		return "NOT AVAILABLE", 405
 
 	'''
-	PATH: 		 /im/vs/driver/{driverId}
+	PATH: 		 /im/vs/driver/{platformId}
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve a particular vnf platform in
-				 the database.
+	DESCRIPTION: Retrieve a particular VNF platform from the VNF
+				 subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibPlatformInstance [1]
 				 - Integer error code (HTTP)
 	'''
-	def get_vsd_driverId(self, driverId):
+	def get_vsd_platformId(self, platformId):
 
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "get_vsd_driverId", driverId), "AS", "IM")
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "get_vsd_platformId", platformId), "AS", "IM")
 		platform = self.__asIr.sendMessage(request)
 		if type(platform.messageData) == tuple:
 			return "ERROR CODE #3 (AS): IM/VS ERROR DURING VNF PLATFORM OPERATION (" + str(platform.messageData[1]) + ")", 400
@@ -3518,24 +3486,24 @@ class OperationAgent:
 		return json.dumps(platform.messageData.toDictionary())
 
 	'''
-	PATH: 		 /im/vs/driver/{driverId}
+	PATH: 		 /im/vs/driver/{platformId}
 	ACTION: 	 PATCH
-	DESCRIPTION: Update a particular vnf platform in the
-				 database.
+	DESCRIPTION: Send updates to a particular VNF platform already
+				 saved in the VNF subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibVnfInstance [1]
 				 - Integer error code (HTTP)
 	'''
-	def patch_vsd_driverId(self, driverId, vibPlatformInstance):
+	def patch_vsd_platformId(self, platformId, vibPlatformInstance):
 
 		try:
 			vibPlatformInstance = VibModels.VibPlatformInstance().fromDictionary(json.loads(vibPlatformInstance))
-			if driverId != vibPlatformInstance.platformId:
+			if platformId != vibPlatformInstance.platformId:
 				return "ERROR CODE #0 (AS): INVALID VNF PLATFORM PROVIDED", 400
 		except:
 			return "ERROR CODE #0 (AS): INVALID VNF PLATFORM PROVIDED", 400
 
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "patch_vsd_driverId", vibPlatformInstance), "AS", "IM")
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "patch_vsd_platformId", vibPlatformInstance), "AS", "IM")
 		platform = self.__asIr.sendMessage(request)
 		if type(platform.messageData) == tuple:
 			return "ERROR CODE #3 (AS): IM/VS ERROR DURING VNF PLATFORM OPERATION (" + str(platform.messageData[1]) + ")", 400
@@ -3543,17 +3511,17 @@ class OperationAgent:
 		return json.dumps(platform.messageData.toDictionary())
 
 	'''
-	PATH: 		 /im/vs/driver/{driverId}
+	PATH: 		 /im/vs/driver/{platformId}
 	ACTION: 	 DELETE
-	DESCRIPTION: Delete a particular vnf platform in
-				 the database.
+	DESCRIPTION: Delete a particular VNF platform from the VNF
+				 subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibPlatformInstance [1]
 				 - Integer error code (HTTP)
 	'''
-	def delete_vsd_driverId(self, driverId):
+	def delete_vsd_platformId(self, platformId):
 
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "delete_vsd_driverId", driverId), "AS", "IM")
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "delete_vsd_platformId", platformId), "AS", "IM")
 		platform = self.__asIr.sendMessage(request)
 		if type(platform.messageData) == tuple:
 			return "ERROR CODE #3 (AS): IM/VS ERROR DURING VNF INSTANCE OPERATION (" + str(platform.messageData[1]) + ")", 400
@@ -3561,19 +3529,18 @@ class OperationAgent:
 		return json.dumps(platform.messageData.toDictionary())
 
 	'''
-	PATH: 		 /im/vs/driver/{driverId}
+	PATH: 		 /im/vs/driver/{platformId}
 	N/A ACTIONS: POST, PUT
-	**Do not change these methods**
 	'''
-	def post_vsd_driverId(self):
+	def post_vsd_platformId(self):
 		return "NOT AVAILABLE", 405
-	def put_vsd_driverId(self):
+	def put_vsd_platformId(self):
 		return "NOT AVAILABLE", 405
 
 	'''
 	PATH: 		 /im/vs/running_driver/operations
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve the available operations of the 
+	DESCRIPTION: Retrieve the available operations of the currently
 				 running platform driver.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + String [0..N]
@@ -3591,7 +3558,6 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vs/running_driver/operations
 	N/A ACTIONS: POST, PUT, PATCH, DELETE
-	**Do not change these methods**
 	'''
 	def post_vs_rd_operations(self):
 		return "NOT AVAILABLE", 405
@@ -3605,8 +3571,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vs/running_driver/operations/monitoring
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve the available monitoring operations
-				 of the running platform driver.
+	DESCRIPTION: Retrieve the available monitoring operations of the
+				 currently running platform driver.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + String [0..N]
 				 - Integer error code (HTTP)
@@ -3623,7 +3589,6 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vs/running_driver/operations/monitoring
 	N/A ACTIONS: POST, PUT, PATCH, DELETE
-	**Do not change these methods**
 	'''
 	def post_vs_rdo_monitoring(self):
 		return "NOT AVAILABLE", 405
@@ -3637,8 +3602,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vs/running_driver/operations/modification
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve the available modification operations
-				 of the running platform driver.
+	DESCRIPTION: Retrieve the available modification operations of the
+				 currently running platform driver.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + String [0..N]
 				 - Integer error code (HTTP)
@@ -3655,7 +3620,6 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vs/running_driver/operations/modification
 	N/A ACTIONS: POST, PUT, PATCH, DELETE
-	**Do not change these methods**
 	'''
 	def post_vs_rdo_modification(self):
 		return "NOT AVAILABLE", 405
@@ -3669,8 +3633,8 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vs/running_driver/operations/other
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve the available other operations
-				 of the running platform driver.
+	DESCRIPTION: Retrieve the available other operations of the
+				 currently running platform driver.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + String [0..N]
 				 - Integer error code (HTTP)
@@ -3687,7 +3651,6 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/vs/running_driver/operations/other
 	N/A ACTIONS: POST, PUT, PATCH, DELETE
-	**Do not change these methods**
 	'''
 	def post_vs_rdo_other(self):
 		return "NOT AVAILABLE", 405

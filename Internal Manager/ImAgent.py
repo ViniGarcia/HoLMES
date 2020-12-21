@@ -117,11 +117,11 @@ class ImAgent:
 				return self.__delete_vib_s_subscriptionId(irManagement)
 			else:
 				return -8
-		elif irManagement.operationId.endswith("m_agents") or irManagement.operationId.endswith("ma_agentId"):
-			if irManagement.operationId == "get_vib_m_agents":
-				return self.__get_vib_m_agents(irManagement)
-			elif irManagement.operationId == "post_vib_m_agents":
-				return self.__post_vib_m_agents(irManagement)
+		elif irManagement.operationId.endswith("management_agents") or irManagement.operationId.endswith("ma_agentId"):
+			if irManagement.operationId == "get_vib_management_agents":
+				return self.__get_vib_management_agents(irManagement)
+			elif irManagement.operationId == "post_vib_management_agents":
+				return self.__post_vib_management_agents(irManagement)
 			elif irManagement.operationId == "get_vib_ma_agentId":
 				return self.__get_vib_ma_agentId(irManagement)
 			elif irManagement.operationId == "patch_vib_ma_agentId":
@@ -130,17 +130,17 @@ class ImAgent:
 				return self.__delete_vib_ma_agentId(irManagement)
 			else:
 				return -8
-		elif irManagement.operationId.endswith("instances") or irManagement.operationId.endswith("instanceId"):
-			if irManagement.operationId == "get_vib_instances":
-				return self.__get_vib_instances(irManagement)
-			elif irManagement.operationId == "post_vib_instances":
-				return self.__post_vib_instances(irManagement)
-			elif irManagement.operationId == "get_vib_i_instanceId":
-				return self.__get_vib_i_instanceId(irManagement)
-			elif irManagement.operationId == "patch_vib_i_instanceId":
-				return self.__patch_vib_i_instanceId(irManagement)
-			elif irManagement.operationId == "delete_vib_i_instanceId":
-				return self.__delete_vib_i_instanceId(irManagement)
+		elif irManagement.operationId.endswith("vnf_instances") or irManagement.operationId.endswith("vnfi_vnfId"):
+			if irManagement.operationId == "get_vib_vnf_instances":
+				return self.__get_vib_vnf_instances(irManagement)
+			elif irManagement.operationId == "post_vib_vnf_instances":
+				return self.__post_vib_vnf_instances(irManagement)
+			elif irManagement.operationId == "get_vib_vnfi_vnfId":
+				return self.__get_vib_vnfi_vnfId(irManagement)
+			elif irManagement.operationId == "patch_vib_vnfi_vnfId":
+				return self.__patch_vib_vnfi_vnfId(irManagement)
+			elif irManagement.operationId == "delete_vib_vnfi_vnfId":
+				return self.__delete_vib_vnfi_vnfId(irManagement)
 			else:
 				return -8
 		elif irManagement.operationId.endswith("platforms") or irManagement.operationId.endswith("platformId"):
@@ -241,23 +241,23 @@ class ImAgent:
 				return self.__delete_as_c_credentialId(irManagement)
 			else:
 				return -8
-		elif irManagement.operationId.endswith("driver") or irManagement.operationId.endswith("driverId"):
+		elif irManagement.operationId.endswith("driver") or irManagement.operationId.endswith("vnfmId"):
 			if irManagement.operationId == "get_as_vnfm_running_driver":
 				return self.__get_as_vnfm_running_driver(irManagement)
-			elif irManagement.operationId == "get_as_vrd_driverId":
-				return self.__get_as_vrd_driverId(irManagement)
-			elif irManagement.operationId == "post_as_vrd_driverId":
-				return self.__post_as_vrd_driverId(irManagement)
+			elif irManagement.operationId == "get_as_vrd_vnfmId":
+				return self.__get_as_vrd_vnfmId(irManagement)
+			elif irManagement.operationId == "post_as_vrd_vnfmId":
+				return self.__post_as_vrd_vnfmId(irManagement)
 			elif irManagement.operationId == "get_as_vnfm_driver":
 				return self.__get_as_vnfm_driver(irManagement)
 			elif irManagement.operationId == "post_as_vnfm_driver":
 				return self.__post_as_vnfm_driver(irManagement)
-			elif irManagement.operationId == "get_as_vd_driverId":
-				return self.__get_as_vd_driverId(irManagement)
-			elif irManagement.operationId == "patch_as_vd_driverId":
-				return self.__patch_as_vd_driverId(irManagement)
-			elif irManagement.operationId == "delete_as_vd_driverId":
-				return self.__delete_as_vd_driverId(irManagement)
+			elif irManagement.operationId == "get_as_vd_vnfmId":
+				return self.__get_as_vd_vnfmId(irManagement)
+			elif irManagement.operationId == "patch_as_vd_vnfmId":
+				return self.__patch_as_vd_vnfmId(irManagement)
+			elif irManagement.operationId == "delete_as_vd_vnfmId":
+				return self.__delete_as_vd_vnfmId(irManagement)
 			else:
 				return -8
 		else:
@@ -278,23 +278,23 @@ class ImAgent:
 				return self.__delete_vs_vnfi_instanceId(irManagement)
 			else:
 				return -8
-		elif irManagement.operationId.endswith("driver") or irManagement.operationId.endswith("driverId"): 
+		elif irManagement.operationId.endswith("driver") or irManagement.operationId.endswith("platformId"): 
 			if irManagement.operationId == "get_vs_running_driver":
 				return self.__get_vs_running_driver(irManagement)
-			elif irManagement.operationId == "get_vs_rs_driverId":
-				return self.__get_vs_rs_driverId(irManagement) 
-			elif irManagement.operationId == "post_vs_rs_driverId":
-				return self.__post_vs_rs_driverId(irManagement)
+			elif irManagement.operationId == "get_vs_rs_platformId":
+				return self.__get_vs_rs_platformId(irManagement) 
+			elif irManagement.operationId == "post_vs_rs_platformId":
+				return self.__post_vs_rs_platformId(irManagement)
 			elif irManagement.operationId == "get_vs_driver":
 				return self.__get_vs_driver(irManagement)
 			elif irManagement.operationId == "post_vs_driver":
 				return self.__post_vs_driver(irManagement)
-			elif irManagement.operationId == "get_vsd_driverId":
-				return self.__get_vsd_driverId(irManagement)
-			elif irManagement.operationId == "patch_vsd_driverId":
-				return self.__patch_vsd_driverId(irManagement)
-			elif irManagement.operationId == "delete_vsd_driverId":
-				return self.__delete_vsd_driverId(irManagement)
+			elif irManagement.operationId == "get_vsd_platformId":
+				return self.__get_vsd_platformId(irManagement)
+			elif irManagement.operationId == "patch_vsd_platformId":
+				return self.__patch_vsd_platformId(irManagement)
+			elif irManagement.operationId == "delete_vsd_platformId":
+				return self.__delete_vsd_platformId(irManagement)
 			else:
 				return -8
 		else:
@@ -501,7 +501,7 @@ class ImAgent:
 
 	#----
 
-	def __get_vib_m_agents(self, irManagement):
+	def __get_vib_management_agents(self, irManagement):
 		
 		if irManagement.operationArgs != None:
 			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (None is expected)", 1)
@@ -512,7 +512,7 @@ class ImAgent:
 
 		return [VibModels.VibMaInstance().fromSql(a) for a in agents]
 
-	def __post_vib_m_agents(self, irManagement):
+	def __post_vib_management_agents(self, irManagement):
 		
 		if type(irManagement.operationArgs) != VibModels.VibMaInstance:
 			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (VibMaInstance is expected)", 1)
@@ -606,7 +606,7 @@ class ImAgent:
 
 	#----
 
-	def __get_vib_instances(self, irManagement):
+	def __get_vib_vnf_instances(self, irManagement):
 
 		if irManagement.operationArgs != None:
 			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (None is expected)", 1)
@@ -617,7 +617,7 @@ class ImAgent:
 
 		return [VibModels.VibVnfInstance().fromSql(i) for i in instances]
 
-	def __post_vib_instances(self, irManagement):
+	def __post_vib_vnf_instances(self, irManagement):
 
 		if type(irManagement.operationArgs) != VibModels.VibVnfInstance:
 			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (VibVnfInstance is expected)", 1)
@@ -642,7 +642,7 @@ class ImAgent:
 
 		return irManagement.operationArgs
 
-	def __get_vib_i_instanceId(self, irManagement):
+	def __get_vib_vnfi_vnfId(self, irManagement):
 
 		if type(irManagement.operationArgs) != str:
 			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (vnfId is expected)", 1)
@@ -655,7 +655,7 @@ class ImAgent:
 
 		return VibModels.VibVnfInstance().fromSql(instance[0])
 
-	def __patch_vib_i_instanceId(self, irManagement):
+	def __patch_vib_vnfi_vnfId(self, irManagement):
 
 		if type(irManagement.operationArgs) != VibModels.VibVnfInstance:
 			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (VibVnfInstance is expected)", 1)
@@ -681,7 +681,7 @@ class ImAgent:
 
 		return VibModels.VibVnfInstance().fromSql(instance[0])
 
-	def __delete_vib_i_instanceId(self, irManagement):
+	def __delete_vib_vnfi_vnfId(self, irManagement):
 
 		if type(irManagement.operationArgs) != str:
 			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (vnfId is expected)", 1)
@@ -948,7 +948,7 @@ class ImAgent:
 		
 		return self.asOpAgent.getRunningDriver()
 	
-	def __get_as_vrd_driverId(self, irManagement):
+	def __get_as_vrd_vnfmId(self, irManagement):
 
 		if type(irManagement.operationArgs) != str:
 			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (vnfmId is expected)", 1)
@@ -958,7 +958,7 @@ class ImAgent:
 
 		return False
 
-	def __post_as_vrd_driverId(self, irManagement):
+	def __post_as_vrd_vnfmId(self, irManagement):
 
 		if type(irManagement.operationArgs) != str:
 			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (vnfmId is expected)", 1)
@@ -994,17 +994,17 @@ class ImAgent:
 
 		return result
 
-	def __get_as_vd_driverId(self, irManagement):
+	def __get_as_vd_vnfmId(self, irManagement):
 
 		return self.__get_vib_vnfm_managerId(irManagement)
 
-	def __patch_as_vd_driverId(self, irManagement):
+	def __patch_as_vd_vnfmId(self, irManagement):
 
 		if not hasattr(irManagement.operationArgs, "vnfmId") or not hasattr(irManagement.operationArgs, "vnfmDriver"):
 			return ("ERROR CODE #1: THERE IS NO vnfmId/vnfmDriver IN irManagement.operationArgs", 1)
 		if not os.path.isfile(irManagement.operationArgs.vnfmDriver) or not irManagement.operationArgs.vnfmDriver.endswith(".py"):
 			return ("ERROR CODE #1: INVALID vnfmDriver PROVIDED", 1)
-		if self.__get_as_vrd_driverId(IrModels.IrManagement().fromData("AS", "get_as_vrd_driverId", irManagement.operationArgs.vnfmId)):
+		if self.__get_as_vrd_vnfmId(IrModels.IrManagement().fromData("AS", "get_as_vrd_vnfmId", irManagement.operationArgs.vnfmId)):
 			return ("ERROR CODE #1: vnfmId IS THE RUNNING DRIVER", 1)
 		
 		original = irManagement.operationArgs.vnfmDriver
@@ -1023,11 +1023,11 @@ class ImAgent:
 
 		return result
 
-	def __delete_as_vd_driverId(self, irManagement):
+	def __delete_as_vd_vnfmId(self, irManagement):
 
 		if type(irManagement.operationArgs) != str:
 			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (vnfmId is expected)", 1)
-		if self.__get_as_vrd_driverId(IrModels.IrManagement().fromData("AS", "get_as_vrd_driverId", irManagement.operationArgs)):
+		if self.__get_as_vrd_vnfmId(IrModels.IrManagement().fromData("AS", "get_as_vrd_vnfmId", irManagement.operationArgs)):
 			return ("ERROR CODE #1: vnfmId IS THE RUNNING DRIVER", 1)
 
 		result = self.__delete_vib_vnfm_managerId(irManagement)
@@ -1043,15 +1043,15 @@ class ImAgent:
 
 	def __get_vs_vnf_instance(self, irManagement):
 		
-		return self.__get_vib_instances(irManagement)
+		return self.__get_vib_vnf_instances(irManagement)
 
 	def __post_vs_vnf_instance(self, irManagement):
 		
-		return self.__post_vib_instances(irManagement)
+		return self.__post_vib_vnf_instances(irManagement)
 
 	def __get_vs_vnfi_instanceId(self, irManagement):
 
-		return self.__get_vib_i_instanceId(irManagement)
+		return self.__get_vib_vnfi_vnfId(irManagement)
 
 	def __patch_vs_vnfi_instanceId(self, irManagement):
 		
@@ -1063,7 +1063,7 @@ class ImAgent:
 			if irManagement.operationArgs.vnfId in element.visFilter.vnfInstanceSubscriptionFilter.vnfInstanceIds:
 				return ("ERROR CODE #5: THE REQUIRED VNF INSTANCE INSTANCE IS BEING USED IN THE SUBSCRIPTION TABLE", 5)
 
-		return self.__patch_vib_i_instanceId(irManagement)
+		return self.__patch_vib_vnfi_vnfId(irManagement)
 
 	def __delete_vs_vnfi_instanceId(self, irManagement):
 
@@ -1075,7 +1075,7 @@ class ImAgent:
 			if irManagement.operationArgs in element.visFilter.vnfInstanceSubscriptionFilter.vnfInstanceIds:
 				return ("ERROR CODE #5: THE REQUIRED VNF INSTANCE INSTANCE IS BEING USED IN THE SUBSCRIPTION TABLE", 5)
 
-		return self.__delete_vib_i_instanceId(irManagement)
+		return self.__delete_vib_vnfi_vnfId(irManagement)
 
 	def __get_vs_running_driver(self, irManagement):
 
@@ -1084,7 +1084,7 @@ class ImAgent:
 
 		return self.vsAgent.get_p_id()
 
-	def __get_vs_rs_driverId(self, irManagement):
+	def __get_vs_rs_platformId(self, irManagement):
 
 		if type(irManagement.operationArgs) != str:
 			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (platformId is expected)", 1)
@@ -1094,7 +1094,7 @@ class ImAgent:
 
 		return False
 
-	def __post_vs_rs_driverId(self, irManagement):
+	def __post_vs_rs_platformId(self, irManagement):
 
 		platform = self.__get_vib_p_platformId(irManagement)
 		if type(platform) == tuple:
@@ -1168,11 +1168,11 @@ class ImAgent:
 
 		return result
 
-	def __get_vsd_driverId(self, irManagement):
+	def __get_vsd_platformId(self, irManagement):
 
 		return self.__get_vib_p_platformId(irManagement)
 
-	def __patch_vsd_driverId(self, irManagement):
+	def __patch_vsd_platformId(self, irManagement):
 
 		if not hasattr(irManagement.operationArgs, "platformDriver"):
 			return ("ERROR CODE #1: THERE IS NO platformDriver IN irManagement.operationArgs", 1)
@@ -1198,7 +1198,7 @@ class ImAgent:
 
 		return result
 
-	def __delete_vsd_driverId(self, irManagement):
+	def __delete_vsd_platformId(self, irManagement):
 
 		result = self.__delete_vib_p_platformId(irManagement)
 		if type(result) == tuple:
@@ -1242,7 +1242,7 @@ class ImAgent:
 
 		vnfInstances = []
 		for instanceId in subscription.visFilter.vnfInstanceSubscriptionFilter.vnfInstanceIds:
-			instance = self.__get_vib_i_instanceId(IrModels.IrManagement().fromData("VIB", "get_vib_i_instanceId", instanceId))
+			instance = self.__get_vib_vnfi_vnfId(IrModels.IrManagement().fromData("VIB", "get_vib_vnfi_vnfId", instanceId))
 			if type(instance) == tuple:
 				return instance
 			vnfInstances.append(instance)
@@ -1308,7 +1308,7 @@ class ImAgent:
 
 		platform = None
 		for instanceId in irManagement.operationArgs.filter.vnfInstanceSubscriptionFilter.vnfInstanceIds:
-			instance = self.__get_vib_i_instanceId(IrModels.IrManagement().fromData("VIB", "get_vib_i_instanceId", instanceId))
+			instance = self.__get_vib_vnfi_vnfId(IrModels.IrManagement().fromData("VIB", "get_vib_vnfi_vnfId", instanceId))
 			if type(instance) == tuple:
 				return instance
 			if platform != None:
@@ -1348,7 +1348,7 @@ class ImAgent:
 
 		platform = None
 		for instanceId in irManagement.operationArgs.filter.vnfInstanceSubscriptionFilter.vnfInstanceIds:
-			instance = self.__get_vib_i_instanceId(IrModels.IrManagement().fromData("VIB", "get_vib_i_instanceId", instanceId))
+			instance = self.__get_vib_vnfi_vnfId(IrModels.IrManagement().fromData("VIB", "get_vib_vnfi_vnfId", instanceId))
 			if type(instance) == tuple:
 				return instance
 			if platform != None:
@@ -1375,7 +1375,7 @@ class ImAgent:
 
 	def __get_ms_agent(self, irManagement):
 
-		return self.__get_vib_m_agents(irManagement)
+		return self.__get_vib_management_agents(irManagement)
 
 	def __post_ms_agent(self, irManagement):
 
@@ -1387,7 +1387,7 @@ class ImAgent:
 		original = irManagement.operationArgs.maSource
 		irManagement.operationArgs.maSource = irManagement.operationArgs.maSource.replace("\\", "/").split("/")[-1][:-3]
 
-		result = self.__post_vib_m_agents(irManagement)
+		result = self.__post_vib_management_agents(irManagement)
 		if type(result) == tuple:
 			return result
 
