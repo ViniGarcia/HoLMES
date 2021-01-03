@@ -101,12 +101,12 @@ class OperationAgent:
 
 		return None
 
-	def __authenticateRequest(self, operationRequest):
+	def __authenticateRequest(self, userRequest):
 		
-		if not hasattr(operationRequest, "authentication"):
+		if not "userAuth" in flask.request.values:
 			return -8
 
-		authResult = self.__oaAa.authRequest(operationRequest.authentication)
+		authResult = self.__oaAa.authRequest(flask.request.values.get("userAuth"), userRequest)
 		if type(authResult) == int:
 			return -9
 
@@ -155,6 +155,7 @@ class OperationAgent:
 		self.__aiAs.add_url_rule("/vii/indicators/<vnfInstanceId>/<indicatorId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vii_iid_indicatorID)
 		self.__aiAs.add_url_rule("/vii/subscriptions", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vii_subscriptions)
 		self.__aiAs.add_url_rule("/vii/subscriptions/<subscriptionId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vii_s_subscriptionID)
+		
 		self.__aiAs.add_url_rule("/vci/configuration/<vnfId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vci_configuration)
 
 		self.__aiAs.add_url_rule("/vnf/operation/<vnfId>/<operationId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vnf_operation)
@@ -741,6 +742,11 @@ class OperationAgent:
 
 	def im_vib_credentials(self):
 
+		#TODO
+		#if self.__oaAa.getRunningAuthenticator() != None:
+		#	if self.__authenticateRequest("VIB") != True:
+		#		return "ERROR CODE #4 (AA): THERE IS NO CREDENTIAL THAT AUTHENTICATE THE REQUEST", 400
+
 		if flask.request.method == "GET":
 			return self.get_vib_credentials()
 		elif flask.request.method == "POST":
@@ -761,7 +767,7 @@ class OperationAgent:
 		elif flask.request.method == "PUT":
 			return self.put_vib_c_credentialId()
 		elif flask.request.method == "PATCH":
-			return self.patch_vib_c_credentialId(userId, vnfId, flask.request.values.get("vibCredentialInstance"))
+			return self.patch_vib_c_credentialId()
 		elif flask.request.method == "DELETE":
 			return self.delete_vib_c_credentialId(userId, vnfId)
 
@@ -1050,7 +1056,7 @@ class OperationAgent:
 		elif flask.request.method == "PUT":
 			return self.put_as_c_credentialId()
 		elif flask.request.method == "PATCH":
-			return self.patch_as_c_credentialId(userId, vnfId, flask.request.values.get("vibCredentialInstance"))
+			return self.patch_as_c_credentialId()
 		elif flask.request.method == "DELETE":
 			return self.delete_as_c_credentialId(userId, vnfId)
 
@@ -1725,31 +1731,6 @@ class OperationAgent:
 
 	'''
 	PATH: 		 /im/vib/credentials/{userId}/{vnfId}
-	ACTION: 	 PATCH
-	DESCRIPTION: Send updates to a particular credential already
-				 saved in the VIB database.
-	ARGUMENT: 	 VibCredentialInstance (JSON Dictionary)
-	RETURN: 	 - 200 (HTTP) + VibCredentialInstance [1]
-				 - Integer error code (HTTP)
-	'''
-	def patch_vib_c_credentialId(self, userId, vnfId, vibCredentialInstance):
-		
-		try:
-			vibCredentialInstance = VibModels.VibCredentialInstance().fromDictionary(json.loads(vibCredentialInstance))
-			if userId != vibCredentialInstance.userId or vnfId != vibCredentialInstance.vnfId:
-				return "ERROR CODE #0 (AS): INVALID CREDENTIAL INSTANCE PROVIDED", 400
-		except:
-			return "ERROR CODE #0 (AS): INVALID CREDENTIAL INSTANCE PROVIDED", 400
-
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "patch_vib_c_credentialId", vibCredentialInstance), "AS", "IM")
-		credential = self.__asIr.sendMessage(request)
-		if type(credential.messageData) == tuple:
-			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING CREDENTIAL OPERATION (" + str(credential.messageData[1]) + ")", 400
-
-		return json.dumps(credential.messageData.toDictionary())
-
-	'''
-	PATH: 		 /im/vib/credentials/{userId}/{vnfId}
 	ACTION: 	 DELETE
 	DESCRIPTION: Delete a particular credential from the VIB
 				 database.
@@ -1768,11 +1749,13 @@ class OperationAgent:
 
 	'''
 	PATH: 		 /im/vib/credentials/{userId}/{vnfId}
-	N/A ACTIONS: POST, PUT
+	N/A ACTIONS: POST, PUT, PATCH
 	'''
 	def post_vib_c_credentialId(self):
 		return "NOT AVAILABLE", 405
 	def put_vib_c_credentialId(self):
+		return "NOT AVAILABLE", 405
+	def patch_vib_c_credentialId(self):
 		return "NOT AVAILABLE", 405
 
 	'''
@@ -2961,31 +2944,6 @@ class OperationAgent:
 
 	'''
 	PATH: 		 /im/as/credential/{userId}/{vnfId}
-	ACTION: 	 PATCH
-	DESCRIPTION: Send updates to a particular credential already
-				 saved in the access subsystem.
-	ARGUMENT: 	 --
-	RETURN: 	 - 200 (HTTP) + VibCredentialInstance [1]
-				 - Integer error code (HTTP)
-	'''
-	def patch_as_c_credentialId(self, userId, vnfId, vibCredentialInstance):
-
-		try:
-			vibCredentialInstance = VibModels.VibCredentialInstance().fromDictionary(json.loads(vibCredentialInstance))
-			if userId != vibCredentialInstance.userId or vnfId != vibCredentialInstance.vnfId:
-				return "ERROR CODE #0 (AS): INVALID CREDENTIAL INSTANCE PROVIDED", 400
-		except:
-			return "ERROR CODE #0 (AS): INVALID CREDENTIAL INSTANCE PROVIDED", 400
-
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "patch_as_c_credentialId", vibCredentialInstance), "AS", "IM")
-		credential = self.__asIr.sendMessage(request)
-		if type(credential.messageData) == tuple:
-			return "ERROR CODE #3 (AS): IM/AS ERROR DURING CREDENTIAL INSTANCE OPERATION (" + str(credential.messageData[1]) + ")", 400
-
-		return json.dumps(credential.messageData.toDictionary())
-
-	'''
-	PATH: 		 /im/as/credential/{userId}/{vnfId}
 	ACTION: 	 DELETE
 	DESCRIPTION: Delete a particular credential from the access
 				 subsystem.
@@ -3009,6 +2967,8 @@ class OperationAgent:
 	def post_as_c_credentialId(self):
 		return "NOT AVAILABLE", 405
 	def put_as_c_credentialId(self):
+		return "NOT AVAILABLE", 405
+	def patch_as_c_credentialId(self):
 		return "NOT AVAILABLE", 405
 
 	'''

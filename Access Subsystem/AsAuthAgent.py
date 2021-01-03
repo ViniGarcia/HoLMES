@@ -159,18 +159,18 @@ class AuthenticationAgent:
 		self.__authModel = self.__availableAuth[authModel]()
 		return 0
 
-	def authRequest(self, requestAuth):
+	def authRequest(self, userAuth, userRequest):
 
-		authClient = self.__authModel.authClient(requestAuth)
+		authClient = self.__authModel.authClient(userAuth)
 		if type(authClient) == int:
 			return -3
 
-		authSql = self.__vibManager.queryVibDatabase("SELECT * FROM AuthInstance WHERE userId = \"" + authClient + "\";")
+		authSql = self.__vibManager.queryVibDatabase("SELECT * FROM VibCredentialInstance WHERE userId = \"" + authClient + "\" AND vnfId = \"" + userRequest + "\";")
 		if len(authSql) == 0:
 			return -4
 
-		authInstance = VibModels.VibAuthInstance().fromData(authSql[0][0], authSql[0][1], authSql[0][2], authSql[0][3])
-		authentication = self.__authModel.authRequest(authInstance, requestAuth)
+		authInstance = VibModels.VibAuthInstance().fromSql(authSql[0])
+		authentication = self.__authModel.authRequest(authInstance, userAuth)
 		if type(authentication) == int:
 			return -5
 

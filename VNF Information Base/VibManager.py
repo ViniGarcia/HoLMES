@@ -14,7 +14,7 @@ DESCRIPTION: Implementation of the VIB manager. In summary, this class control t
              the VIB internally, reseting the base when necessary.
 '''
 class VibManager:
-    __vibPath = "C:\\Users\\55559\\Desktop\\EMSPlatform\\VNF Information Base\\VIB.db"
+    __vibPath = "C:\\Users\\vfulb\\Desktop\\EMSPlatform\\VNF Information Base\\VIB.db"
     __vibConnection = None
 
     def __init__(self):
@@ -71,7 +71,7 @@ class VibManager:
         except sqlite3.Error as e:
             raise e
 
-'''   #TEMPORARY
+    '''#TEMPORARY
     def vibTesting(self):
 
         if self.__resetVibDatabase():
@@ -79,12 +79,22 @@ class VibManager:
             classTest = VibModels.VibPlatformInstance().fromData("Click-On-OSv", "CooDriver")
             self.operateVibDatabase(classTest.toSql())
             print(self.queryVibDatabase("SELECT * FROM PlatformInstance WHERE platformId = \"Click-On-OSv\";"))
+            classTest = VibModels.VibPlatformInstance().fromData("Click-On-OSv-S", "CooSocketDriver")
+            self.operateVibDatabase(classTest.toSql())
+            print(self.queryVibDatabase("SELECT * FROM PlatformInstance WHERE platformId = \"Click-On-OSv-S\";"))
 
             classTest = VibModels.VibVnfInstance().fromData("VNF01", "127.0.0.1:5000", "Click-On-OSv", ["OP01", "OP02"], True)
             self.operateVibDatabase(classTest.toSql())
             print(self.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"VNF01\";"))
+            classTest = VibModels.VibVnfInstance().fromData("VNF02", "127.0.0.1:5005", "Click-On-OSv-S", ["OP01", "OP02"], True)
+            self.operateVibDatabase(classTest.toSql())
+            print(self.queryVibDatabase("SELECT * FROM VnfInstance WHERE vnfId = \"VNF02\";"))
+
+            classTest = VibModels.VibUserInstance().fromData("USER01", "BatataFrita", None, ["VLMI", "VPMI", "VFMI", "VII", "VCI", "VNF", "VIB", "MS", "AS", "VS"])
+            self.operateVibDatabase(classTest.toSql())
+            print(self.queryVibDatabase("SELECT * FROM UserInstance WHERE userId = \"USER01\";"))
             
-            classTest = VibModels.VibCredentialInstance().fromData("USER01", "VNF01", "BatataFrita", None)
+            classTest = VibModels.VibCredentialInstance().fromData("USER01", "VNF01")
             self.operateVibDatabase(classTest.toSql())
             print(self.queryVibDatabase("SELECT * FROM CredentialInstance WHERE userId = \"USER01\";"))
 
@@ -99,5 +109,4 @@ class VibManager:
 
             classTest = VibModels.VibVnfmInstance().fromData("DummyVnfmDriver", "DummyVnfmDriver")
             self.operateVibDatabase(classTest.toSql())
-            print(self.queryVibDatabase("SELECT * FROM VnfmInstance WHERE vnfmId = \"DummyVnfmDriver\";"))
-'''
+            print(self.queryVibDatabase("SELECT * FROM VnfmInstance WHERE vnfmId = \"DummyVnfmDriver\";"))'''

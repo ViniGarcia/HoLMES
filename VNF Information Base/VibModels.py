@@ -23,19 +23,27 @@ import json
 CLASS: VibSummaryModels
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 30 Oct. 2020
-L. UPDATE: 06 Dez. 2020 (Fulber-Garcia; Included maPlatform in the VibMaInstance)
+L. UPDATE: 31 Dez. 2020 (Fulber-Garcia; New table of users;
+						modifications on credential table)
 DESCRIPTION: This class represents the table creation rou-
 			 tines of all the tables of the VIB. Once a
 			 table is updated in its respective class, the
 			 creation routine must be updated here too.
 '''
 class VibSummaryModels:
+	VibUserInstance = """ CREATE TABLE IF NOT EXISTS UserInstance (
+                     userId text PRIMARY KEY,
+                     userAuthentication text NOT NULL,
+                     userSecrets text,
+                     userPrivileges text NOT NULL
+                    ); """
+
 	VibCredentialInstance = """ CREATE TABLE IF NOT EXISTS CredentialInstance (
                      userId text NOT NULL,
                      vnfId text NOT NULL,
-                     authData text NOT NULL,
-                     authResource text,
-                     FOREIGN KEY (vnfId)
+                     FOREIGN KEY (userId)
+       					REFERENCES UserInstance (userId)
+       				 FOREIGN KEY (vnfId)
        					REFERENCES VnfInstance (vnfId)
        				 PRIMARY KEY (userId, vnfId)
                     ); """
@@ -74,20 +82,81 @@ class VibSummaryModels:
                     	); """
 
 '''
-CLASS: VibCredentialInstance
+CLASS: VibUserInstance
 AUTHOR: Vinicius Fulber-Garcia
-CREATION: 04 Nov. 2020
-L. UPDATE: 01 Dez. 2020 (Fulber-Garcia; Class name changed)
-DESCRIPTION: This class represents the AuthInstance table of the
+CREATION: 31 Dez. 2020
+L. UPDATE: 31 Dez. 2020 (Fulber-Garcia; Class creation)
+DESCRIPTION: This class represents the UserInstance table of the
 			 VIB. Note that modifications on this class, parti-
 			 culary in the attributes, must be updated in the
 			 VibSummaryModels too.
 '''
+class VibUserInstance:
+	userId = None
+	userAuthentication = None
+	userSecrets = None
+	userPrivileges = []
+
+	def __init__(self):
+		return
+
+	def validate(self):
+		if type(self.userId) != str:
+			return ("0", -1)
+		if type(self.userAuthentication) != str:
+			return ("1", -1)
+		if type(self.userSecrets) != str:
+			return ("2", -1)
+		if type(self.userPrivileges) != list:
+			return ("3", -1)
+		for index in range(len(self.userPrivileges)):
+			if not self.userPrivileges[index] in ["VLMI", "VPMI", "VFMI", "VII", "VCI", "VNF", "VIB", "MS", "AS", "VS"]:
+				return ("3." + str(index), -1)
+
+		return ("4", 0)
+
+	def fromData(self, userId, userAuthentication, userSecrets, userPrivileges):
+		self.userId = userId
+		self.userAuthentication = userAuthentication
+		self.userSecrets = userSecrets
+		self.userPrivileges = userPrivileges
+		return self
+
+	def fromSql(self, sqlData):
+		self.userId = sqlData[0]
+		self.userAuthentication = sqlData[1]
+		self.userSecrets = sqlData[2]
+		self.userPrivileges = json.loads(sqlData[3])
+		return self
+
+	def fromDictionary(self, dictData):
+		self.userId = dictData["userId"]
+		self.userAuthentication = dictData["userAuthentication"]
+		self.userSecrets = dictData["userSecrets"]
+		self.userPrivileges = dictData["userPrivileges"]
+		return self
+
+	def toSql(self):
+		return ('''INSERT INTO UserInstance(userId,userAuthentication,userSecrets,userPrivileges)
+              	   VALUES(?,?,?,?)''', (self.userId, self.userAuthentication, self.userSecrets, json.dumps(self.userPrivileges)))
+
+	def toDictionary(self):
+		return {"userId":self.userId, "userAuthentication":self.userAuthentication, "userSecrets":self.userSecrets, "userPrivileges":self.userPrivileges}
+
+'''
+CLASS: VibCredentialInstance
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 04 Nov. 2020
+L. UPDATE: 31 Dez. 2020 (Fulber-Garcia; Moved authentication to
+						 the UserInstance table)
+DESCRIPTION: This class represents the CredentialInstance table
+			 of the VIB. Note that modifications on this class,
+			 particulary in the attributes, must be updated in
+			 the VibSummaryModels too.
+'''
 class VibCredentialInstance:
 	userId = None
 	vnfId = None
-	authData = None
-	authResource = None
 
 	def __init__(self):
 		return
@@ -97,41 +166,30 @@ class VibCredentialInstance:
 			return ("0", -1)
 		if type(self.vnfId) != str:
 			return ("1", -1)
-		if type(self.authData) != str:
-			return ("2", -1)
-		if self.authResource != None and type(self.authResource) != str:
-			return ("3", -1)
 
-		return ("4", 0) 
+		return ("2", 0) 
 
-	def fromData(self, userId, vnfId, authData, authResource):
+	def fromData(self, userId, vnfId):
 		self.userId = userId
 		self.vnfId = vnfId
-		self.authData = authData
-		self.authResource = authResource
 		return self
 
 	def fromSql(self, sqlData):
 		self.userId = sqlData[0]
 		self.vnfId = sqlData[1]
-		self.authData = sqlData[2]
-		self.authResource = sqlData[3]
 		return self
 
 	def fromDictionary(self, dictData):
 		self.userId = dictData["userId"]
 		self.vnfId = dictData["vnfId"]
-		self.authData = dictData["authData"]
-		if "authResource" in dictData:
-			self.authResource = dictData["authResource"]
 		return self
 
 	def toSql(self):
-		return ('''INSERT INTO CredentialInstance(userId,vnfId,authData,authResource)
-              	   VALUES(?,?,?,?)''', (self.userId, self.vnfId, self.authData, self.authResource))
+		return ('''INSERT INTO CredentialInstance(userId,vnfId)
+              	   VALUES(?,?)''', (self.userId, self.vnfId))
 
 	def toDictionary(self):
-		return {"userId":self.userId, "vnfId":self.vnfId, "authData":self.authData, "authResource":self.authResource}
+		return {"userId":self.userId, "vnfId":self.vnfId}
 
 '''
 CLASS: VibSubscriptionInstance
