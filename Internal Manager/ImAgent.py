@@ -18,9 +18,8 @@ import os
 CLASS: ImAgent
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 01 Dez. 2020
-L. UPDATE: 09 Dez. 2020 (Fulber-Garcia; Finished class refactoring; In-
-						 cluded the VNF instances management in the VNF
-						 subsystem block)
+L. UPDATE: 04 Jan. 2021 (Fulber-Garcia; Integration of the authen-
+						 tication system)
 DESCRIPTION: Implementation of the internal manager agent of the EMS.
 			 This class provides the configuration ans mantaining o-
 			 perations of the other internal modules of the EMS.
@@ -91,7 +90,20 @@ class ImAgent:
 
 	def __executeVibOperation(self, irManagement):
 
-		if irManagement.operationId.endswith("credentials") or irManagement.operationId.endswith("credentialId"):
+		if irManagement.operationId.endswith("users") or irManagement.operationId.endswith("userId"):
+			if irManagement.operationId == "get_vib_users":
+				return self.__get_vib_users(irManagement)
+			elif irManagement.operationId == "post_vib_users":
+				return self.__post_vib_users(irManagement)
+			elif irManagement.operationId == "get_vib_u_userId":
+				return self.__get_vib_u_userId(irManagement)
+			elif irManagement.operationId == "patch_vib_u_userId":
+				return self.__patch_vib_u_userId(irManagement)
+			elif irManagement.operationId == "delete_vib_u_userId":
+				return self.__delete_vib_u_userId(irManagement)
+			else:
+				return -8
+		elif irManagement.operationId.endswith("credentials") or irManagement.operationId.endswith("credentialId"):
 			if irManagement.operationId == "get_vib_credentials":
 				return self.__get_vib_credentials(irManagement)
 			elif irManagement.operationId == "post_vib_credentials":
@@ -312,6 +324,89 @@ class ImAgent:
 ################################################################################################################################################################
 ################################################################################################################################################################
 
+	def __get_vib_users(self, irManagement):
+
+		if irManagement.operationArgs != None:
+			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (None is expected)", 1)
+
+		users = self.vibManager.queryVibDatabase("SELECT * FROM UserInstance;")
+		if type(users) == sqlite3.Error:
+			return ("ERROR CODE #2: SQL ERROR DURING USERS CONSULTING", 2)
+
+		return [VibModels.VibUserInstance().fromSql(u) for u in users]
+
+	def __post_vib_users(self, irManagement):
+
+		if type(irManagement.operationArgs) != VibModels.VibUserInstance:
+			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (VibUserInstance is expected)", 1)
+		if irManagement.operationArgs.validate()[1] != 0:
+			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (VibUserInstance is not valid)", 1)
+
+		redundancy = self.vibManager.queryVibDatabase("SELECT * FROM UserInstance WHERE userId = \"" + irManagement.operationArgs.userId + "\";")
+		if type(redundancy) == sqlite3.Error:
+			return ("ERROR CODE #2: SQL ERROR DURING USERS CONSULTING", 2)
+		if len(redundancy) != 0:
+			return ("ERROR CODE #3: THE REQUIRED USER ALREADY EXISTS", 3)
+
+		irManagement.operationArgs = self.asAuthAgent.transformAuthentication(irManagement.operationArgs)
+		insertion = self.vibManager.operateVibDatabase(irManagement.operationArgs.toSql())
+		if type(insertion) == sqlite3.Error:
+			return ("ERROR CODE #2: SQL ERROR DURING USER INSERTION", 2)
+
+		return irManagement.operationArgs
+
+	def __get_vib_u_userId(self, irManagement):
+
+		if type(irManagement.operationArgs) != str:
+			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (userId is expected)", 1)
+
+		user = self.vibManager.queryVibDatabase("SELECT * FROM UserInstance WHERE userId = \"" + irManagement.operationArgs + "\";")
+		if type(user) == sqlite3.Error:
+			return ("ERROR CODE #2: SQL ERROR DURING USERS CONSULTING", 2)
+		if len(user) == 0:
+			return ("ERROR CODE #4: THE REQUIRED USER DOES NOT EXIST", 4)
+
+		return VibModels.VibUserInstance().fromSql(user[0])
+
+	def __patch_vib_u_userId(self, irManagement):
+
+		if type(irManagement.operationArgs) != VibModels.VibUserInstance:
+			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (VibUserInstance is expected)", 1)
+		if irManagement.operationArgs.validate()[1] != 0:
+			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (VibUserInstance is not valid)", 1)
+
+		user = self.vibManager.queryVibDatabase("SELECT * FROM UserInstance WHERE userId = \"" + irManagement.operationArgs.userId + "\";")
+		if type(user) == sqlite3.Error:
+			return ("ERROR CODE #2: SQL ERROR DURING USERS CONSULTING", 2)
+		if len(user) == 0:
+			return ("ERROR CODE #4: THE REQUIRED USER DOES NOT EXIST", 4)
+
+		irManagement.operationArgs = self.asAuthAgent.transformAuthentication(irManagement.operationArgs)
+		update = self.vibManager.operateVibDatabase(("UPDATE UserInstance SET userAuthentication = ?, userSecrets = ?, userPrivileges = ? WHERE userId = ?;", (irManagement.operationArgs.userAuthentication, irManagement.operationArgs.userSecrets, json.dumps(irManagement.operationArgs.userPrivileges), irManagement.operationArgs.userId)))
+		if type(update) == sqlite3.Error:
+			return ("ERROR CODE #2: SQL ERROR DURING USER UPDATING", 2)
+
+		return VibModels.VibUserInstance().fromSql(user[0])
+
+	def __delete_vib_u_userId(self, irManagement):
+
+		if type(irManagement.operationArgs) != str:
+			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (userId is expected)", 1)
+
+		user = self.vibManager.queryVibDatabase("SELECT * FROM UserInstance WHERE userId = \"" + irManagement.operationArgs + "\";")
+		if type(user) == sqlite3.Error:
+			return ("ERROR CODE #2: SQL ERROR DURING USERS CONSULTING", 2)
+		if len(user) == 0:
+			return ("ERROR CODE #4: THE REQUIRED USER DOES NOT EXIST", 4)
+
+		delete = self.vibManager.operateVibDatabase(("DELETE FROM UserInstance WHERE userId = ?;", (irManagement.operationArgs,)))
+		if type(delete) == sqlite3.Error:
+			return ("ERROR CODE #2: SQL ERROR DURING USER DELETING", 2)
+
+		return VibModels.VibUserInstance().fromSql(user[0])
+
+	#----
+
 	def __get_vib_credentials(self, irManagement):
 
 		if irManagement.operationArgs != None:
@@ -357,28 +452,9 @@ class ImAgent:
 
 		credential = self.vibManager.queryVibDatabase("SELECT * FROM CredentialInstance WHERE userId = \"" + irManagement.operationArgs[0] +"\" AND vnfId = \"" + irManagement.operationArgs[1] + "\";")
 		if type(credential) == sqlite3.Error:
-			return ("ERROR CODE #2: SQL ERROR DURING CREDENTIAL CONSULTING", 2)
-		if len(credential) == 0:
-			return ("ERROR CODE #4: THE REQUIRED CREDENTIAL DOES NOT EXIST", 4)
-
-		return VibModels.VibCredentialInstance().fromSql(credential[0])
-
-	def __patch_vib_c_credentialId(self, irManagement):
-
-		if type(irManagement.operationArgs) != VibModels.VibCredentialInstance:
-			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (VibCredentialInstance is expected)", 1)
-		if irManagement.operationArgs.validate()[1] != 0:
-			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (VibCredentialInstance is not valid)", 1)
-
-		credential = self.vibManager.queryVibDatabase("SELECT * FROM CredentialInstance WHERE userId = \"" + irManagement.operationArgs.userId +"\" AND vnfId = \"" + irManagement.operationArgs.vnfId + "\";")
-		if type(credential) == sqlite3.Error:
 			return ("ERROR CODE #2: SQL ERROR DURING CREDENTIALS CONSULTING", 2)
 		if len(credential) == 0:
 			return ("ERROR CODE #4: THE REQUIRED CREDENTIAL DOES NOT EXIST", 4)
-
-		update = self.vibManager.operateVibDatabase(("UPDATE CredentialInstance SET authData = ?, authResource = ? WHERE userId = ? AND vnfId = ?;", (irManagement.operationArgs.authData, irManagement.operationArgs.authResource, irManagement.operationArgs.userId, irManagement.operationArgs.vnfId)))
-		if type(update) == sqlite3.Error:
-			return ("ERROR CODE #2: SQL ERROR DURING CREDENTIALS UPDATING", 2)
 
 		return VibModels.VibCredentialInstance().fromSql(credential[0])
 

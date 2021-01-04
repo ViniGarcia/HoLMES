@@ -16,7 +16,8 @@ import AsAuthAgent
 CLASS: OperationAgent
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 05 Nov. 2020
-L. UPDATE: 20 Dez. 2020 (Fulber-Garcia; Refactoring methods)
+L. UPDATE: 04 Jan. 2021 (Fulber-Garcia; Integration of the authen-
+						 tication system)
 DESCRIPTION: Operation agent implementation. This class
 			 has the kernel functionalites of the access
 			 subsystem. It holds the implementation of all
@@ -101,16 +102,26 @@ class OperationAgent:
 
 		return None
 
-	def __authenticateRequest(self, userRequest):
+	def __authenticateRequest(self, userRequest, vnfRequest):
 		
 		if not "userAuth" in flask.request.values:
 			return -8
 
-		authResult = self.__oaAa.authRequest(flask.request.values.get("userAuth"), userRequest)
+		authResult = self.__oaAa.authenticationCheck(flask.request.values.get("userAuth"))
 		if type(authResult) == int:
 			return -9
+		if type(authResult) == bool:
+			return authResult
 
-		return authResult
+		if not userRequest in authResult.userPrivileges:
+			return False
+		
+		if userRequest == "VS" and vnfRequest != None:
+			credentialResult = self.__oaAa.credentialCheck(authResult.userId, vnfRequest)
+			if type(credentialResult) == bool:
+				return credentialResult
+
+		return True
 
 	def __setupAccessInterface(self):
 
@@ -160,6 +171,8 @@ class OperationAgent:
 
 		self.__aiAs.add_url_rule("/vnf/operation/<vnfId>/<operationId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vnf_operation)
 
+		self.__aiAs.add_url_rule("/im/vib/users", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_users)
+		self.__aiAs.add_url_rule("/im/vib/users/<userId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_u_userId)
 		self.__aiAs.add_url_rule("/im/vib/credentials", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_credentials)
 		self.__aiAs.add_url_rule("/im/vib/credentials/<userId>/<vnfId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_c_credentialId)
 		self.__aiAs.add_url_rule("/im/vib/subscriptions", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_subscriptions)
@@ -729,6 +742,10 @@ class OperationAgent:
 
 	def vnf_operation(self, vnfId, operationId):
 
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VS", vnfId) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
+
 		if flask.request.method == "GET":
 			return self.get_vnf_operation()
 		elif flask.request.method == "POST":
@@ -740,12 +757,45 @@ class OperationAgent:
 		elif flask.request.method == "DELETE":
 			return self.delete_vnf_operation()
 
+	def im_vib_users(self):
+
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VIB", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
+
+		if flask.request.method == "GET":
+			return self.get_vib_users()
+		elif flask.request.method == "POST":
+			return self.post_vib_users(flask.request.values.get("vibUserInstance"))
+		elif flask.request.method == "PUT":
+			return self.put_vib_users()
+		elif flask.request.method == "PATCH":
+			return self.patch_vib_users()
+		elif flask.request.method == "DELETE":
+			return self.delete_vib_users()
+
+	def im_vib_u_userId(self, userId):
+
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VIB", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
+
+		if flask.request.method == "GET":
+			return self.get_vib_u_userId(userId)
+		elif flask.request.method == "POST":
+			return self.post_vib_u_userId()
+		elif flask.request.method == "PUT":
+			return self.put_vib_u_userId()
+		elif flask.request.method == "PATCH":
+			return self.patch_vib_u_userId(userId, flask.request.values.get("vibUserInstance"))
+		elif flask.request.method == "DELETE":
+			return self.delete_vib_u_userId(userId)
+
 	def im_vib_credentials(self):
 
-		#TODO
-		#if self.__oaAa.getRunningAuthenticator() != None:
-		#	if self.__authenticateRequest("VIB") != True:
-		#		return "ERROR CODE #4 (AA): THERE IS NO CREDENTIAL THAT AUTHENTICATE THE REQUEST", 400
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VIB", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
 
 		if flask.request.method == "GET":
 			return self.get_vib_credentials()
@@ -760,6 +810,10 @@ class OperationAgent:
 
 	def im_vib_c_credentialId(self, userId, vnfId):
 
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VIB", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
+
 		if flask.request.method == "GET":
 			return self.get_vib_c_credentialId(userId, vnfId)
 		elif flask.request.method == "POST":
@@ -772,6 +826,10 @@ class OperationAgent:
 			return self.delete_vib_c_credentialId(userId, vnfId)
 
 	def im_vib_subscriptions(self):
+
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VIB", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
 
 		if flask.request.method == "GET":
 			return self.get_vib_subscriptions()
@@ -786,6 +844,10 @@ class OperationAgent:
 
 	def im_vib_s_subscriptionId(self, subscriptionId):
 
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VIB", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
+
 		if flask.request.method == "GET":
 			return self.get_vib_s_subscriptionId(subscriptionId)
 		elif flask.request.method == "POST":
@@ -798,6 +860,10 @@ class OperationAgent:
 			return self.delete_vib_s_subscriptionId(subscriptionId)
 
 	def im_vib_management_agents(self):
+
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VIB", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
 
 		if flask.request.method == "GET":
 			return self.get_vib_management_agents()
@@ -812,6 +878,10 @@ class OperationAgent:
 
 	def im_vib_ma_agentId(self, agentId):
 
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VIB", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
+
 		if flask.request.method == "GET":
 			return self.get_vib_ma_agentId(agentId)
 		elif flask.request.method == "POST":
@@ -824,6 +894,10 @@ class OperationAgent:
 			return self.delete_vib_ma_agentId(agentId)
 
 	def im_vib_vnf_instances(self):
+
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VIB", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
 
 		if flask.request.method == "GET":
 			return self.get_vib_vnf_instances()
@@ -838,6 +912,10 @@ class OperationAgent:
 
 	def im_vib_vnfi_vnfId(self, vnfId):
 
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VIB", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
+
 		if flask.request.method == "GET":
 			return self.get_vib_vnfi_vnfId(vnfId)
 		elif flask.request.method == "POST":
@@ -850,6 +928,10 @@ class OperationAgent:
 			return self.delete_vib_vnfi_vnfId(vnfId)
 
 	def im_vib_platforms(self):
+
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VIB", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
 
 		if flask.request.method == "GET":
 			return self.get_vib_platforms()
@@ -864,6 +946,10 @@ class OperationAgent:
 
 	def im_vib_p_platformId(self, platformId):
 
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VIB", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
+
 		if flask.request.method == "GET":
 			return self.get_vib_p_platformId(platformId)
 		elif flask.request.method == "POST":
@@ -876,6 +962,10 @@ class OperationAgent:
 			return self.delete_vib_p_platformId(platformId)
 
 	def im_vib_vnf_managers(self):
+
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VIB", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
 
 		if flask.request.method == "GET":
 			return self.get_vib_vnf_managers()
@@ -890,6 +980,10 @@ class OperationAgent:
 
 	def im_vib_vnfm_managerId(self, managerId):
 
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VIB", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
+
 		if flask.request.method == "GET":
 			return self.get_vib_vnfm_managerId(managerId)
 		elif flask.request.method == "POST":
@@ -903,6 +997,10 @@ class OperationAgent:
 	
 	def im_ms_running_subscription(self):
 
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("MS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
+
 		if flask.request.method == "GET":
 			return self.get_ms_running_subscription()
 		elif flask.request.method == "POST":
@@ -915,6 +1013,10 @@ class OperationAgent:
 			return self.delete_ms_running_subscription()
 	
 	def im_msrs_subscriptionId(self, subscriptionId):
+
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("MS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
 
 		if flask.request.method == "GET":
 			return self.get_msrs_subscriptionId(subscriptionId)
@@ -932,6 +1034,10 @@ class OperationAgent:
 
 	def im_ms_subscription(self):
 
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("MS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
+
 		if flask.request.method == "GET":
 			return self.get_ms_subscription()
 		elif flask.request.method == "POST":
@@ -944,6 +1050,10 @@ class OperationAgent:
 			return self.delete_ms_subscription()
 
 	def im_mss_subscriptionId(self, subscriptionId):
+
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("MS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
 
 		if flask.request.method == "GET":
 			return self.get_mss_subscriptionId(subscriptionId)
@@ -958,6 +1068,10 @@ class OperationAgent:
 
 	def im_ms_agent(self):
 
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("MS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
+
 		if flask.request.method == "GET":
 			return self.get_ms_agent()
 		elif flask.request.method == "POST":
@@ -970,6 +1084,10 @@ class OperationAgent:
 			return self.delete_ms_agent()
 	
 	def im_msa_agentId(self, agentId):
+
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("MS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
 
 		if flask.request.method == "GET":
 			return self.get_msa_agentId(agentId)
@@ -984,6 +1102,10 @@ class OperationAgent:
 
 	def im_as_authenticator(self):
 
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("AS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
+
 		if flask.request.method == "GET":
 			return self.get_as_authenticator()
 		elif flask.request.method == "POST":
@@ -996,6 +1118,10 @@ class OperationAgent:
 			return self.delete_as_authenticator()
 
 	def im_as_a_authenticatorId(self, authenticatorId):
+
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("AS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
 
 		if flask.request.method == "GET":
 			return self.get_as_a_authenticatorId(authenticatorId)
@@ -1010,6 +1136,10 @@ class OperationAgent:
 
 	def im_as_running_authenticator(self):
 
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("AS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
+
 		if flask.request.method == "GET":
 			return self.get_as_running_authenticator()
 		elif flask.request.method == "POST":
@@ -1022,6 +1152,10 @@ class OperationAgent:
 			return self.delete_as_running_authenticator()
 
 	def im_as_ra_authenticatorId(self, authenticatorId):
+
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("AS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
 
 		if flask.request.method == "GET":
 			return self.get_as_ra_authenticatorId(authenticatorId)
@@ -1036,6 +1170,10 @@ class OperationAgent:
 
 	def im_as_credential(self):
 
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("AS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
+
 		if flask.request.method == "GET":
 			return self.get_as_credential()
 		elif flask.request.method == "POST":
@@ -1048,6 +1186,10 @@ class OperationAgent:
 			return self.delete_as_credential()
 
 	def im_as_c_credentialId(self, userId, vnfId):
+
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("AS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
 
 		if flask.request.method == "GET":
 			return self.get_as_c_credentialId(userId, vnfId)
@@ -1062,6 +1204,10 @@ class OperationAgent:
 
 	def im_as_vnfm_running_driver(self):
 
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("AS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
+
 		if flask.request.method == "GET":
 			return self.get_as_vnfm_running_driver()
 		elif flask.request.method == "POST":
@@ -1074,6 +1220,10 @@ class OperationAgent:
 			return self.delete_as_vnfm_running_driver()
 
 	def im_as_vrd_vnfmId(self, vnfmId):
+
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("AS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
 
 		if flask.request.method == "GET":
 			return self.get_as_vrd_vnfmId(vnfmId)
@@ -1088,6 +1238,10 @@ class OperationAgent:
 
 	def im_as_vnfm_driver(self):
 
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("AS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
+
 		if flask.request.method == "GET":
 			return self.get_as_vnfm_driver()
 		elif flask.request.method == "POST":
@@ -1100,6 +1254,10 @@ class OperationAgent:
 			return self.delete_as_vnfm_driver()
 
 	def im_as_vd_vnfmId(self, vnfmId):
+
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("AS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
 
 		if flask.request.method == "GET":
 			return self.get_as_vd_vnfmId(vnfmId)
@@ -1114,6 +1272,10 @@ class OperationAgent:
 
 	def im_vs_vnf_instance(self):
 
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
+
 		if flask.request.method == "GET":
 			return self.get_vs_vnf_instance()
 		elif flask.request.method == "POST":
@@ -1126,6 +1288,10 @@ class OperationAgent:
 			return self.delete_vs_vnf_instance()
 
 	def im_vs_vnfi_instanceId(self, instanceId):
+
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
 
 		if flask.request.method == "GET":
 			return self.get_vs_vnfi_instanceId(instanceId)
@@ -1140,6 +1306,10 @@ class OperationAgent:
 
 	def im_vs_running_driver(self):
 
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
+
 		if flask.request.method == "GET":
 			return self.get_vs_running_driver()
 		elif flask.request.method == "POST":
@@ -1152,6 +1322,10 @@ class OperationAgent:
 			return self.delete_vs_running_driver()
 	
 	def im_vs_rs_platformId(self, platformId):
+
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
 
 		if flask.request.method == "GET":
 			return self.get_vs_rs_platformId(platformId)
@@ -1166,6 +1340,10 @@ class OperationAgent:
 
 	def im_vs_driver(self):
 
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
+
 		if flask.request.method == "GET":
 			return self.get_vs_driver()
 		elif flask.request.method == "POST":
@@ -1178,6 +1356,10 @@ class OperationAgent:
 			return self.delete_vs_driver()
 
 	def im_vsd_platformId(self, platformId):
+
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
 
 		if flask.request.method == "GET":
 			return self.get_vsd_platformId(platformId)
@@ -1192,6 +1374,10 @@ class OperationAgent:
 
 	def im_vs_rd_operations(self):
 
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
+
 		if flask.request.method == "GET":
 			return self.get_vs_rd_operations()
 		elif flask.request.method == "POST":
@@ -1204,6 +1390,10 @@ class OperationAgent:
 			return self.delete_vs_rd_operations()
 
 	def im_vs_rdo_monitoring(self):
+
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
 
 		if flask.request.method == "GET":
 			return self.get_vs_rdo_monitoring()
@@ -1218,6 +1408,10 @@ class OperationAgent:
 
 	def im_vs_rdo_modification(self):
 
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
+
 		if flask.request.method == "GET":
 			return self.get_vs_rdo_modification()
 		elif flask.request.method == "POST":
@@ -1230,6 +1424,10 @@ class OperationAgent:
 			return self.delete_vs_rdo_modification()
 
 	def im_vs_rdo_other(self):
+
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
 
 		if flask.request.method == "GET":
 			return self.get_vs_rdo_other()
@@ -1660,6 +1858,128 @@ class OperationAgent:
 	# ===================================== EMS Management Operations =====================================
 	
 	'''
+	PATH: 		 /im/vib/users
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve all the available users of the VIB
+				 database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibUserInstance [0..N]
+				 - Integer error code (HTTP)
+	'''
+	def get_vib_users(self):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "get_vib_users", None), "AS", "IM")
+		users = self.__asIr.sendMessage(request)
+		if type(users.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING USER OPERATION (" + str(users[1]) + ")", 400
+		return json.dumps([u.toDictionary() for u in users.messageData]), 200
+
+	'''
+	PATH: 		 /im/vib/users
+	ACTION: 	 POST
+	DESCRIPTION: Send a new user to be saved in the VIB data-
+				 base.
+	ARGUMENT: 	 VibUserInstance (JSON Dictionary)
+	RETURN: 	 - 200 (HTTP) + VibUserInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def post_vib_users(self, vibUserInstance):
+		
+		try:
+			vibUserInstance = VibModels.VibUserInstance().fromDictionary(json.loads(vibUserInstance))
+		except Exception as e:
+			return "ERROR CODE #0 (AS): INVALID USER INSTANCE PROVIDED", 400
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "post_vib_users", vibUserInstance), "AS", "IM")
+		user = self.__asIr.sendMessage(request)
+		if type(user.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING USER OPERATION (" + str(user.messageData[1]) + ")", 400
+
+		return json.dumps(user.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/vib/users
+	N/A ACTIONS: PUT, PATCH, DELETE
+	'''
+	def put_vib_users(self):
+		return "NOT AVAILABLE", 405
+	def patch_vib_users(self):
+		return "NOT AVAILABLE", 405
+	def delete_vib_users(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/vib/users/{userId}
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve a particular user from the VIB data-
+				 base.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibUserInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def get_vib_u_userId(self, userId):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "get_vib_u_userId", userId), "AS", "IM")
+		user = self.__asIr.sendMessage(request)
+		if type(user.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING USER OPERATION (" + str(user.messageData[1]) + ")", 400
+
+		return json.dumps(user.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/vib/user/{userId}
+	ACTION: 	 PATCH
+	DESCRIPTION: Send updates to a particular user already saved
+				 in the VIB database.
+	ARGUMENT: 	 VibUserInstance (JSON Dictionary)
+	RETURN: 	 - 200 (HTTP) + VibUserInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def patch_vib_u_userId(self, userId, vibUserInstance):
+		
+		try:
+			vibUserInstance = VibModels.VibUserInstance().fromDictionary(json.loads(vibUserInstance))
+			if userId != vibUserInstance.userId:
+				return "ERROR CODE #0 (AS): INVALID USER INSTANCE PROVIDED", 400
+		except:
+			return "ERROR CODE #0 (AS): INVALID USER INSTANCE PROVIDED", 400
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "patch_vib_u_userId", vibUserInstance), "AS", "IM")
+		user = self.__asIr.sendMessage(request)
+		if type(user.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING USER OPERATION (" + str(user.messageData[1]) + ")", 400
+
+		return json.dumps(user.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/vib/users/{userId}
+	ACTION: 	 DELETE
+	DESCRIPTION: Delete a particular user from the VIB data-
+				 base.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibUserInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def delete_vib_u_userId(self, userId):
+		
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "delete_vib_u_userId", userId), "AS", "IM")
+		user = self.__asIr.sendMessage(request)
+		if type(user.messageData) == tuple:
+			print("AQUIIIIIIIIIIIIIIIII", user.messageData)
+			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING USER OPERATION (" + str(user.messageData[1]) + ")", 400
+
+		return json.dumps(user.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/vib/users/{userId}
+	N/A ACTIONS: POST, PUT
+	'''
+	def post_vib_u_userId(self):
+		return "NOT AVAILABLE", 405
+	def put_vib_u_userId(self):
+		return "NOT AVAILABLE", 405
+
+	'''
 	PATH: 		 /im/vib/credentials
 	ACTION: 	 GET
 	DESCRIPTION: Retrieve all the available credentials of the
@@ -1667,14 +1987,13 @@ class OperationAgent:
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibCredentialInstance [0..N]
 				 - Integer error code (HTTP)
-	
 	'''
 	def get_vib_credentials(self):
 		
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "get_vib_credentials", None), "AS", "IM")
 		credentials = self.__asIr.sendMessage(request)
 		if type(credentials.messageData) == tuple:
-			return ("ERROR CODE #3 (AS): IM/VIB ERROR DURING CREDENTIAL OPERATION (" + str(credentials[1]) + ")", 3), 400
+			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING CREDENTIAL OPERATION (" + str(credentials[1]) + ")", 400
 		return json.dumps([c.toDictionary() for c in credentials.messageData]), 200
 
 	'''
@@ -1743,7 +2062,7 @@ class OperationAgent:
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "delete_vib_c_credentialId", (userId, vnfId)), "AS", "IM")
 		credential = self.__asIr.sendMessage(request)
 		if type(credential.messageData) == tuple:
-			return ("ERROR CODE #3 (AS): IM/VIB ERROR DURING CREDENTIAL OPERATION (" + str(credential.messageData[1]) + ")", 3), 400
+			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING CREDENTIAL OPERATION (" + str(credential.messageData[1]) + ")", 400
 
 		return json.dumps(credential.messageData.toDictionary())
 

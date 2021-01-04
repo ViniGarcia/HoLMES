@@ -5,7 +5,9 @@ import VibManager
 CLASS: TemplateAuthentication
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 04 Nov. 2020
-L. UPDATE: 04 Nov. 2020 (Fulber-Garcia; Class creation)
+L. UPDATE: 04 Jan. 2020 (Fulber-Garcia; Refactoring methods to
+						 operate with the VibUserInstance; In-
+						 cluded the "None" authenticator)
 DESCRIPTION: This class is a template for the implementation of 
 			 authentication models. In summary, there are four
 			 methods: "fromAuthData", that decodes the authData
@@ -13,9 +15,9 @@ DESCRIPTION: This class is a template for the implementation of
 			 string of authData and authResource; "toAuthData"
 			 that receives a string authData and authResource,
 			 and return a encoded string to be saved in the VIB;
-			 "authClient" that receives an authentication string
+			 "authUser" that receives an authentication string
 			 of the operation request and returns the clientId.
-			 "authRequest" receives an authentication string from
+			 "authCheck" receives an authentication string from
 			 the operationrequest and do the authentication check.
 AUTH MODEL: clientId + ";" + plainPassword
 CODES: -1 -> Invalid data type of authData
@@ -26,22 +28,22 @@ CODES: -1 -> Invalid data type of authData
 '''
 class TemplateAuthentication:
 
-	authenticatorId = None
+	authenticatorId = "None"
 
-	def __init__(self, authenticatorId):
-		self.authenticatorId = authenticatorId
-
-	def fromAuthData(self, authData, authResource):
+	def __init__(self):
 		return
 
-	def toAuthData(self, authData, authResource):
-		return
+	def fromAuthData(self, userAuth, userSecrets):
+		return (userAuth, userSecrets)
 
-	def authClient(self, requestAuth):
-		return
+	def toAuthData(self, userAuth, userSecrets):
+		return (userAuth, userSecrets)
 
-	def authRequest(self, authInstance, requestAuth):
-		return
+	def authUser(self, requestAuth):
+		return None
+
+	def authCheck(self, vibUserInstance, requestAuth):
+		return True
 
 '''
 CLASS: PlainTextAuthentication
@@ -51,9 +53,9 @@ L. UPDATE: 04 Nov. 2020 (Fulber-Garcia; Class creation)
 DESCRIPTION: This class processes the plain text authentication.
 			 "fromAuthData": just execute the type check and re-
 			 turn the strings. "toAuthData": just executes the 
-			 type check and returns the strings. "authClient":
+			 type check and returns the strings. "authUser":
 			 executes the type check, clean the authentication 
-			 model, and returns the clientId. "authRequest": 
+			 model, and returns the clientId. "authCheck": 
 			 executes the type check and the comparision of
 			 passwords.
 AUTH MODEL: clientId + ";" + plainPassword
@@ -66,27 +68,29 @@ CODES: -1 -> Invalid data type of authData
 class PlainTextAuthentication(TemplateAuthentication):
 
 	def __init__(self):
-		super().__init__("PlainText")
-
-	def fromAuthData(self, authData, authResource):
 		
-		if type(authData) != str:
+		super().__init__()
+		self.authenticatorId = "PlainText"
+
+	def fromAuthData(self, userAuth, userSecrets):
+		
+		if type(userAuth) != str:
 			return -1
-		if authResource != None and type(authResource) != str:
+		if userSecrets != None and type(userSecrets) != str:
 			return -2
 
-		return (authData, authResource)
+		return (userAuth, userSecrets)
 
-	def toAuthData(self, authData, authResource):
+	def toAuthData(self, userAuth, userSecrets):
 
-		if type(authData) != str:
+		if type(userAuth) != str:
 			return -1
-		if authResource != None and type(authResource) != str:
+		if userSecrets != None and type(userSecrets) != str:
 			return -2
 
-		return (authData, authResource)
+		return (userAuth, userSecrets)
 
-	def authClient(self, requestAuth):
+	def authUser(self, requestAuth):
 
 		if type(requestAuth) != str:
 			return -3
@@ -96,9 +100,9 @@ class PlainTextAuthentication(TemplateAuthentication):
 
 		return splitedAuth[0]
 
-	def authRequest(self, authInstance, requestAuth):
+	def authCheck(self, vibUserInstance, requestAuth):
 
-		if type(authInstance) != VibModels.VibAuthInstance:
+		if type(vibUserInstance) != VibModels.VibUserInstance:
 			return -5
 
 		if type(requestAuth) != str:
@@ -107,7 +111,7 @@ class PlainTextAuthentication(TemplateAuthentication):
 		if len(splitedAuth) != 2:
 			return -4
 
-		vibAuth = self.fromAuthData(authInstance.authData, authInstance.authResource)
+		vibAuth = self.fromAuthData(vibUserInstance.userAuthentication, vibUserInstance.userSecrets)
 		if vibAuth[0] == splitedAuth[1]:
 			return True
 		return False
@@ -138,7 +142,8 @@ class AuthenticationAgent:
 		if type(vibManager) != VibManager.VibManager:
 			return
 
-		self.__availableAuth = {"PlainText":PlainTextAuthentication}
+		self.__availableAuth = {"None":TemplateAuthentication, "PlainText":PlainTextAuthentication}
+		self.__authModel = TemplateAuthentication()
 		self.__vibManager = vibManager
 
 	def getAuthenticators(self):
@@ -159,19 +164,38 @@ class AuthenticationAgent:
 		self.__authModel = self.__availableAuth[authModel]()
 		return 0
 
-	def authRequest(self, userAuth, userRequest):
+	def transformAuthentication(self, vibUserInstance):
 
-		authClient = self.__authModel.authClient(userAuth)
-		if type(authClient) == int:
+		authTrasnform = self.__authModel.toAuthData(vibUserInstance.userAuthentication, vibUserInstance.userSecrets)
+		vibUserInstance.userAuthentication = authTrasnform[0]
+		vibUserInstance.userSecrets = authTrasnform[1]
+
+		return vibUserInstance
+
+	def authenticationCheck(self, userAuth):
+
+		userId = self.__authModel.authUser(userAuth)
+		if type(userId) == int:
 			return -3
 
-		authSql = self.__vibManager.queryVibDatabase("SELECT * FROM VibCredentialInstance WHERE userId = \"" + authClient + "\" AND vnfId = \"" + userRequest + "\";")
-		if len(authSql) == 0:
+		vibUserInstance = self.__vibManager.queryVibDatabase("SELECT * FROM UserInstance WHERE userId = \"" + userId + "\";")
+		if len(vibUserInstance) == 0:
 			return -4
 
-		authInstance = VibModels.VibAuthInstance().fromSql(authSql[0])
-		authentication = self.__authModel.authRequest(authInstance, userAuth)
+		vibUserInstance = VibModels.VibUserInstance().fromSql(vibUserInstance[0])
+		authentication = self.__authModel.authCheck(vibUserInstance, userAuth)
 		if type(authentication) == int:
 			return -5
 
-		return authentication
+		if authentication:
+			return vibUserInstance
+		else:
+			return False
+
+	def credentialCheck(self, userId, vnfId):
+
+		vibCredentialInstance = self.__vibManager.queryVibDatabase("SELECT * FROM CredentialInstance WHERE userId = \"" + userId + "\" AND vnfId = \"" + vnfId + "\";")
+		if len(vibCredentialInstance) == 0:
+			return False
+
+		return VibModels.vibCredentialInstance().fromSql(vibCredentialInstance[0])
