@@ -635,7 +635,7 @@ def main():
 	aiLog = logging.getLogger('werkzeug')
 	aiLog.disabled = True
 
-	#asAuthAgent.setupAuthentication("PlainText")
+	asAuthAgent.setupAuthentication("PlainText")
 
 	asOpAgent.setupAgent(vibManager, "DummyVnfmDriver", aiAgent, asAuthAgent, irAgent)
 	imAgent.setupAgent(vibManager, msManager, asAuthAgent, asOpAgent, vsAgent)

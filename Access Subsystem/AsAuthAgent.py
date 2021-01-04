@@ -198,4 +198,4 @@ class AuthenticationAgent:
 		if len(vibCredentialInstance) == 0:
 			return False
 
-		return VibModels.vibCredentialInstance().fromSql(vibCredentialInstance[0])
+		return VibModels.VibCredentialInstance().fromSql(vibCredentialInstance[0])
