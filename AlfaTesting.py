@@ -730,6 +730,38 @@ if __name__ == '__main__':
 
 	input("\nCONTINUE...")
 
+	print("\nLOG 1.1.1.2.3: RUNNING TEST ROUTINES OF IM/VIB -- CREDENTIAL TABLE (/im/vib/credentials/user/<userId>)")
+	imRequest = ("/im/vib/credentials/user/USER01", {"userAuth":"USER01;BatataFrita"})
+
+	responseData = requests.get("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#GET:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.post("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#POST:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.put("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#PUT:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.patch("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#PATCH:", responseData.content, "[" + str(responseData.status_code) + "]")
+
+	input("\nCONTINUE...")
+
+	print("\nLOG 1.1.1.2.4: RUNNING TEST ROUTINES OF IM/VIB -- CREDENTIAL TABLE (/im/vib/credentials/vnf/<vnfId>)")
+	imRequest = ("/im/vib/credentials/vnf/VNF01", {"userAuth":"USER01;BatataFrita"})
+
+	responseData = requests.get("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#GET:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.post("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#POST:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.put("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#PUT:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.patch("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#PATCH:", responseData.content, "[" + str(responseData.status_code) + "]")
+
+	input("\nCONTINUE...")
+
 	print("\nLOG 1.1.1.3: RUNNING TEST ROUTINES OF IM/VIB -- SUBSCRIPTION TABLE\n")
 
 	print("LOG 1.1.1.3.1: RUNNING TEST ROUTINES OF IM/VIB -- SUBSCRIPTION TABLE (/im/vib/subscriptions)")
@@ -1084,7 +1116,41 @@ if __name__ == '__main__':
 
 	input("\nCONTINUE...")
 
-	print("\nLOG 1.1.3.5: RUNNING TEST ROUTINES OF IM/AS (/im/as/credential)")
+	print("\nLOG 1.1.3.5: RUNNING TEST ROUTINES OF IM/AS (/im/as/user)")
+	vibUserInstance = VibModels.VibUserInstance().fromData("USER03", "PolentaFrita2", "", ["VLMI", "VPMI", "VFMI", "VII", "VCI", "VNF", "VIB", "MS", "AS", "VS"])
+	imRequest = ("/im/as/user", {"vibUserInstance":json.dumps(vibUserInstance.toDictionary()), "userAuth":"USER01;BatataFrita"})
+
+	responseData = requests.patch("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#PATCH:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.get("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#GET:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.post("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#POST:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.put("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#PUT:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
+
+	input("\nCONTINUE...")
+
+	print("\nLOG 1.1.3.6: RUNNING TEST ROUTINES OF IM/AS (/im/as/user/<userId>)")
+	vibUserInstance = VibModels.VibUserInstance().fromData("USER03", "PolentaFrita", "", ["VLMI", "VPMI", "VFMI", "VII", "VCI", "VNF", "VIB", "MS", "AS", "VS"])
+	imRequest = ("/im/as/user/USER03", {"vibUserInstance":json.dumps(vibUserInstance.toDictionary()), "userAuth":"USER01;BatataFrita"})
+
+	responseData = requests.get("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#GET:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.post("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#POST:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.put("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#PUT:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.patch("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#PATCH:", responseData.content, "[" + str(responseData.status_code) + "]")
+	
+	input("\nCONTINUE...")
+
+	print("\nLOG 1.1.3.7: RUNNING TEST ROUTINES OF IM/AS (/im/as/credential)")
 	vibCredentialInstance = VibModels.VibCredentialInstance().fromData("USER02", "VNF01")
 	imRequest = ("/im/as/credential", {"vibCredentialInstance":json.dumps(vibCredentialInstance.toDictionary()), "userAuth":"USER01;BatataFrita"})
 
@@ -1101,7 +1167,7 @@ if __name__ == '__main__':
 
 	input("\nCONTINUE...")
 
-	print("\nLOG 1.1.3.6: RUNNING TEST ROUTINES OF IM/AS (/im/as/credential/<userId>/<vnfId>)")
+	print("\nLOG 1.1.3.8: RUNNING TEST ROUTINES OF IM/AS (/im/as/credential/<userId>/<vnfId>)")
 	vibCredentialInstance = VibModels.VibCredentialInstance().fromData("USER02", "VNF01")
 	imRequest = ("/im/as/credential/USER02/VNF01", {"vibCredentialInstance":json.dumps(vibCredentialInstance.toDictionary()), "userAuth":"USER01;BatataFrita"})
 
@@ -1118,7 +1184,39 @@ if __name__ == '__main__':
 	
 	input("\nCONTINUE...")
 
-	print("\nLOG 1.1.3.7: RUNNING TEST ROUTINES OF IM/AS (/im/as/vnfm/running_driver)")
+	print("\nLOG 1.1.3.9: RUNNING TEST ROUTINES OF IM/AS (/im/as/credential/user/<userId>)")
+	imRequest = ("/im/as/credential/user/USER01", {"userAuth":"USER01;BatataFrita"})
+
+	responseData = requests.get("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#GET:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.post("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#POST:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.put("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#PUT:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.patch("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#PATCH:", responseData.content, "[" + str(responseData.status_code) + "]")
+	
+	input("\nCONTINUE...")
+
+	print("\nLOG 1.1.3.10: RUNNING TEST ROUTINES OF IM/AS (/im/as/credential/vnf/<vnfId>)")
+	imRequest = ("/im/as/credential/vnf/VNF01", {"userAuth":"USER01;BatataFrita"})
+
+	responseData = requests.get("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#GET:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.delete("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#DELETE:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.post("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#POST:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.put("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#PUT:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.patch("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#PATCH:", responseData.content, "[" + str(responseData.status_code) + "]")
+	
+	input("\nCONTINUE...")
+
+	print("\nLOG 1.1.3.11: RUNNING TEST ROUTINES OF IM/AS (/im/as/vnfm/running_driver)")
 	imRequest = ("/im/as/vnfm/running_driver", {"userAuth":"USER01;BatataFrita"})
 
 	responseData = requests.get("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
@@ -1134,7 +1232,7 @@ if __name__ == '__main__':
 
 	input("\nCONTINUE...")
 
-	print("\nLOG 1.1.3.8: RUNNING TEST ROUTINES OF IM/AS (/im/as/vnfm/running_driver/<vnfmId>)")
+	print("\nLOG 1.1.3.12: RUNNING TEST ROUTINES OF IM/AS (/im/as/vnfm/running_driver/<vnfmId>)")
 	imRequest = ("/im/as/vnfm/running_driver/DummyVnfmDriver", {"userAuth":"USER01;BatataFrita"})
 
 	responseData = requests.get("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
@@ -1150,7 +1248,7 @@ if __name__ == '__main__':
 
 	input("\nCONTINUE...")
 
-	print("\nLOG 1.1.3.9: RUNNING TEST ROUTINES OF IM/AS (/im/as/vnfm/driver)")
+	print("\nLOG 1.1.3.13: RUNNING TEST ROUTINES OF IM/AS (/im/as/vnfm/driver)")
 	vibVnfmInstance = VibModels.VibVnfmInstance().fromData("Vines", "C:/Users/vfulb/Desktop/EMSPlatformTesting/DummyVnfmDriver2.py")
 	imRequest = ("/im/as/vnfm/driver", {"vibVnfmInstance":json.dumps(vibVnfmInstance.toDictionary()), "userAuth":"USER01;BatataFrita"})
 
@@ -1167,7 +1265,7 @@ if __name__ == '__main__':
 
 	input("\nCONTINUE...")
 
-	print("\nLOG 1.1.3.10: RUNNING TEST ROUTINES OF IM/AS (/im/as/vnfm/driver/<vnfmId>)")
+	print("\nLOG 1.1.3.14: RUNNING TEST ROUTINES OF IM/AS (/im/as/vnfm/driver/<vnfmId>)")
 	imRequest = ("/im/as/vnfm/driver/Vines", {"vibVnfmInstance":json.dumps(vibVnfmInstance.toDictionary()), "userAuth":"USER01;BatataFrita"})
 
 	responseData = requests.patch("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])

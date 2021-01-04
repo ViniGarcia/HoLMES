@@ -90,7 +90,7 @@ class ImAgent:
 
 	def __executeVibOperation(self, irManagement):
 
-		if irManagement.operationId.endswith("users") or irManagement.operationId.endswith("userId"):
+		if irManagement.operationId.endswith("users") or irManagement.operationId.endswith("u_userId"):
 			if irManagement.operationId == "get_vib_users":
 				return self.__get_vib_users(irManagement)
 			elif irManagement.operationId == "post_vib_users":
@@ -103,17 +103,19 @@ class ImAgent:
 				return self.__delete_vib_u_userId(irManagement)
 			else:
 				return -8
-		elif irManagement.operationId.endswith("credentials") or irManagement.operationId.endswith("credentialId"):
+		elif irManagement.operationId.endswith("credentials") or irManagement.operationId.endswith("credentialId") or irManagement.operationId.endswith("c_userId") or irManagement.operationId.endswith("c_vnfId"):
 			if irManagement.operationId == "get_vib_credentials":
 				return self.__get_vib_credentials(irManagement)
 			elif irManagement.operationId == "post_vib_credentials":
 				return self.__post_vib_credentials(irManagement)
 			elif irManagement.operationId == "get_vib_c_credentialId":
 				return self.__get_vib_c_credentialId(irManagement)
-			elif irManagement.operationId == "patch_vib_c_credentialId":
-				return self.__patch_vib_c_credentialId(irManagement)
 			elif irManagement.operationId == "delete_vib_c_credentialId":
 				return self.__delete_vib_c_credentialId(irManagement)
+			elif irManagement.operationId == "get_vib_c_userId":
+				return self.__get_vib_c_userId(irManagement)
+			elif irManagement.operationId == "get_vib_c_vnfId":
+				return self.__get_vib_c_vnfId(irManagement)
 			else:
 				return -8
 		elif irManagement.operationId.endswith("subscriptions") or irManagement.operationId.endswith("subscriptionId"):
@@ -240,13 +242,30 @@ class ImAgent:
 				return self.__post_as_ra_authId(irManagement)
 			else:
 				return -8
-		elif irManagement.operationId.endswith("credential") or irManagement.operationId.endswith("credentialId"):
+		elif irManagement.operationId.endswith("user") or irManagement.operationId.endswith("u_userId"):
+			if irManagement.operationId == "get_as_user":
+				return self.__get_as_user(irManagement)
+			if irManagement.operationId == "post_as_user":
+				return self.__post_as_user(irManagement)
+			if irManagement.operationId == "get_as_u_userId":
+				return self.__get_as_u_userId(irManagement)
+			if irManagement.operationId == "patch_as_u_userId":
+				return self.__patch_as_u_userId(irManagement)
+			if irManagement.operationId == "delete_as_u_userId":
+				return self.__delete_as_u_userId(irManagement)
+			else:
+				return -8
+		elif irManagement.operationId.endswith("credential") or irManagement.operationId.endswith("credentialId") or irManagement.operationId.endswith("c_userId") or irManagement.operationId.endswith("c_vnfId"):
 			if irManagement.operationId == "get_as_credential":
 				return self.__get_as_credential(irManagement)
 			elif irManagement.operationId == "post_as_credential":
 				return self.__post_as_credential(irManagement)
 			elif irManagement.operationId == "get_as_c_credentialId":
 				return self.__get_as_c_credentialId(irManagement)
+			elif irManagement.operationId == "get_as_c_userId":
+				return self.__get_as_c_userId(irManagement)
+			elif irManagement.operationId == "get_as_c_vnfId":
+				return self.__get_as_c_vnfId(irManagement)
 			elif irManagement.operationId == "patch_as_c_credentialId":
 				return self.__patch_as_c_credentialId(irManagement)
 			elif irManagement.operationId == "delete_as_c_credentialId":
@@ -348,7 +367,6 @@ class ImAgent:
 		if len(redundancy) != 0:
 			return ("ERROR CODE #3: THE REQUIRED USER ALREADY EXISTS", 3)
 
-		irManagement.operationArgs = self.asAuthAgent.transformAuthentication(irManagement.operationArgs)
 		insertion = self.vibManager.operateVibDatabase(irManagement.operationArgs.toSql())
 		if type(insertion) == sqlite3.Error:
 			return ("ERROR CODE #2: SQL ERROR DURING USER INSERTION", 2)
@@ -381,7 +399,6 @@ class ImAgent:
 		if len(user) == 0:
 			return ("ERROR CODE #4: THE REQUIRED USER DOES NOT EXIST", 4)
 
-		irManagement.operationArgs = self.asAuthAgent.transformAuthentication(irManagement.operationArgs)
 		update = self.vibManager.operateVibDatabase(("UPDATE UserInstance SET userAuthentication = ?, userSecrets = ?, userPrivileges = ? WHERE userId = ?;", (irManagement.operationArgs.userAuthentication, irManagement.operationArgs.userSecrets, json.dumps(irManagement.operationArgs.userPrivileges), irManagement.operationArgs.userId)))
 		if type(update) == sqlite3.Error:
 			return ("ERROR CODE #2: SQL ERROR DURING USER UPDATING", 2)
@@ -437,6 +454,12 @@ class ImAgent:
 		if len(existence) == 0:
 			return ("ERROR CODE #4: THE REQUIRED VNF INSTANCE DOES NOT EXIST", 4)
 
+		existence = self.vibManager.queryVibDatabase("SELECT * FROM UserInstance WHERE userId = \"" + irManagement.operationArgs.userId + "\";")
+		if type(existence) == sqlite3.Error:
+			return ("ERROR CODE #2: SQL ERROR DURING USER INSTANCES CONSULTING", 2)
+		if len(existence) == 0:
+			return ("ERROR CODE #4: THE REQUIRED USER INSTANCE DOES NOT EXIST", 4)
+
 		insertion = self.vibManager.operateVibDatabase(irManagement.operationArgs.toSql())
 		if type(insertion) == sqlite3.Error:
 			return ("ERROR CODE #2: SQL ERROR DURING CREDENTIAL INSERTION", 2)
@@ -457,6 +480,28 @@ class ImAgent:
 			return ("ERROR CODE #4: THE REQUIRED CREDENTIAL DOES NOT EXIST", 4)
 
 		return VibModels.VibCredentialInstance().fromSql(credential[0])
+
+	def __get_vib_c_userId(self, irManagement):
+
+		if type(irManagement.operationArgs) != str:
+			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (userId is expected)", 1)
+
+		credentials = self.vibManager.queryVibDatabase("SELECT * FROM CredentialInstance WHERE userId = \"" + irManagement.operationArgs + "\";")
+		if type(credentials) == sqlite3.Error:
+			return ("ERROR CODE #2: SQL ERROR DURING CREDENTIALS CONSULTING", 2)
+
+		return [VibModels.VibCredentialInstance().fromSql(c) for c in credentials]
+
+	def __get_vib_c_vnfId(self, irManagement):
+
+		if type(irManagement.operationArgs) != str:
+			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (vnfId is expected)", 1)
+
+		credentials = self.vibManager.queryVibDatabase("SELECT * FROM CredentialInstance WHERE vnfId = \"" + irManagement.operationArgs + "\";")
+		if type(credentials) == sqlite3.Error:
+			return ("ERROR CODE #2: SQL ERROR DURING CREDENTIALS CONSULTING", 2)
+
+		return [VibModels.VibCredentialInstance().fromSql(c) for c in credentials]
 
 	def __delete_vib_c_credentialId(self, irManagement):
 
@@ -997,6 +1042,43 @@ class ImAgent:
 
 		return irManagement.operationArgs
 
+	def __get_as_user(self, irManagement):
+
+		return self.__get_vib_users(irManagement)
+
+	def __post_as_user(self, irManagement):
+
+		if not hasattr(irManagement.operationArgs, "userAuthentication") or not hasattr(irManagement.operationArgs, "userSecrets"):
+			return ("ERROR CODE #1: THERE IS NO userAuthentication/userSecrets IN irManagement.operationArgs", 1)
+
+		irManagement.operationArgs = self.asAuthAgent.transformAuthentication(irManagement.operationArgs)
+
+		return self.__post_vib_users(irManagement)
+
+	def __get_as_u_userId(self, irManagement):
+
+		return self.__get_vib_u_userId(irManagement)
+
+	def __patch_as_u_userId(self, irManagement):
+
+		if not hasattr(irManagement.operationArgs, "userAuthentication") or not hasattr(irManagement.operationArgs, "userSecrets"):
+			return ("ERROR CODE #1: THERE IS NO userAuthentication/userSecrets IN irManagement.operationArgs", 1)
+
+		irManagement.operationArgs = self.asAuthAgent.transformAuthentication(irManagement.operationArgs)
+
+		return self.__patch_vib_u_userId(irManagement)
+
+	def __delete_as_u_userId(self, irManagement):
+
+		if type(irManagement.operationArgs) != str:
+			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (userId is expected)", 1)
+		
+		credentials = self.__get_as_c_userId(IrModels.IrManagement().fromData("AS", "get_as_c_userId", irManagement.operationArgs))
+		if len(credentials) > 0:
+			return ("ERROR CODE #5: THE REQUIRED USER INSTANCE IS BEING USED IN THE CREDENTIAL INSTANCE TABLE", 5)
+
+		return self.__delete_vib_u_userId(irManagement)
+
 	def __get_as_credential(self, irManagement):
 
 		return self.__get_vib_credentials(irManagement)
@@ -1009,9 +1091,13 @@ class ImAgent:
 
 		return self.__get_vib_c_credentialId(irManagement)
 
-	def __patch_as_c_credentialId(self, irManagement):
-		
-		return self.__patch_vib_c_credentialId(irManagement)
+	def __get_as_c_userId(self, irManagement):
+
+		return self.__get_vib_c_userId(irManagement)
+
+	def __get_as_c_vnfId (self, irManagement):
+
+		return self.__get_vib_c_vnfId(irManagement)
 
 	def __delete_as_c_credentialId(self, irManagement):
 
@@ -1150,6 +1236,10 @@ class ImAgent:
 		for element in subscriptions:
 			if irManagement.operationArgs in element.visFilter.vnfInstanceSubscriptionFilter.vnfInstanceIds:
 				return ("ERROR CODE #5: THE REQUIRED VNF INSTANCE INSTANCE IS BEING USED IN THE SUBSCRIPTION TABLE", 5)
+
+		credentials = self.__get_as_c_vnfId(IrModels.IrManagement().fromData("AS", "get_as_c_vnfId", irManagement.operationArgs))
+		if len(credentials) > 0:
+			return ("ERROR CODE #5: THE REQUIRED VNF INSTANCE IS BEING USED IN THE CREDENTIAL INSTANCE TABLE", 5)
 
 		return self.__delete_vib_vnfi_vnfId(irManagement)
 
