@@ -123,6 +123,14 @@ class OperationAgent:
 
 		return True
 
+	def __autheticateUser(self, authentication):
+
+		authResult = self.__oaAa.authenticationCheck(authentication)
+		if type(authResult) == int:
+			return -9
+
+		return authResult
+
 	def __setupAccessInterface(self):
 
 		self.__aiAs.add_url_rule("/vlmi/vnf_instances/", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vlmi_vnfInstances)
@@ -171,6 +179,8 @@ class OperationAgent:
 
 		self.__aiAs.add_url_rule("/vnf/operation/<vnfId>/<operationId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.vnf_operation)
 
+		self.__aiAs.add_url_rule("/aa/authenticate/<authentication>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.aa_authenticate)
+		
 		self.__aiAs.add_url_rule("/im/vib/users", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_users)
 		self.__aiAs.add_url_rule("/im/vib/users/<userId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_u_userId)
 		self.__aiAs.add_url_rule("/im/vib/credentials", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_credentials)
@@ -205,7 +215,6 @@ class OperationAgent:
 		self.__aiAs.add_url_rule("/im/as/credential/user/<userId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_c_userId)
 		self.__aiAs.add_url_rule("/im/as/credential/vnf/<vnfId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_c_vnfId)
 		self.__aiAs.add_url_rule("/im/as/credential/<userId>/<vnfId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_c_credentialId)
-		
 		self.__aiAs.add_url_rule("/im/as/vnfm/running_driver", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_vnfm_running_driver)
 		self.__aiAs.add_url_rule("/im/as/vnfm/running_driver/<vnfmId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_vrd_vnfmId)
 		self.__aiAs.add_url_rule("/im/as/vnfm/driver", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_vnfm_driver)
@@ -923,6 +932,19 @@ class OperationAgent:
 			return self.patch_vnf_operation()
 		elif flask.request.method == "DELETE":
 			return self.delete_vnf_operation()
+
+	def aa_authenticate(self, authentication):
+
+		if flask.request.method == "GET":
+			return self.get_aa_authenticate(authentication)
+		elif flask.request.method == "POST":
+			return self.post_aa_authenticate()
+		elif flask.request.method == "PUT":
+			return self.put_aa_authenticate()
+		elif flask.request.method == "PATCH":
+			return self.patch_aa_authenticate()
+		elif flask.request.method == "DELETE":
+			return self.delete_aa_authenticate()
 
 	def im_vib_users(self):
 
@@ -2126,6 +2148,36 @@ class OperationAgent:
 
 	# ===================================== EMS Management Operations =====================================
 	
+	'''
+	PATH: 		 /aa/authenticate/<authentication>
+	ACTION: 	 GET
+	DESCRIPTION: Return "True" if the authentication is
+				 valid or "False" if it is not valid.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + Boolean [1]
+				 - Integer error code (HTTP)
+	'''
+	def get_aa_authenticate(self, authentication):
+
+		authResult = self.__autheticateUser(authentication)
+		if type(authResult) == VibModels.VibUserInstance:
+			return "True"
+		else:
+			return "False"
+
+	'''
+	PATH: 		 /aa/authenticate/<authentication>
+	N/A ACTIONS: POST, PUT, PATCH, DELETE
+	'''
+	def post_aa_authenticate(self):
+		return "NOT AVAILABLE", 405
+	def put_aa_authenticate(self):
+		return "NOT AVAILABLE", 405
+	def patch_aa_authenticate(self):
+		return "NOT AVAILABLE", 405
+	def delete_aa_authenticate(self):
+		return "NOT AVAILABLE", 405
+
 	'''
 	PATH: 		 /im/vib/users
 	ACTION: 	 GET

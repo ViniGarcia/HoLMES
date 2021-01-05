@@ -650,7 +650,7 @@ class VnfmDriverTemplate:
 				 - Integer error code (HTTP)
 	CALL: 		 EM -> VNFM
 	'''
-	def delete_vlmi_vs_vnfSnapshotID(self, vnfSnapshotID):
+	def delete_vlmi_vs_vnfSnapshotID(self, vnfSnapshotInfoId):
 		return "501"
 
 	'''
