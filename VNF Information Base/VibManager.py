@@ -14,7 +14,7 @@ DESCRIPTION: Implementation of the VIB manager. In summary, this class control t
              the VIB internally, reseting the base when necessary.
 '''
 class VibManager:
-    __vibPath = "C:\\Users\\vfulb\\Desktop\\EMSPlatform\\VNF Information Base\\VIB.db"
+    __vibPath = "VNF Information Base\\VIB.db"
     __vibConnection = None
 
     def __init__(self):

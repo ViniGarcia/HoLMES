@@ -1,3 +1,4 @@
+import re
 import os
 import sys
 import cmd
@@ -154,9 +155,10 @@ class EmsCli(cmd.Cmd):
 	def do_help(self, args):
 
 		print("==================================== HELP ====================================")
-		print("\tsend $execution $operation $arguments -> Send requests as user to the\n\t\t\t\t\t\taccess subsystem")
+		print("\tsend $execution $operation $arguments -> Send requests as user to the\n\t\t\t\t\t\t\taccess subsystem")
 		print("\t\t$execution = GET | POST | PUT | PATCH | DELETE")
 		print("\t\tNOTE: use a double line (||) to separe arguments")
+		print("\t\tNOTE: url arguments must be between <>")
 		print("")
 		print("\tcheck $operation -> Show the required arguments for an operation")
 		print("")
@@ -182,35 +184,45 @@ class EmsCli(cmd.Cmd):
 	def do_send(self, args):
 
 		args = args.split(" ")
-		if len(args) < 2 or len(args) > 3:
-			print("ERROR: INVALID \"SEND\" OPERATION REQUESTED (TWO OR THREE STRING ARGUMENTS EXPECTED)!")
+		if len(args) > 2:
+			args = [args[0], args[1], " ".join(args[2:])]
+		elif len(args) < 2:
+			print("ERROR: INVALID \"SEND\" OPERATION REQUESTED (TWO OR THREE STRING ARGUMENTS EXPECTED)!\n")
 			return
 
 		if not args[0] in ["GET", "POST", "PUT", "PATCH", "DELETE"]:
-			print("ERROR: INVALID \"SEND\" OPERATION REQUESTED (INVALID EXECUTION TYPE RECEIVED)!")
+			print("ERROR: INVALID \"SEND\" OPERATION REQUESTED (INVALID EXECUTION TYPE RECEIVED)!\n")
 			return 
+
+		url = re.findall(r"<([^>]*)>", args[1])
+		if len(url) > 0:
+			args[1] = "/".join(args[1].split("/")[:-len(url)])
 
 		required = None
 		for module in self.operations:
-			if args[1] in self.operations[module]:
-				required = self.operations[module][args[1]][args[0]]
-				break
+			for operation in self.operations[module]:
+				if operation.startswith(args[1]):
+					check = re.findall(r"<([^>]*)>", operation)
+					if len(check) == len(url):
+						if not args[0] in self.operations[module][operation]:
+							print ("ERROR: INVALID \"SEND\" OPERATION REQUESTED (OPERATON DOES NOT EXIST)!\n")
+							return
+						if len(url) > 0:
+							args[1] = args[1] + "/" + "/".join(url)
+						required = self.operations[module][operation][args[0]]
+						break
 		if required == None:
-			print ("ERROR: INVALID \"SEND\" OPERATION REQUESTED (OPERATON DOES NOT EXIST)!")
+			print ("ERROR: INVALID \"SEND\" OPERATION REQUESTED (OPERATON DOES NOT EXIST)!\n")
 			return
 
 		resources = {"userAuth":self.user + ";" + self.password}
 		if len(args) == 3:
 			args[2] = args[2].split("||")
 			if len(required) != len(args[2]):
-				print ("ERROR: INVALID \"SEND\" OPERATION REQUESTED (NUMBER OF ARGUMENTS DO NOT MATCH)!")
+				print ("ERROR: INVALID \"SEND\" OPERATION REQUESTED (NUMBER OF ARGUMENTS DO NOT MATCH)!\n")
 				return
 			for index in range(len(args[2])):
 				resources[required[index]] = args[2][index]
-
-		#TODO: SOLVE URL ARGUMENTS
-		#>>> import re
-		#>>> re.sub('\nThis.*?ok','',a, flags=re.DOTALL)
 
 		if args[0] == "GET":
 			responseData = requests.get("http://127.0.0.1:9000/" + args[1], params=resources)
@@ -310,7 +322,4 @@ if __name__ == '__main__':
 	
 	emsProcess.terminate()
 
-#send POST /im/vib/users {"userId":"USER03","userAuthentication":"PolentaFrita","userSecrets":"","userPrivileges":["VLMI","VPMI","VFMI","VII","VCI","VNF","VIB","MS","AS","VS"]}
-
-
-	
+#send POST /im/vib/users {"userId":"USER03","userAuthentication":"USER03","userSecrets":"","userPrivileges":["VLMI","VPMI","VFMI","VII","VCI","VNF","VIB","MS","AS","VS"]}
