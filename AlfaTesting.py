@@ -12,7 +12,7 @@ sys.path.insert(0,'VNF Subsystem/Ve-Em-vnf/')
 sys.path.insert(0,'Access Subsystem/Ve-Vnfm-em')
 sys.path.insert(0,'Monitoring Subsystem/Monitoring Agents/')
 
-sys.path.insert(0,'AlfaTestingResources/')
+sys.path.insert(0,'AlfaTesting Resources/')
 
 import AsModels
 import VibModels
@@ -70,8 +70,8 @@ if __name__ == '__main__':
 	emsProcess = multiprocessing.Process(target=main, args=())
 	emsProcess.start()
 
-	dummyCooHttp = subprocess.Popen(['python', 'AlfaTestingResources/DummyCooVnf.py'])
-	dummyCooSocket = subprocess.Popen(['python', 'AlfaTestingResources/DummyCooSocketVnf.py'])
+	dummyCooHttp = subprocess.Popen(['python', 'AlfaTesting Resources/DummyCooVnf.py'])
+	dummyCooSocket = subprocess.Popen(['python', 'AlfaTesting Resources/DummyCooSocketVnf.py'])
 
 	time.sleep(2)
 
@@ -227,7 +227,7 @@ if __name__ == '__main__':
 	print("\nLOG 1.1.1.4: RUNNING TEST ROUTINES OF IM/VIB -- MANAGEMENT AGENT TABLE\n")
 
 	print("LOG 1.1.1.4.1: RUNNING TEST ROUTINES OF IM/VIB -- MANAGEMENT AGENT TABLE (/im/vib/management_agents)")
-	vibMaInstance = VibModels.VibMaInstance().fromData("DummyAgent", "AlfaTestingResources/DummyMonitoringAgent.py", "Click-On-OSv")
+	vibMaInstance = VibModels.VibMaInstance().fromData("DummyAgent", "AlfaTesting Resources/DummyMonitoringAgent.py", "Click-On-OSv")
 	imRequest = ("/im/vib/management_agents", {"vibMaInstance":json.dumps(vibMaInstance.toDictionary()), "userAuth":"USER01;BatataFrita"})
 
 	responseData = requests.get("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
@@ -244,7 +244,7 @@ if __name__ == '__main__':
 	input("\nCONTINUE...")
 
 	print("\nLOG 1.1.1.4.2: RUNNING TEST ROUTINES OF IM/VIB -- MANAGEMENT AGENT TABLE (/im/vib/management_agents/<agentId>)")
-	vibMaInstance = VibModels.VibMaInstance().fromData("DummyAgent", "AlfaTestingResources/DummyMonitoringAgent2.py", "Click-On-OSv")
+	vibMaInstance = VibModels.VibMaInstance().fromData("DummyAgent", "AlfaTesting Resources/DummyMonitoringAgent2.py", "Click-On-OSv")
 	imRequest = ("/im/vib/management_agents/DummyAgent", {"vibMaInstance":json.dumps(vibMaInstance.toDictionary()), "userAuth":"USER01;BatataFrita"})
 
 	responseData = requests.patch("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
@@ -299,7 +299,7 @@ if __name__ == '__main__':
 	print("\nLOG 1.1.1.6: RUNNING TEST ROUTINES OF IM/VIB -- PLATFORM TABLE\n")
 
 	print("LOG 1.1.1.6.1: RUNNING TEST ROUTINES OF IM/VIB -- PLATFORM TABLE (/im/vib/platforms)")
-	vibPlatformInstance = VibModels.VibPlatformInstance().fromData("Coven-On-OSv", "AlfaTestingResources/DummyPlatformDriver.py")
+	vibPlatformInstance = VibModels.VibPlatformInstance().fromData("Coven-On-OSv", "AlfaTesting Resources/DummyPlatformDriver.py")
 	imRequest = ("/im/vib/platforms", {"vibPlatformInstance":json.dumps(vibPlatformInstance.toDictionary()), "userAuth":"USER01;BatataFrita"})
 
 	responseData = requests.get("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
@@ -316,7 +316,7 @@ if __name__ == '__main__':
 	input("\nCONTINUE...")
 
 	print("\nLOG 1.1.1.6.2: RUNNING TEST ROUTINES OF IM/VIB -- PLATFORM TABLE (/im/vib/platforms/<platformId>)")
-	vibVnfInstance = VibModels.VibPlatformInstance().fromData("Coven-On-OSv", "AlfaTestingResources/DummyPlatformDriver2.py")
+	vibVnfInstance = VibModels.VibPlatformInstance().fromData("Coven-On-OSv", "AlfaTesting Resources/DummyPlatformDriver2.py")
 	imRequest = ("/im/vib/platforms/Coven-On-OSv", {"vibPlatformInstance":json.dumps(vibPlatformInstance.toDictionary()), "userAuth":"USER01;BatataFrita"})
 
 	responseData = requests.patch("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
@@ -335,7 +335,7 @@ if __name__ == '__main__':
 	print("\nLOG 1.1.1.7: RUNNING TEST ROUTINES OF IM/VIB -- VNF MANAGER TABLE\n")
 
 	print("LOG 1.1.1.7.1: RUNNING TEST ROUTINES OF IM/VIB -- VNF MANAGER TABLE (/im/vib/vnf_managers)")
-	vibVnfmInstance = VibModels.VibVnfmInstance().fromData("Vines", "AlfaTestingResources/DummyVnfmDriver.py")
+	vibVnfmInstance = VibModels.VibVnfmInstance().fromData("Vines", "AlfaTesting Resources/DummyVnfmDriver.py")
 	imRequest = ("/im/vib/vnf_managers", {"vibVnfmInstance":json.dumps(vibVnfmInstance.toDictionary()), "userAuth":"USER01;BatataFrita"})
 
 	responseData = requests.get("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
@@ -352,7 +352,7 @@ if __name__ == '__main__':
 	input("\nCONTINUE...")
 
 	print("\nLOG 1.1.1.7.2: RUNNING TEST ROUTINES OF IM/VIB -- VNF MANAGER TABLE (/im/vib/vnf_managers/<vnfmId>)")
-	vibVnfmInstance = VibModels.VibVnfmInstance().fromData("Vines", "AlfaTestingResources/DummyVnfmDriver2.py")
+	vibVnfmInstance = VibModels.VibVnfmInstance().fromData("Vines", "AlfaTesting Resources/DummyVnfmDriver2.py")
 	imRequest = ("/im/vib/vnf_managers/Vines", {"vibVnfmInstance":json.dumps(vibVnfmInstance.toDictionary()), "userAuth":"USER01;BatataFrita"})
 
 	responseData = requests.patch("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
@@ -443,7 +443,7 @@ if __name__ == '__main__':
 	input("\nCONTINUE...")
 
 	print("\nLOG 1.1.2.5: RUNNING TEST ROUTINES OF IM/MS (/im/ms/agent)")
-	vibMaInstance = VibModels.VibMaInstance().fromData("DummyAgent", "AlfaTestingResources/DummyMonitoringAgent.py", "Click-On-OSv")
+	vibMaInstance = VibModels.VibMaInstance().fromData("DummyAgent", "AlfaTesting Resources/DummyMonitoringAgent.py", "Click-On-OSv")
 	imRequest = ("/im/ms/agent", {"vibMaInstance":json.dumps(vibMaInstance.toDictionary()), "userAuth":"USER01;BatataFrita"})
 
 	responseData = requests.get("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
@@ -674,7 +674,7 @@ if __name__ == '__main__':
 	input("\nCONTINUE...")
 
 	print("\nLOG 1.1.3.13: RUNNING TEST ROUTINES OF IM/AS (/im/as/vnfm/driver)")
-	vibVnfmInstance = VibModels.VibVnfmInstance().fromData("Vines", "AlfaTestingResources/DummyVnfmDriver2.py")
+	vibVnfmInstance = VibModels.VibVnfmInstance().fromData("Vines", "AlfaTesting Resources/DummyVnfmDriver2.py")
 	imRequest = ("/im/as/vnfm/driver", {"vibVnfmInstance":json.dumps(vibVnfmInstance.toDictionary()), "userAuth":"USER01;BatataFrita"})
 
 	responseData = requests.get("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
@@ -775,7 +775,7 @@ if __name__ == '__main__':
 	input("\nCONTINUE...")
 
 	print("\nLOG 1.1.4.5: RUNNING TEST ROUTINES OF IM/VS (/im/vs/driver/)")
-	vibPlatformInstance = VibModels.VibPlatformInstance().fromData("Coven-On-OSv", "AlfaTestingResources/DummyPlatformDriver.py")
+	vibPlatformInstance = VibModels.VibPlatformInstance().fromData("Coven-On-OSv", "AlfaTesting Resources/DummyPlatformDriver.py")
 	imRequest = ("/im/vs/driver", {"vibPlatformInstance":json.dumps(vibPlatformInstance.toDictionary()), "userAuth":"USER01;BatataFrita"})
 
 	responseData = requests.get("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
@@ -792,7 +792,7 @@ if __name__ == '__main__':
 	input("\nCONTINUE...")
 
 	print("\nLOG 1.1.4.6: RUNNING TEST ROUTINES OF IM/VS (/im/vs/driver/<vnfId>)")
-	vibPlatformInstance = VibModels.VibPlatformInstance().fromData("Coven-On-OSv", "AlfaTestingResources/DummyPlatformDriver.py")
+	vibPlatformInstance = VibModels.VibPlatformInstance().fromData("Coven-On-OSv", "AlfaTesting Resources/DummyPlatformDriver.py")
 	imRequest = ("/im/vs/driver/Coven-On-OSv", {"vibPlatformInstance":json.dumps(vibPlatformInstance.toDictionary()), "userAuth":"USER01;BatataFrita"})
 
 	responseData = requests.patch("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])

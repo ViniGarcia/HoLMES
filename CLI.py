@@ -43,7 +43,7 @@ import CooRunningAgent
 
 class EmsCli(cmd.Cmd):
 
-	prompt = "ems> "
+	prompt = "HoLMES> "
 	user = ""
 	password = ""
 	exit = False
@@ -154,6 +154,7 @@ class EmsCli(cmd.Cmd):
 
 	def do_help(self, args):
 
+		print("############## Holistic Lightweight and Malleable EMS Solution ###############")
 		print("==================================== HELP ====================================")
 		print("\tsend $execution $operation $arguments -> Send requests as user to the\n\t\t\t\t\t\t\taccess subsystem")
 		print("\t\t$execution = GET | POST | PUT | PATCH | DELETE")
@@ -305,20 +306,37 @@ if __name__ == '__main__':
 	emsProcess = multiprocessing.Process(target=environment)
 	emsProcess.start()
 
+	print("\n                         ,--,                                          ")    
+	print("        ,--,          ,---.'|             ____                         ")
+	print("      ,--.'|          |   | :           ,'  , `.    ,---,.  .--.--.    ")
+	print("   ,--,  | :          :   : |        ,-+-,.' _ |  ,'  .' | /  /    '.  ")
+	print(",---.'|  : '   ,---.  |   ' :     ,-+-. ;   , ||,---.'   ||  :  /`. /  ")
+	print("|   | : _' |  '   ,'\\ ;   ; '    ,--.'|'   |  ;||   |   .';  |  |--`   ")
+	print(":   : |.'  | /   /   |'   | |__ |   |  ,', |  '::   :  |-,|  :  ;_     ")
+	print("|   ' '  ; :.   ; ,. :|   | :.'||   | /  | |  ||:   |  ;/| \\  \\    `.  ")
+	print("'   |  .'. |'   | |: :'   :    ;'   | :  | :  |,|   :   .'  `----.   \\ ")
+	print("|   | :  | ''   | .; :|   |  ./ ;   . |  ; |--' |   |  |-,  __ \\  \\  | ")
+	print("'   : |  : ;|   :    |;   : ;   |   : |  | ,    '   :  ;/| /  /`--'  / ")
+	print("|   | '  ,/  \\   \\  / |   ,/    |   : '  |/     |   |    \'--'.     /  ")
+	print(";   : ;--'    `----'  '---'     ;   | |`-'      |   :   .'  `--'---'   ")
+	print("|   ,/                          |   ;/          |   | ,'               ")
+	print("'---'                           '---'           `----'                 \n")
+                                                                       
+
 	while True:
-		print("\n##################################")
+		print("############## Holistic Lightweight and Malleable EMS Solution ###############")
 		user = input("User: ")
 		password = getpass.getpass()
 		responseData = requests.get("http://127.0.0.1:9000/aa/authenticate/" + user + ";" + password)
 		if responseData.content.decode("utf-8") == "True":
-			print("##################################\n")
+			print("##############################################################################\n")
 			cli = EmsCli(user, password)
 			cli.cmdloop()
 			if cli.exit:
 				break
 		else:
 			print("ERROR: AUTHENTICATION FAILED")
-			print("##################################\n")
+			print("##############################################################################\n")
 	
 	emsProcess.terminate()
 
