@@ -6,13 +6,13 @@ HoLMES: Holistic, Lightweight and Malleable EMS Solution
 ### What is HoLMES?
 <p align="justify"> HoLMES is an Element Management System (EMS) platform designed to be fully compliant with the Network Function Virtualization (NFV) reference architecture from the ETSI. HoLMES can execute a myriad of EMS operations in the NFV environment by straightforward communicating with the Virtualized Network Functions (VNF) instances or exchanging information with the NFV Management and Orchestration (NFV-MANO) through the VNF Manager (VNFM). There are two possible communication agents in HoLMES: (i) users or generic external systems and (ii) VNFM. The communication from users or generic external systems, besides being able to access typical VNFM operations (if allowed), can configure the HoLMES platform itself by accessing its Internal Manager (IM) operations. The communication from VNFM platforms, in turn, follows the specification documents from the ETSI. HoLMES is holistic and malleable, being able to work with any VNFM and VNF platforms. This support comes from a driver system defined with templates. Within this driver system, the operators can implement simple drivers that enable HoLMES to communicate with particularly desired platforms. </p>
 
-<p style='text-align: justify;'> The access interfaces of HoLMES works with HTTP protocol (execute CLI.py and run the "HELP" command to see the available operations). The exception is the interface with the VNF instances that, through the third-party drivers, can operate with any python-supported communication technology. HoLMES provides a complete set of EMS data models (AsModels) that can (and should) be used to implement VNFM drivers. Internal configuring is done through secondary data models (VibModels) used in the HoLMES configuring communication with users and generic external systems. </p>
+<p align="justify"> The access interfaces of HoLMES works with HTTP protocol (execute CLI.py and run the "HELP" command to see the available operations). The exception is the interface with the VNF instances that, through the third-party drivers, can operate with any python-supported communication technology. HoLMES provides a complete set of EMS data models (AsModels) that can (and should) be used to implement VNFM drivers. Internal configuring is done through secondary data models (VibModels) used in the HoLMES configuring communication with users and generic external systems. </p>
 
-<p style='text-align: justify;'> Regarding driver development, there are two template files available: VNFM (VnfmDriverTemplate) and VNF (VnfDriverTemplate). In the VNFM driver, the non-implemented methods will return and 501 HTTP error. On the other hand, all the template methods of VNF drivers are mandatory and must be implemented. Relevant data models used in the internal communication of HoLMES are located at the internal router folder (IrModels). </p>
+<p align="justify"> Regarding driver development, there are two template files available: VNFM (VnfmDriverTemplate) and VNF (VnfDriverTemplate). In the VNFM driver, the non-implemented methods will return and 501 HTTP error. On the other hand, all the template methods of VNF drivers are mandatory and must be implemented. Relevant data models used in the internal communication of HoLMES are located at the internal router folder (IrModels). </p>
 
-<p style='text-align: justify;'> HoLMES requires a previous installation of the Python 3 programming language. We provide a shell script and a batch file with installation commands of all the required libraries. These scripts use python-pip to install the dependencies. After the installation, you can run the AlfaTesting program to check if HoLMES is running correctly. AlfaTesting executes a myriad of tests into all HoLMES operational elements. A correct execution must return the HTTP code 200 for available operations, and the HTTP code 405 for non-available operations. </p>
+<p align="justify"> HoLMES requires a previous installation of the Python 3 programming language. We provide a shell script and a batch file with installation commands of all the required libraries. These scripts use python-pip to install the dependencies. After the installation, you can run the AlfaTesting program to check if HoLMES is running correctly. AlfaTesting executes a myriad of tests into all HoLMES operational elements. A correct execution must return the HTTP code 200 for available operations, and the HTTP code 405 for non-available operations. </p>
 
-<p style='text-align: justify;'> HoLMES is composed of six operational elements, a brief description of each element is provided next: </p>
+<p align="justify"> HoLMES is composed of six operational elements, a brief description of each element is provided next: </p>
 
 1. Access Subsystem: this element provides the communication interfaces with the agents that request operations. Besides processing the requests, it is also responsible for authenticating users and checking their operation credentials.<br/>
 2. VNF Subsystem: this element executes the requested VNF operations. The VNF subsystem has a straightforward communication interface with the VNF instances.<br/>
@@ -25,7 +25,7 @@ You can execute HoLMES through its CLI (CLI.py). The standard HoLMES login is "a
 
 ### How does it was created?
 
-<p style='text-align: justify;'> The NIEP platform was developed using python 3.9 language and a number of libraries and applications: </p>
+<p align="justify"> The NIEP platform was developed using python 3.9 language and a number of libraries and applications: </p>
 1. Python<br/>
 1.1 Python 3.9.1 (apt-get install python3.9)<br/>
 1.2 Pip (apt-get install python-pip)<br/>
@@ -43,7 +43,7 @@ You can execute HoLMES through its CLI (CLI.py). The standard HoLMES login is "a
 
 ### Support
 
-<p style='text-align: justify;'> Contact us towards git issues requests or by the e-mail vfulber@inf.ufsm.br. </p>
+<p align="justify"> Contact us towards git issues requests or by the e-mail vfulber@inf.ufsm.br. </p>
 
 ### NIEP Research Group
 
