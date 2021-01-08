@@ -38,9 +38,6 @@ import VnfDriverTemplate
 import VnfmDriverTemplate
 import MonitoringAgentTemplate
 
-import CooDriver
-import CooRunningAgent
-
 class EmsCli(cmd.Cmd):
 
 	prompt = "HoLMES> "

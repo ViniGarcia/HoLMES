@@ -3141,7 +3141,7 @@ class OperationAgent:
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "post_msrs_subscriptionId", subscriptionId), "AS", "IM")
 		subscription = self.__asIr.sendMessage(request)
 		if type(subscription.messageData) == tuple:
-			return "ERROR CODE #3 (AS): IM/MS ERROR DURING PLATFORM INSTANCE OPERATION (" + str(subscription.messageData[1]) + ")", 400
+			return "ERROR CODE #3 (AS): IM/MS ERROR DURING SUBSCRIPTION INSTANCE OPERATION (" + str(subscription.messageData[1]) + ")", 400
 
 		return json.dumps(subscription.messageData.toDictionary())
 
@@ -3658,10 +3658,10 @@ class OperationAgent:
 	def patch_as_u_userId(self, userId, vibUserInstance):
 
 		try:
-			vibUserInstance = VibModels.VibVnfInstance().fromDictionary(json.loads(vibUserInstance))
-			if userId != vibUserInstance.vnfId:
+			vibUserInstance = VibModels.VibUserInstance().fromDictionary(json.loads(vibUserInstance))
+			if userId != vibUserInstance.userId:
 				return "ERROR CODE #0 (AS): INVALID USER INSTANCE PROVIDED", 400
-		except:
+		except Exception as e:
 			return "ERROR CODE #0 (AS): INVALID USER INSTANCE PROVIDED", 400
 
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "patch_as_u_userId", vibUserInstance), "AS", "IM")
@@ -3685,7 +3685,7 @@ class OperationAgent:
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "delete_as_u_userId", userId), "AS", "IM")
 		user = self.__asIr.sendMessage(request)
 		if type(user.messageData) == tuple:
-			return "ERROR CODE #3 (AS): IM/AS ERROR DURING MONITORING AGENT INSTANCE OPERATION (" + str(user.messageData[1]) + ")", 400
+			return "ERROR CODE #3 (AS): IM/AS ERROR DURING USER INSTANCE OPERATION (" + str(user.messageData[1]) + ")", 400
 
 		return json.dumps(user.messageData.toDictionary())
 
@@ -4097,7 +4097,6 @@ class OperationAgent:
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "post_vs_vnf_instance", vibVnfInstance), "AS", "IM")
 		instance = self.__asIr.sendMessage(request)
 		if type(instance.messageData) == tuple:
-			print(instance.messageData)
 			return "ERROR CODE #3 (AS): IM/VS ERROR DURING VNF INSTANCE OPERATION (" + str(instance.messageData[1]) + ")", 400
 
 		return json.dumps(instance.messageData.toDictionary())
@@ -4299,7 +4298,6 @@ class OperationAgent:
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "post_vs_driver", vibPlatformInstance), "AS", "IM")
 		platform = self.__asIr.sendMessage(request)
 		if type(platform.messageData) == tuple:
-			print(platform.messageData)
 			return "ERROR CODE #3 (AS): IM/VS ERROR DURING VNF PLATFORM OPERATION (" + str(platform.messageData[1]) + ")", 400
 
 		return json.dumps(platform.messageData.toDictionary())

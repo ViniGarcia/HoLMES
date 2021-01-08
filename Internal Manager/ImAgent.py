@@ -961,7 +961,7 @@ class ImAgent:
 	def __patch_vib_vnfm_managerId(self, irManagement):
 
 		if type(irManagement.operationArgs) != VibModels.VibVnfmInstance:
-			return "ERROR CODE #1: INVALID ARGUMENTS PROVIDED (VibVnfmInstance is expected)"
+			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (VibVnfmInstance is expected)", 1)
 		if irManagement.operationArgs.validate()[1] != 0:
 			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (VibVnfmInstance is not valid)", 1)
 
@@ -1321,7 +1321,7 @@ class ImAgent:
 		if not hasattr(irManagement.operationArgs, "platformDriver"):
 			return ("ERROR CODE #1: THERE IS NO platformDriver IN irManagement.operationArgs", 1)
 		if not os.path.isfile(irManagement.operationArgs.platformDriver) or not irManagement.operationArgs.platformDriver.endswith(".py"):
-			return "ERROR CODE #1: INVALID platformDriver PROVIDED"
+			return ("ERROR CODE #1: INVALID platformDriver PROVIDED", 1)
 
 		original = irManagement.operationArgs.platformDriver
 		irManagement.operationArgs.platformDriver = irManagement.operationArgs.platformDriver.replace("\\", "/").split("/")[-1][:-3]

@@ -1,4 +1,4 @@
-HoLMES: Holistic Lightweight and Malleable EMS Solution
+HoLMES: Holistic, Lightweight and Malleable EMS Solution
 ========================================================
 
 *Status: Alfa -- Version: 0.1*
@@ -10,3 +10,43 @@ The access interfaces of HoLMES works with HTTP protocol (execute CLI.py and run
 
 Regarding driver development, there are two template files available: VNFM (VnfmDriverTemplate) and VNF (VnfDriverTemplate). In the VNFM driver, the non-implemented methods will return and 501 HTTP error. On the other hand, all the template methods of VNF drivers are mandatory and must be implemented. Relevant data models used in the internal communication of HoLMES are located at the internal router folder (IrModels).
 
+HoLMES requires a previous installation of the Python 3 programming language. We provide a shell script and a batch file with installation commands of all the required libraries. These scripts use python-pip to install the dependencies. After the installation, you can run the AlfaTesting program to check if HoLMES is running correctly. AlfaTesting executes a myriad of tests into all HoLMES operational elements. A correct execution must return the HTTP code 200 for available operations, and the HTTP code 405 for non-available operations.
+
+HoLMES is composed of six operational elements, a brief description of each element is provided next:
+
+1.Access Subsystem: this element provides the communication interfaces with the agents that request operations. Besides processing the requests, it is also responsible for authenticating users and checking their operation credentials.<br/>
+2.VNF Subsystem: this element executes the requested VNF operations. The VNF subsystem has a straightforward communication interface with the VNF instances.<br/>
+3.Monitoring Subsystem: this element manages the monitoring agents of the VNF instances. It also keeps all the monitoring scripts available internally.<br/>
+4.EMS Information Base: this element is a centralized database that mantain all the management information regarding the other operational elements.<br/>
+5.Internal Manager: this element is responsible for managing all the other operational elements of HoLMES. All the configuring operations are implemented in the Internal Manager.<br/>
+6.Internal Router: this element enables the internal communication between two different operational elements.
+
+You can execute HoLMES through its CLI (CLI.py). The standard HoLMES login is "admin", as well as the standard password ("admin").
+
+### How does it was created?
+
+The NIEP platform was developed using python 3.9 language and a number of libraries and applications:
+1. Python<br/>
+1.1 Python 3.9.1 (apt-get install python3.9)<br/>
+1.2 Pip (apt-get install python-pip)<br/>
+2. Non-native Python libraries <br/>
+2.1 Requests (pip install requests)<br/>
+
+### Next Steps
+
+1. Implementation of new authentication methods (Authentication Agent)<br/>
+2. Implementation of native VNF drivers for well known platforms (VNS Subsystem)<br/>
+3. Implentation of a debug mechanism (Access Subsystem and Internal Manager)<br/>
+4. Creation of a development environment for VNF and VNFM drivers (Entire platform)<br/>
+5. General refactoring and new error threatment (Entire platform)<br/>
+6. Graphical interface (Entire platform)
+
+### Support
+
+Contact us towards git issues requests or by the e-mail vfulber@inf.ufsm.br.
+
+### NIEP Research Group
+
+Vinícius Fülber Garcia (UFPR - Brazil)<br/>
+José Wilson Vieira Flauzino (UFPR - Brazil)<br/>
+Elias Procópio Duarte Junior (UFPR - Brazil)
