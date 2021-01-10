@@ -50,7 +50,7 @@ You can execute HoLMES through its CLI (CLI.py). The standard HoLMES login is "a
 
 <p align="justify"> Contact us towards git issues requests or by the e-mail vfulber@inf.ufsm.br. </p>
 
-### NIEP Research Group
+### HoLMES Research Group
 
 Vinícius Fülber Garcia (UFPR - Brazil)<br/>
 José Wilson Vieira Flauzino (UFPR - Brazil)<br/>
