@@ -70,8 +70,8 @@ if __name__ == '__main__':
 	emsProcess = multiprocessing.Process(target=main, args=())
 	emsProcess.start()
 
-	dummyCooHttp = subprocess.Popen(['python', 'AlfaTesting Resources/DummyCooVnf.py'])
-	dummyCooSocket = subprocess.Popen(['python', 'AlfaTesting Resources/DummyCooSocketVnf.py'])
+	dummyCooHttp = subprocess.Popen(['python3', 'AlfaTesting Resources/DummyCooVnf.py'])
+	dummyCooSocket = subprocess.Popen(['python3', 'AlfaTesting Resources/DummyCooSocketVnf.py'])
 
 	time.sleep(2)
 

@@ -14,7 +14,7 @@ DESCRIPTION: Implementation of the VIB manager. In summary, this class control t
              the VIB internally, reseting the base when necessary.
 '''
 class VibManager:
-    __vibPath = os.path.abspath(__file__).replace("VibManager.py", "Vib.db")
+    __vibPath = os.path.abspath(__file__).replace("VibManager.py", "VIB.db")
     __vibConnection = None
 
     def __init__(self):
