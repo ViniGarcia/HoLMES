@@ -31,11 +31,11 @@ You can execute HoLMES through its CLI (CLI.py). The standard HoLMES login is "a
 1.1 Python 3.9.1 (apt-get install python3.9)<br/>
 1.2 Pip (apt-get install python-pip)<br/>
 2. Non-native Python libraries <br/>
-2.1 Flask (pip install flask)
-2.2 PsUtil (pip install psutil)
+2.1 Flask (pip install flask)<br/>
+2.2 PsUtil (pip install psutil)<br/>
 2.1 Requests (pip install requests)<br/>
 3. SQLite<br/>
-3.1 SQLite 3(apt-get install sqlite3)
+3.1 SQLite 3 (apt-get install sqlite3)
 
 ### Next Steps
 
