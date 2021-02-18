@@ -2286,7 +2286,6 @@ class OperationAgent:
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "delete_vib_u_userId", userId), "AS", "IM")
 		user = self.__asIr.sendMessage(request)
 		if type(user.messageData) == tuple:
-			print("AQUIIIIIIIIIIIIIIIII", user.messageData)
 			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING USER OPERATION (" + str(user.messageData[1]) + ")", 400
 
 		return json.dumps(user.messageData.toDictionary())

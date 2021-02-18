@@ -128,7 +128,7 @@ class EmsCli(cmd.Cmd):
 				 "/im/as/vnfm/driver":{"GET":[], "POST":["vibVnfmInstance"]},
 				 "/im/as/vnfm/driver/<vnfmId>":{"GET":[], "PATCH":["vibVnfmInstance"], "DELETE":[]}
 		},
-		"vs":   {"/vnf/operation/<vnfId>/<operationId>":{"POST":"operationArguments"},
+		"vs":   {"/vnf/operation/<vnfId>/<operationId>":{"POST":["operationArguments"]},
 				 "/im/vs/vnf_instance":{"GET":[], "POST":["vibVnfInstance"]},
 				 "/im/vs/vnf_instance/<instanceId>":{"GET":[], "PATCH":["vibVnfInstance"], "DELETE":[]},
 				 "/im/vs/running_driver":{"GET":[]},
@@ -203,14 +203,14 @@ class EmsCli(cmd.Cmd):
 					check = re.findall(r"<([^>]*)>", operation)
 					if len(check) == len(url):
 						if not args[0] in self.operations[module][operation]:
-							print ("ERROR: INVALID \"SEND\" OPERATION REQUESTED (OPERATON DOES NOT EXIST)!\n")
+							print ("ERROR: INVALID \"SEND\" OPERATION REQUESTED (OPERATION DOES NOT EXIST)!\n")
 							return
 						if len(url) > 0:
 							args[1] = args[1] + "/" + "/".join(url)
 						required = self.operations[module][operation][args[0]]
 						break
 		if required == None:
-			print ("ERROR: INVALID \"SEND\" OPERATION REQUESTED (OPERATON DOES NOT EXIST)!\n")
+			print ("ERROR: INVALID \"SEND\" OPERATION REQUESTED (OPERATION DOES NOT EXIST)!\n")
 			return
 
 		resources = {"userAuth":self.user + ";" + self.password}
@@ -336,5 +336,3 @@ if __name__ == '__main__':
 			print("##############################################################################\n")
 	
 	emsProcess.terminate()
-
-#send POST /im/vib/users {"userId":"USER03","userAuthentication":"USER03","userSecrets":"","userPrivileges":["VLMI","VPMI","VFMI","VII","VCI","VNF","VIB","MS","AS","VS"]}
