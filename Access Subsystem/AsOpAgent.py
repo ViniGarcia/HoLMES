@@ -2127,7 +2127,7 @@ class OperationAgent:
 
 		try:
 			operationArguments = json.loads(operationArguments)
-		except:
+		except Exception as e:
 			return "ERROR CODE #0 (AS): INVALID OPERATION ARGUMENTS PROVIDED", 400
 
 		request = IrModels.IrMessage().fromData(IrModels.VsData().fromData(instance.messageData, platform.messageData, operationId, operationArguments), "AS", "VS")
@@ -2739,7 +2739,7 @@ class OperationAgent:
 		
 		try:
 			vibVnfInstance = VibModels.VibVnfInstance().fromDictionary(json.loads(vibVnfInstance))
-		except:
+		except Exception as e:
 			return "ERROR CODE #0 (AS): INVALID VNF INSTANCE PROVIDED", 400
 
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "post_vib_vnf_instances", vibVnfInstance), "AS", "IM")
@@ -4090,7 +4090,7 @@ class OperationAgent:
 
 		try:
 			vibVnfInstance = VibModels.VibVnfInstance().fromDictionary(json.loads(vibVnfInstance))
-		except:
+		except Exception as e:
 			return "ERROR CODE #0 (AS): INVALID VNF INSTANCE PROVIDED", 400		
 
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VS", "post_vs_vnf_instance", vibVnfInstance), "AS", "IM")
