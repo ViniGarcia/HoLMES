@@ -275,7 +275,7 @@ class EmsCli(cmd.Cmd):
 		return True
 
 def environment():
-	sys.stdout = open(os.devnull, "w")
+	#sys.stdout = open(os.devnull, "w")
 
 	vibManager = VibManager.VibManager()
 

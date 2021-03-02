@@ -1,0 +1,24 @@
+PPS:
+  - Framework: JavaFramework
+    NFs:
+      - File: NFPackages/Forwarder/Forward.java
+        Order: 1
+        Input: 8008
+        Output: 8009
+        EMA:
+          Port: 8020
+          Requests:
+            Packets: PP
+  - Framework: ExeFramework
+    NFs:
+      - File: NFPackages/Forwarder/ForwardC
+        Order: 2
+        Input: 8012
+        Output: 8013
+VNS:
+  Tool: L2Socket
+  Input:
+    - wlp3s0
+  Output:
+    - enp0s25
+NSHP: False
