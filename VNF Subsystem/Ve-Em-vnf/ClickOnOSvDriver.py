@@ -50,7 +50,7 @@ class ClickOnOSvDriver(VnfDriverTemplate.VnfDriverTemplate):
 		if responseData.status_code >= 200 and responseData.status_code < 300:
 			return str(responseData.content)
 		else:
-			return responseData.status_code
+			return str(responseData.status_code)
 
 	def post_coo_nf(self, vibVnfInstance, cooOperationArguments):
 
@@ -58,7 +58,7 @@ class ClickOnOSvDriver(VnfDriverTemplate.VnfDriverTemplate):
 		if responseData.status_code >= 200 and responseData.status_code < 300:
 			return str(responseData.content)
 		else:
-			return responseData.status_code
+			return str(responseData.status_code)
 
 	def get_coo_nf_id(self, vibVnfInstance, cooOperationArguments):
 
@@ -66,7 +66,7 @@ class ClickOnOSvDriver(VnfDriverTemplate.VnfDriverTemplate):
 		if responseData.status_code >= 200 and responseData.status_code < 300:
 			return str(responseData.content)
 		else:
-			return responseData.status_code
+			return str(responseData.status_code)
 
 	def get_coo_click_version(self, vibVnfInstance, cooOperationArguments):
 		
@@ -74,7 +74,7 @@ class ClickOnOSvDriver(VnfDriverTemplate.VnfDriverTemplate):
 		if responseData.status_code >= 200 and responseData.status_code < 300:
 			return str(responseData.content)
 		else:
-			return responseData.status_code
+			return str(responseData.status_code)
 
 	def get_coo_click_running(self, vibVnfInstance, cooOperationArguments):
 
@@ -82,7 +82,7 @@ class ClickOnOSvDriver(VnfDriverTemplate.VnfDriverTemplate):
 		if responseData.status_code >= 200 and responseData.status_code < 300:
 			return str(responseData.content)
 		else:
-			return responseData.status_code
+			return str(responseData.status_code)
 
 	def get_coo_click_metrics(self, vibVnfInstance, cooOperationArguments):
 
@@ -90,7 +90,7 @@ class ClickOnOSvDriver(VnfDriverTemplate.VnfDriverTemplate):
 		if responseData.status_code >= 200 and responseData.status_code < 300:
 			return str(responseData.content)
 		else:
-			return responseData.status_code
+			return str(responseData.status_code)
 
 	def get_coo_click_log(self, vibVnfInstance, cooOperationArguments):
 
@@ -98,7 +98,7 @@ class ClickOnOSvDriver(VnfDriverTemplate.VnfDriverTemplate):
 		if responseData.status_code >= 200 and responseData.status_code < 300:
 			return str(responseData.content)
 		else:
-			return responseData.status_code
+			return str(responseData.status_code)
 
 	def post_coo_click_start(self, vibVnfInstance, cooOperationArguments):
 
@@ -106,7 +106,7 @@ class ClickOnOSvDriver(VnfDriverTemplate.VnfDriverTemplate):
 		if responseData.status_code >= 200 and responseData.status_code < 300:
 			return str(responseData.content)
 		else:
-			return responseData.status_code
+			return str(responseData.status_code)
 
 	def post_coo_click_stop(self, vibVnfInstance, cooOperationArguments):
 
@@ -114,4 +114,4 @@ class ClickOnOSvDriver(VnfDriverTemplate.VnfDriverTemplate):
 		if responseData.status_code >= 200 and responseData.status_code < 300:
 			return str(responseData.content)
 		else:
-			return responseData.status_code
+			return str(responseData.status_code)

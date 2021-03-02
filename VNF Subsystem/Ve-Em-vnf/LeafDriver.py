@@ -66,12 +66,7 @@ class LeafDriver(VnfDriverTemplate.VnfDriverTemplate):
 
 	def post_leaf_vnfp(self, vibVnfInstance, covenOperationArguments):
 		
-		try:
-			packageData = open(covenOperationArguments["package"], 'rb').read()
-		except:
-			return "400"
-
-		responseData = requests.post("http://" + vibVnfInstance.vnfAddress + "/api/push_vnfp", data = packageData, headers = {'Content-Type': 'application/octet-stream'})
+		responseData = requests.post("http://" + vibVnfInstance.vnfAddress + "/api/push_vnfp", data = covenOperationArguments["package"], headers = {'Content-Type': 'application/octet-stream'})
 		if responseData.status_code >= 200 and responseData.status_code < 300:
 			return str(responseData.content)
 		else:
@@ -100,5 +95,3 @@ class LeafDriver(VnfDriverTemplate.VnfDriverTemplate):
 			return str(responseData.content)
 		else:
 			return str(responseData.status_code)
-
-#send POST /vnf/operation/<Leaf-VNF>/<get_vnf_status> {}

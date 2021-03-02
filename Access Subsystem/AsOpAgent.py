@@ -1,5 +1,6 @@
 import uuid
 import json
+import yaml
 import flask
 import os.path
 import importlib
@@ -2127,13 +2128,16 @@ class OperationAgent:
 
 		try:
 			operationArguments = json.loads(operationArguments)
-		except Exception as e:
-			return "ERROR CODE #0 (AS): INVALID OPERATION ARGUMENTS PROVIDED", 400
+		except Exception as ej:
+			try:
+				operationArguments = yaml.safe_load(operationArguments)
+			except Exception as ey:
+				return "ERROR CODE #0 (AS): INVALID OPERATION ARGUMENTS PROVIDED (JSON: " + str(ej) + ") (YAML: " + str(ey) + ")", 400
 
 		request = IrModels.IrMessage().fromData(IrModels.VsData().fromData(instance.messageData, platform.messageData, operationId, operationArguments), "AS", "VS")
 		result = self.__asIr.sendMessage(request)
 		if type(result) != IrModels.IrMessage:
-			return "ERROR CODE #3 (AS): VS ERROR DURING VNF OPERATION", 400
+			return "ERROR CODE #3 (AS): VS ERROR DURING VNF OPERATION (returned result message is " + str(type(result)) + ")", 400
 
 		return result.messageData, 200
 
@@ -2546,9 +2550,9 @@ class OperationAgent:
 		try:
 			vibSubscriptionInstance = VibModels.VibSubscriptionInstance().fromDictionary(json.loads(vibSubscriptionInstance))
 			if subscriptionId != vibSubscriptionInstance.visId:
-				return "ERROR CODE #0 (AS): INVALID SUBSCRIPTION INSTANCE PROVIDED", 400
-		except:
-			return "ERROR CODE #0 (AS): INVALID SUBSCRIPTION INSTANCE PROVIDED", 400
+				return "ERROR CODE #0 (AS): INVALID SUBSCRIPTION INSTANCE PROVIDED (" + str(subscriptionId) + " != " + str(vibSubscriptionInstance.visId) + ")", 400
+		except Exception as e:
+			return "ERROR CODE #0 (AS): INVALID SUBSCRIPTION INSTANCE PROVIDED (" + str(e) + ")", 400
 
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "patch_vib_s_subscriptionId", vibSubscriptionInstance), "AS", "IM")
 		subscription = self.__asIr.sendMessage(request)
@@ -2616,8 +2620,8 @@ class OperationAgent:
 		
 		try:
 			vibMaInstance = VibModels.VibMaInstance().fromDictionary(json.loads(vibMaInstance))
-		except:
-			return "ERROR CODE #0 (AS): INVALID MANAGEMENT AGENT INSTANCE PROVIDED", 400
+		except Exception as e:
+			return "ERROR CODE #0 (AS): INVALID MANAGEMENT AGENT INSTANCE PROVIDED (" + str(e) + ")", 400
 
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "post_vib_management_agents", vibMaInstance), "AS", "IM")
 		agent = self.__asIr.sendMessage(request)
@@ -2669,9 +2673,9 @@ class OperationAgent:
 		try:
 			vibMaInstance = VibModels.VibMaInstance().fromDictionary(json.loads(vibMaInstance))
 			if agentId != vibMaInstance.maId:
-				return "ERROR CODE #0 (AS): INVALID MANAGEMENT AGENT INSTANCE PROVIDED", 400
-		except:
-			return "ERROR CODE #0 (AS): INVALID MANAGEMENT AGENT INSTANCE PROVIDED", 400
+				return "ERROR CODE #0 (AS): INVALID MANAGEMENT AGENT INSTANCE PROVIDED (" + str(agentId) + " != " + str(vibMaInstance.maId) + ")", 400
+		except Exception as e:
+			return "ERROR CODE #0 (AS): INVALID MANAGEMENT AGENT INSTANCE PROVIDED (" + str(e) + ")", 400
 
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "patch_vib_ma_agentId", vibMaInstance), "AS", "IM")
 		agent = self.__asIr.sendMessage(request)
@@ -2740,7 +2744,7 @@ class OperationAgent:
 		try:
 			vibVnfInstance = VibModels.VibVnfInstance().fromDictionary(json.loads(vibVnfInstance))
 		except Exception as e:
-			return "ERROR CODE #0 (AS): INVALID VNF INSTANCE PROVIDED", 400
+			return "ERROR CODE #0 (AS): INVALID VNF INSTANCE PROVIDED (" + str(e) + ")", 400
 
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "post_vib_vnf_instances", vibVnfInstance), "AS", "IM")
 		instance = self.__asIr.sendMessage(request)
@@ -2792,9 +2796,9 @@ class OperationAgent:
 		try:
 			vibVnfInstance = VibModels.VibVnfInstance().fromDictionary(json.loads(vibVnfInstance))
 			if vnfId != vibVnfInstance.vnfId:
-				return "ERROR CODE #0 (AS): INVALID VNF INSTANCE PROVIDED", 400
-		except:
-			return "ERROR CODE #0 (AS): INVALID VNF INSTANCE PROVIDED", 400
+				return "ERROR CODE #0 (AS): INVALID VNF INSTANCE PROVIDED (" + str(vnfId) + " != " + str(vibVnfInstance.vnfId) + ")", 400
+		except Exception as e:
+			return "ERROR CODE #0 (AS): INVALID VNF INSTANCE PROVIDED (" + str(e) + ")", 400
 
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "patch_vib_vnfi_vnfId", vibVnfInstance), "AS", "IM")
 		instance = self.__asIr.sendMessage(request)
@@ -2862,8 +2866,8 @@ class OperationAgent:
 		
 		try:
 			vibPlatformInstance = VibModels.VibPlatformInstance().fromDictionary(json.loads(vibPlatformInstance))
-		except:
-			return "ERROR CODE #0 (AS): INVALID PLATFORM INSTANCE PROVIDED", 400
+		except Exception as e:
+			return "ERROR CODE #0 (AS): INVALID PLATFORM INSTANCE PROVIDED (" + str(e) + ")", 400
 
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "post_vib_platforms", vibPlatformInstance), "AS", "IM")
 		platform = self.__asIr.sendMessage(request)
@@ -2915,9 +2919,9 @@ class OperationAgent:
 		try:
 			vibPlatformInstance = VibModels.VibPlatformInstance().fromDictionary(json.loads(vibPlatformInstance))
 			if platformId != vibPlatformInstance.platformId:
-				return "ERROR CODE #0 (AS): INVALID PLATFORM INSTANCE PROVIDED", 400
-		except:
-			return "ERROR CODE #0 (AS): INVALID PLATFORM INSTANCE PROVIDED", 400
+				return "ERROR CODE #0 (AS): INVALID PLATFORM INSTANCE PROVIDED (" + str(platformId) + " != " + str(vibPlatformInstance.platformId) + ")", 400
+		except Exception as e:
+			return "ERROR CODE #0 (AS): INVALID PLATFORM INSTANCE PROVIDED (" + str(e) + ")", 400
 
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "patch_vib_p_platformId", vibPlatformInstance), "AS", "IM")
 		platform = self.__asIr.sendMessage(request)
@@ -2985,8 +2989,8 @@ class OperationAgent:
 		
 		try:
 			vibVnfmInstance = VibModels.VibVnfmInstance().fromDictionary(json.loads(vibVnfmInstance))
-		except:
-			return "ERROR CODE #0 (AS): INVALID VNF MANAGER INSTANCE PROVIDED", 400
+		except Exception as e:
+			return "ERROR CODE #0 (AS): INVALID VNF MANAGER INSTANCE PROVIDED (" + str(e) + ")", 400
 
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "post_vib_vnf_managers", vibVnfmInstance), "AS", "IM")
 		manager = self.__asIr.sendMessage(request)
@@ -3038,9 +3042,9 @@ class OperationAgent:
 		try:
 			vibVnfmInstance = VibModels.VibVnfmInstance().fromDictionary(json.loads(vibVnfmInstance))
 			if managerId != vibVnfmInstance.vnfmId:
-				return "ERROR CODE #0 (AS): INVALID VNF MANAGER INSTANCE PROVIDED", 400
-		except:
-			return "ERROR CODE #0 (AS): INVALID VNF MANAGER INSTANCE PROVIDED", 400
+				return "ERROR CODE #0 (AS): INVALID VNF MANAGER INSTANCE PROVIDED (" + str(managerId) + " != " + str(vibVnfmInstance.vnfmId) + ")", 400
+		except Exception as e:
+			return "ERROR CODE #0 (AS): INVALID VNF MANAGER INSTANCE PROVIDED (" + str(e) + ")" , 400
 
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "patch_vib_vnfm_managerId", vibVnfmInstance), "AS", "IM")
 		manager = self.__asIr.sendMessage(request)
@@ -3221,8 +3225,8 @@ class OperationAgent:
 
 		try:
 			vnfIndicatorSubscriptionRequest = AsModels.VnfIndicatorSubscriptionRequest().fromDictionary(json.loads(vnfIndicatorSubscriptionRequest))
-		except:
-			return "ERROR CODE #0 (AS): INVALID VNF INDICATOR SUBSCRIPTION REQUEST PROVIDED", 400		
+		except Exception as e:
+			return "ERROR CODE #0 (AS): INVALID VNF INDICATOR SUBSCRIPTION REQUEST PROVIDED (" + str(e) + ")", 400		
 
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "post_ms_subscription", vnfIndicatorSubscriptionRequest), "AS", "IM")
 		subscription = self.__asIr.sendMessage(request)
@@ -3274,9 +3278,9 @@ class OperationAgent:
 		try:
 			vnfIndicatorSubscription = AsModels.VnfIndicatorSubscription().fromDictionary(json.loads(vnfIndicatorSubscription))
 			if subscriptionId != vnfIndicatorSubscription.id:
-				return "ERROR CODE #0 (AS): INVALID VNF INDICATOR SUBSCRIPTION PROVIDED", 400
-		except:
-			return "ERROR CODE #0 (AS): INVALID VNF INDICATOR SUBSCRIPTION INSTANCE PROVIDED", 400
+				return "ERROR CODE #0 (AS): INVALID VNF INDICATOR SUBSCRIPTION PROVIDED (" + str(subscriptionId) + " != " + str(vnfIndicatorSubscription.id) + ")", 400
+		except Exception as e:
+			return "ERROR CODE #0 (AS): INVALID VNF INDICATOR SUBSCRIPTION INSTANCE PROVIDED (" + str(e) + ")", 400
 
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "patch_mss_subscriptionId", vnfIndicatorSubscription), "AS", "IM")
 		subscription = self.__asIr.sendMessage(request)
@@ -3343,8 +3347,8 @@ class OperationAgent:
 
 		try:
 			vibMaInstance = VibModels.VibMaInstance().fromDictionary(json.loads(vibMaInstance))
-		except:
-			return "ERROR CODE #0 (AS): INVALID VNF MONITORING AGENT PROVIDED", 400		
+		except Exception as e:
+			return "ERROR CODE #0 (AS): INVALID VNF MONITORING AGENT PROVIDED (" + str(e) + ")", 400		
 
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "post_ms_agent", vibMaInstance), "AS", "IM")
 		agent = self.__asIr.sendMessage(request)
@@ -3396,9 +3400,9 @@ class OperationAgent:
 		try:
 			vibMaInstance = VibModels.VibMaInstance().fromDictionary(json.loads(vibMaInstance))
 			if agentId != vibMaInstance.maId:
-				return "ERROR CODE #0 (AS): INVALID MONITORING AGENT INSTANCE PROVIDED", 400
-		except:
-			return "ERROR CODE #0 (AS): INVALID MONITORING AGENT INSTANCE PROVIDED", 400
+				return "ERROR CODE #0 (AS): INVALID MONITORING AGENT INSTANCE PROVIDED (" + str(agentId) + " != " + str(vibMaInstance.maId) + ")", 400
+		except Exception as e:
+			return "ERROR CODE #0 (AS): INVALID MONITORING AGENT INSTANCE PROVIDED (" + str(e) + ")", 400
 
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "patch_msa_agentId", vibMaInstance), "AS", "IM")
 		agent = self.__asIr.sendMessage(request)
@@ -3606,8 +3610,8 @@ class OperationAgent:
 
 		try:
 			vibUserInstance = VibModels.VibUserInstance().fromDictionary(json.loads(vibUserInstance))
-		except:
-			return "ERROR CODE #0 (AS): INVALID USER INSTANCE PROVIDED", 400
+		except Exception as e:
+			return "ERROR CODE #0 (AS): INVALID USER INSTANCE PROVIDED (" + str(e) + ")", 400
 
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "post_as_user", vibUserInstance), "AS", "IM")
 		user = self.__asIr.sendMessage(request)
@@ -3659,9 +3663,9 @@ class OperationAgent:
 		try:
 			vibUserInstance = VibModels.VibUserInstance().fromDictionary(json.loads(vibUserInstance))
 			if userId != vibUserInstance.userId:
-				return "ERROR CODE #0 (AS): INVALID USER INSTANCE PROVIDED", 400
+				return "ERROR CODE #0 (AS): INVALID USER INSTANCE PROVIDED (" + str(userId) + " != " + str(vibUserInstance.userId) + ")", 400
 		except Exception as e:
-			return "ERROR CODE #0 (AS): INVALID USER INSTANCE PROVIDED", 400
+			return "ERROR CODE #0 (AS): INVALID USER INSTANCE PROVIDED (" + str(e) + ")", 400
 
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "patch_as_u_userId", vibUserInstance), "AS", "IM")
 		user = self.__asIr.sendMessage(request)

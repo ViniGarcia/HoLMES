@@ -9,17 +9,15 @@ import os
 
 class SocketCovenDriver(VnfDriverTemplate.VnfDriverTemplate):
 
-	globalSocket = None
-
 	def __init__(self):
 		
 		super().__init__("COVEN")
-		self.globalSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-		self.globalSocket.bind(("0.0.0.0", 6668))
 
 	def get_p_operations(self):
-		opDict = {"post_package":VsModels.PlatformOperation().fromData("post_package", self.post_coven_package, {"package":""}),
+		opDict = {"post_package":VsModels.PlatformOperation().fromData("post_package", self.post_coven_package, {"name":"", "size":"", "package":""}),
 				  "post_install":VsModels.PlatformOperation().fromData("post_install", self.post_coven_install, {"package":""}),
+				  "post_setup":VsModels.PlatformOperation().fromData("post_setup", self.post_coven_setup, {"name":"", "size":"", "package":""}),
+				  "post_configure":VsModels.PlatformOperation().fromData("post_configure", self.post_coven_configure, {"package":""}),
 				  "post_start":VsModels.PlatformOperation().fromData("post_start", self.post_coven_start, {}),
 				  "post_stop":VsModels.PlatformOperation().fromData("post_stop", self.post_coven_stop, {}),
 				  "post_reset":VsModels.PlatformOperation().fromData("post_reset", self.post_coven_reset, {}),
@@ -40,6 +38,8 @@ class SocketCovenDriver(VnfDriverTemplate.VnfDriverTemplate):
 
 		return {"post_package":VsModels.PlatformOperation().fromData("post_package", self.post_coven_package, {"package":""}),
 				"post_install":VsModels.PlatformOperation().fromData("post_install", self.post_coven_install, {"package":""}),
+				"post_setup":VsModels.PlatformOperation().fromData("post_setup", self.post_coven_setup, {"package":""}),
+				"post_configure":VsModels.PlatformOperation().fromData("post_configure", self.post_coven_configure, {"package":""}),
 				"post_start":VsModels.PlatformOperation().fromData("post_start", self.post_coven_start, {}),
 				"post_stop":VsModels.PlatformOperation().fromData("post_stop", self.post_coven_stop, {}),
 				"post_reset":VsModels.PlatformOperation().fromData("post_reset", self.post_coven_reset, {}),
@@ -54,96 +54,159 @@ class SocketCovenDriver(VnfDriverTemplate.VnfDriverTemplate):
 
 	def post_coven_package(self, vibVnfInstance, covenOperationArguments):
 
-		if not os.path.isfile(covenOperationArguments["package"]):
-			return 406
-		if not covenOperationArguments["package"].endswith(".zip"):
-			return 406
-
-		covenOperationArguments["package"] = covenOperationArguments["package"].replace("\\", "/")
-		packageName = covenOperationArguments["package"].split("/")[-1]
-
 		requestAddress = vibVnfInstance.vnfAddress.split(":")
-		fileSize = os.path.getsize(covenOperationArguments["package"])
-		fileData = open(covenOperationArguments["package"], "rb")
+		vnfSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		vnfSocket.settimeout(8.0)
+		vnfSocket.connect((requestAddress[0], int(requestAddress[1])))
 
-		self.globalSocket.sendto(("package|" + packageName + "|" + str(fileSize)).encode(), (requestAddress[0], int(requestAddress[1])))
+		vnfSocket.send(("package|" + covenOperationArguments["name"] + "|" + covenOperationArguments["size"]).encode())
 		while True:
-			fileBytes = fileData.read(1024)
-			if not fileBytes:
+			if len(covenOperationArguments["package"]) > 1024:
+				vnfSocket.send(covenOperationArguments["package"][:1024])
+				covenOperationArguments["package"] = covenOperationArguments["package"][1024:]
+			else:
+				vnfSocket.send(covenOperationArguments["package"])
 				break
-			self.globalSocket.sendto(fileBytes, (requestAddress[0], int(requestAddress[1])))
 
-		response, server = self.globalSocket.recvfrom(1024)
+		response = vnfSocket.recv(1024)
+		vnfSocket.close()
 		return response.decode()
 
 	def post_coven_install(self, vibVnfInstance, covenOperationArguments):
 
 		requestAddress = vibVnfInstance.vnfAddress.split(":")
-		self.globalSocket.sendto(("install|" + covenOperationArguments["package"]).encode(), (requestAddress[0], int(requestAddress[1])))
+		vnfSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		vnfSocket.settimeout(8.0)
+		vnfSocket.connect((requestAddress[0], int(requestAddress[1])))
 
-		response, server = self.globalSocket.recvfrom(1024)
+		vnfSocket.send(("install|" + covenOperationArguments["package"]).encode())
+
+		response = vnfSocket.recv(1024)
+		vnfSocket.close()
+		return response.decode()
+
+	def post_coven_setup(self, vibVnfInstance, covenOperationArguments):
+		
+		response = self.post_coven_package(vibVnfInstance, covenOperationArguments)
+		if not response.startswith("200"):
+			return response
+		covenOperationArguments["package"] = covenOperationArguments["name"]
+		return self.post_coven_install(vibVnfInstance, covenOperationArguments)
+
+	def post_coven_configure(self, vibVnfInstance, covenOperationArguments):
+
+		requestAddress = vibVnfInstance.vnfAddress.split(":")
+		vnfSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		vnfSocket.settimeout(8.0)
+		vnfSocket.connect((requestAddress[0], int(requestAddress[1])))
+
+		vnfSocket.send(("configure|" + covenOperationArguments["package"]).encode())
+
+		response = vnfSocket.recv(1024)
+		vnfSocket.close()
 		return response.decode()
 
 	def post_coven_start(self, vibVnfInstance, covenOperationArguments):
 
 		requestAddress = vibVnfInstance.vnfAddress.split(":")
-		self.globalSocket.sendto("start".encode(), (requestAddress[0], int(requestAddress[1])))
+		vnfSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		vnfSocket.settimeout(8.0)
+		vnfSocket.connect((requestAddress[0], int(requestAddress[1])))
+		
+		vnfSocket.send("start".encode())
 
-		response, server = self.globalSocket.recvfrom(1024)
+		response = vnfSocket.recv(1024)
+		vnfSocket.close()
 		return response.decode()
 
 	def post_coven_stop(self, vibVnfInstance, covenOperationArguments):
 
 		requestAddress = vibVnfInstance.vnfAddress.split(":")
-		self.globalSocket.sendto("stop".encode(), (requestAddress[0], int(requestAddress[1])))
+		vnfSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		vnfSocket.settimeout(8.0)
+		vnfSocket.connect((requestAddress[0], int(requestAddress[1])))
 
-		response, server = self.globalSocket.recvfrom(1024)
+		vnfSocket.send("stop".encode())
+
+		response = vnfSocket.recv(1024)
+		vnfSocket.close()
 		return response.decode()
 
 	def post_coven_reset(self, vibVnfInstance, covenOperationArguments):
 		
 		requestAddress = vibVnfInstance.vnfAddress.split(":")
-		self.globalSocket.sendto("reset".encode(), (requestAddress[0], int(requestAddress[1])))
+		vnfSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		vnfSocket.settimeout(8.0)
+		vnfSocket.connect((requestAddress[0], int(requestAddress[1])))
 
-		response, server = self.globalSocket.recvfrom(1024)
+		vnfSocket.send("reset".encode())
+
+		response = vnfSocket.recv(1024)
+		vnfSocket.close()
 		return response.decode()
 
 	def post_coven_off(self, vibVnfInstance, covenOperationArguments):
 
 		requestAddress = vibVnfInstance.vnfAddress.split(":")
-		self.globalSocket.sendto("off".encode(), (requestAddress[0], int(requestAddress[1])))
+		vnfSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		vnfSocket.settimeout(8.0)
+		vnfSocket.connect((requestAddress[0], int(requestAddress[1])))
 
-		response, server = self.globalSocket.recvfrom(1024)
+		vnfSocket.send("off".encode())
+
+		response = vnfSocket.recv(1024)
+		vnfSocket.close()
 		return response.decode()
 
 	def get_coven_status(self, vibVnfInstance, covenOperationArguments):
 
 		requestAddress = vibVnfInstance.vnfAddress.split(":")
-		self.globalSocket.sendto("status".encode(), (requestAddress[0], int(requestAddress[1])))
+		vnfSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		vnfSocket.settimeout(8.0)
+		vnfSocket.connect((requestAddress[0], int(requestAddress[1])))
 
-		response, server = self.globalSocket.recvfrom(1024)
+		vnfSocket.send("status".encode())
+
+		response = vnfSocket.recv(1024)
+		vnfSocket.close()
 		return response.decode()
 
 	def get_coven_list(self, vibVnfInstance, covenOperationArguments):
 
 		requestAddress = vibVnfInstance.vnfAddress.split(":")
-		self.globalSocket.sendto("list".encode(), (requestAddress[0], int(requestAddress[1])))
+		vnfSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		vnfSocket.settimeout(8.0)
+		vnfSocket.connect((requestAddress[0], int(requestAddress[1])))
 
-		response, server = self.globalSocket.recvfrom(1024)
+		vnfSocket.send("list".encode())
+
+		response = vnfSocket.recv(1024)
+		vnfSocket.close()
 		return response.decode()
 
 	def get_coven_check(self, vibVnfInstance, covenOperationArguments):
 
 		requestAddress = vibVnfInstance.vnfAddress.split(":")
-		self.globalSocket.sendto("check".encode(), (requestAddress[0], int(requestAddress[1])))
+		vnfSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		vnfSocket.settimeout(8.0)
+		vnfSocket.connect((requestAddress[0], int(requestAddress[1])))
 
-		response, server = self.globalSocket.recvfrom(1024)
+		requestAddress = vibVnfInstance.vnfAddress.split(":")
+		vnfSocket.send("check".encode())
+
+		response = vnfSocket.recv(1024)
+		vnfSocket.close()
 		return response.decode()
 
 	def get_coven_request(self, vibVnfInstance, covenOperationArguments):
 
 		requestAddress = vibVnfInstance.vnfAddress.split(":")
-		self.globalSocket.sendto(("request|" + covenOperationArguments["vnfc"] + "|" + covenOperationArguments["request"] + "|" + yaml.dump(covenOperationArguments["request"])).encode(), (requestAddress[0], int(requestAddress[1])))
+		vnfSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		vnfSocket.settimeout(8.0)
+		vnfSocket.connect((requestAddress[0], int(requestAddress[1])))
 
-		response, server = self.globalSocket.recvfrom(1024)
+		vnfSocket.send(("request|" + covenOperationArguments["vnfc"] + "|" + covenOperationArguments["request"] + "|" + yaml.dump(covenOperationArguments["request"])).encode())
+
+		response = self.globalSocket.recv(1024)
+		vnfSocket.close()
 		return response.decode()

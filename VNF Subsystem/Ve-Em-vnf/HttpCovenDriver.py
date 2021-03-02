@@ -12,7 +12,10 @@ class HttpCovenDriver(VnfDriverTemplate.VnfDriverTemplate):
 		super().__init__("COVEN")
 
 	def get_p_operations(self):
-		opDict = {"post_nf":VsModels.PlatformOperation().fromData("post_nf", self.post_coven_nf, {"package":""}),
+		opDict = {"post_package":VsModels.PlatformOperation().fromData("post_package", self.post_coven_package, {"name":"", "data":""}),
+				  "post_install":VsModels.PlatformOperation().fromData("post_install", self.post_coven_install, {"name":""}),
+				  "post_setup":VsModels.PlatformOperation().fromData("post_setup", self.post_coven_setup, {"name":"", "data":""}),
+				  "post_nf":VsModels.PlatformOperation().fromData("post_nf", self.post_coven_nf, {"package":""}),
 				  "post_start":VsModels.PlatformOperation().fromData("post_start", self.post_coven_start, {}),
 				  "post_stop":VsModels.PlatformOperation().fromData("post_stop", self.post_coven_stop, {}),
 				  "post_reset":VsModels.PlatformOperation().fromData("post_reset", self.post_coven_reset, {}),
@@ -31,7 +34,10 @@ class HttpCovenDriver(VnfDriverTemplate.VnfDriverTemplate):
 
 	def get_po_modification(self):
 
-		return {"post_nf":VsModels.PlatformOperation().fromData("post_nf", self.post_coven_nf, {"package":""}),
+		return {"post_package":VsModels.PlatformOperation().fromData("post_package", self.post_coven_package, {"name":"", "data":""}),
+				"post_install":VsModels.PlatformOperation().fromData("post_install", self.post_coven_install, {"name":""}),
+				"post_setup":VsModels.PlatformOperation().fromData("post_setup", self.post_coven_setup, {"name":"", "data":""}),
+				"post_nf":VsModels.PlatformOperation().fromData("post_nf", self.post_coven_nf, {"package":""}),
 				"post_start":VsModels.PlatformOperation().fromData("post_start", self.post_coven_start, {}),
 				"post_stop":VsModels.PlatformOperation().fromData("post_stop", self.post_coven_stop, {}),
 				"post_reset":VsModels.PlatformOperation().fromData("post_reset", self.post_coven_reset, {}),
@@ -44,13 +50,37 @@ class HttpCovenDriver(VnfDriverTemplate.VnfDriverTemplate):
 		opDict.update(self.standardOperations)
 		return opDict
 
+	def post_coven_package(self, vibVnfInstance, covenOperationArguments):
+
+		responseData = requests.post("http://" + vibVnfInstance.vnfAddress + "/package/" + covenOperationArguments["name"] + "/", data = covenOperationArguments["data"])
+		if responseData.status_code >= 200 and responseData.status_code < 300:
+			return str(responseData.content)
+		else:
+			return str(responseData.status_code)
+
+	def post_coven_install(self, vibVnfInstance, covenOperationArguments):
+
+		responseData = requests.post("http://" + vibVnfInstance.vnfAddress + "/install/" + covenOperationArguments["name"] + "/")
+		if responseData.status_code >= 200 and responseData.status_code < 300:
+			return str(responseData.content)
+		else:
+			return str(responseData.status_code)
+
+	def post_coven_setup(self, vibVnfInstance, covenOperationArguments):
+
+		responseData = requests.post("http://" + vibVnfInstance.vnfAddress + "/setup/" + covenOperationArguments["name"] + "/", data = covenOperationArguments["data"])
+		if responseData.status_code >= 200 and responseData.status_code < 300:
+			return str(responseData.content)
+		else:
+			return str(responseData.status_code)
+
 	def post_coven_nf(self, vibVnfInstance, covenOperationArguments):
 
 		responseData = requests.post("http://" + vibVnfInstance.vnfAddress + "/configure/", data = covenOperationArguments["package"])
 		if responseData.status_code >= 200 and responseData.status_code < 300:
 			return str(responseData.content)
 		else:
-			return responseData.status_code
+			return str(responseData.status_code)
 
 	def post_coven_start(self, vibVnfInstance, covenOperationArguments):
 
@@ -58,7 +88,7 @@ class HttpCovenDriver(VnfDriverTemplate.VnfDriverTemplate):
 		if responseData.status_code >= 200 and responseData.status_code < 300:
 			return str(responseData.content)
 		else:
-			return responseData.status_code
+			return str(responseData.status_code)
 
 	def post_coven_stop(self, vibVnfInstance, covenOperationArguments):
 
@@ -66,7 +96,7 @@ class HttpCovenDriver(VnfDriverTemplate.VnfDriverTemplate):
 		if responseData.status_code >= 200 and responseData.status_code < 300:
 			return str(responseData.content)
 		else:
-			return responseData.status_code
+			return str(responseData.status_code)
 
 	def post_coven_reset(self, vibVnfInstance, covenOperationArguments):
 		
@@ -74,7 +104,7 @@ class HttpCovenDriver(VnfDriverTemplate.VnfDriverTemplate):
 		if responseData.status_code >= 200 and responseData.status_code < 300:
 			return str(responseData.content)
 		else:
-			return responseData.status_code
+			return str(responseData.status_code)
 
 	def post_coven_off(self, vibVnfInstance, covenOperationArguments):
 
@@ -82,7 +112,7 @@ class HttpCovenDriver(VnfDriverTemplate.VnfDriverTemplate):
 		if responseData.status_code >= 200 and responseData.status_code < 300:
 			return str(responseData.content)
 		else:
-			return responseData.status_code
+			return str(responseData.status_code)
 
 	def get_coven_status(self, vibVnfInstance, covenOperationArguments):
 
@@ -90,7 +120,7 @@ class HttpCovenDriver(VnfDriverTemplate.VnfDriverTemplate):
 		if responseData.status_code >= 200 and responseData.status_code < 300:
 			return str(responseData.content)
 		else:
-			return responseData.status_code
+			return str(responseData.status_code)
 
 	def get_coven_list(self, vibVnfInstance, covenOperationArguments):
 
@@ -98,7 +128,7 @@ class HttpCovenDriver(VnfDriverTemplate.VnfDriverTemplate):
 		if responseData.status_code >= 200 and responseData.status_code < 300:
 			return str(responseData.content)
 		else:
-			return responseData.status_code
+			return str(responseData.status_code)
 
 	def get_coven_check(self, vibVnfInstance, covenOperationArguments):
 
@@ -106,7 +136,7 @@ class HttpCovenDriver(VnfDriverTemplate.VnfDriverTemplate):
 		if responseData.status_code >= 200 and responseData.status_code < 300:
 			return str(responseData.content)
 		else:
-			return responseData.status_code
+			return str(responseData.status_code)
 
 	def get_coven_request(self, vibVnfInstance, covenOperationArguments):
 
@@ -114,4 +144,4 @@ class HttpCovenDriver(VnfDriverTemplate.VnfDriverTemplate):
 		if responseData.status_code >= 200 and responseData.status_code < 300:
 			return str(responseData.content)
 		else:
-			return responseData.status_code
+			return str(responseData.status_code)

@@ -135,7 +135,7 @@ class VsData:
 		for key in self.operationArgs:
 			if type(key) != str:
 				return ("3." + str(key), -3)
-			if type(self.operationArgs[key]) != str:
+			if type(self.operationArgs[key]) != str and type(self.operationArgs[key]) != bytes:
 				return ("3." + str(key), -4)
 
 		return ("4", 0) 
