@@ -5,9 +5,11 @@ import cmd
 import time
 import json
 import flask
+import socket
 import getpass
 import logging
 import requests
+import netifaces
 import multiprocessing
 
 sys.path.insert(0,'VNF Subsystem/')
@@ -43,6 +45,7 @@ class EmsCli(cmd.Cmd):
 	prompt = "HoLMES> "
 	user = ""
 	password = ""
+	address = ""
 	exit = False
 
 	operations = {
@@ -142,11 +145,12 @@ class EmsCli(cmd.Cmd):
 		}
 	}
 
-	def __init__(self, user, password):
+	def __init__(self, user, password, address):
 
 		super().__init__()
 		self.user = user
 		self.password = password
+		self.address = address
 		self.prompt = user + "> "
 
 	def do_help(self, args):
@@ -223,15 +227,15 @@ class EmsCli(cmd.Cmd):
 				resources[required[index]] = args[2][index]
 
 		if args[0] == "GET":
-			responseData = requests.get("http://127.0.0.1:9000/" + args[1], params=resources)
+			responseData = requests.get("http://"+ self.address + ":9000/" + args[1], params=resources)
 		elif args[0] == "POST":
-			responseData = requests.post("http://127.0.0.1:9000/" + args[1], params=resources)
+			responseData = requests.post("http://"+ self.address + ":9000/" + args[1], params=resources)
 		elif args[0] == "PUT":
-			responseData = requests.put("http://127.0.0.1:9000/" + args[1], params=resources)
+			responseData = requests.put("http://"+ self.address + ":9000/" + args[1], params=resources)
 		elif args[0] == "PATCH":
-			responseData = requests.patch("http://127.0.0.1:9000/" + args[1], params=resources)
+			responseData = requests.patch("http://"+ self.address + ":9000/" + args[1], params=resources)
 		elif args[0] == "DELETE":
-			responseData = requests.delete("http://127.0.0.1:9000/" + args[1], params=resources)
+			responseData = requests.delete("http://"+ self.address + ":9000/" + args[1], params=resources)
 		print("#RESPONSE:", responseData.content, "[" + str(responseData.status_code) + "]\n")
 
 	def do_check(self, args):
@@ -274,7 +278,18 @@ class EmsCli(cmd.Cmd):
 		self.exit = True
 		return True
 
-def environment():
+def validate(ip):
+
+	for iface in netifaces.interfaces():
+		try:
+			if ip == netifaces.ifaddresses(iface)[netifaces.AF_INET][0]['addr']:
+				return True
+		except:
+			continue
+
+	return False
+
+def environment(aiIp):
 	sys.stdout = open(os.devnull, "w")
 
 	vibManager = VibManager.VibManager()
@@ -296,11 +311,23 @@ def environment():
 	imAgent.setupAgent(vibManager, msManager, asAuthAgent, asOpAgent, vsAgent)
 	irAgent.setupAgent(imAgent, vsAgent)
 
-	aiAgent.run(port=9000)
+	aiAgent.run(host=aiIp, port=9000)
 
 if __name__ == '__main__':
 
-	emsProcess = multiprocessing.Process(target=environment)
+	if len(sys.argv) == 2:
+		if validate(sys.argv[1]):
+			address = sys.argv[1]
+		else:
+			print("HoLMES ERROR: INVALID IP PROVIDED!")
+			exit()
+	elif len(sys.argv) == 1:
+		address = socket.gethostbyname(socket.gethostname())
+	else:
+		print("HoLMES ERROR: INVALID ARGUMENTS PROVIDES (0 OR 1 [IP] ARGUMENT SUPPORTED)!")
+		exit()
+
+	emsProcess = multiprocessing.Process(target=environment, args=(address,))
 	emsProcess.start()
 
 	print("\n                         ,--,                                          ")    
@@ -322,12 +349,13 @@ if __name__ == '__main__':
 
 	while True:
 		print("############## Holistic Lightweight and Malleable EMS Solution ###############")
+		print("[Running at " +  address + ":9000]")
 		user = input("User: ")
 		password = getpass.getpass()
-		responseData = requests.get("http://127.0.0.1:9000/aa/authenticate/" + user + ";" + password)
+		responseData = requests.get("http://" + address + ":9000/aa/authenticate/" + user + ";" + password)
 		if responseData.content.decode("utf-8") == "True":
 			print("##############################################################################\n")
-			cli = EmsCli(user, password)
+			cli = EmsCli(user, password, address)
 			cli.cmdloop()
 			if cli.exit:
 				break
