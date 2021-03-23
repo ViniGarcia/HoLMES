@@ -23,12 +23,10 @@ HoLMES: Holistic, Lightweight and Malleable EMS Solution
 
 <p align="justify"> HoLMES can be operated by other systems, such as VNFM and OSS/BSS, through its HTTP interface. Furthermore, it is possible to straightforward access the EMS through HoLMES CLI (please, run the "list" command to see all the available operations). See next some examples of how doing that: </p>
 
-<span style="display:block;text-align:center">![Instance](https://www.inf.ufpr.br/vfgarcia/hosting/VNFInserting.png)</span><br/>
-*VNF Instance Insertion Through the HoLMES CLI*
-![Credential](https://www.inf.ufpr.br/vfgarcia/hosting/VNFCredential.png) <br/>
-*VNF Credential Insertion Through the HoLMES CLI*
-![Operating](https://www.inf.ufpr.br/vfgarcia/hosting/VNFOperation.png) <br/>
-*VNF Instance Operating Through the HoLMES CLI*
+<figure>
+    <img src='https://www.inf.ufpr.br/vfgarcia/hosting/VNFInserting.png' alt='Instance' />
+    <figcaption>VNF Instance Insertion Through the HoLMES CLI</figcaption>
+</figure>
 
 <p align="justify"> You can execute HoLMES through its CLI (CLI.py). The standard HoLMES login is "admin", as well as the standard password ("admin"). </p>
 
