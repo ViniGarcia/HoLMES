@@ -28,6 +28,16 @@ HoLMES: Holistic, Lightweight and Malleable EMS Solution
   <b>VNF Instance Insertion Through the HoLMES CLI</b>
 </p>
 
+<p align="center">
+  <img src="https://www.inf.ufpr.br/vfgarcia/hosting/VNFCredential.png"> <br/>
+  <b>Credential Insertion Through the HoLMES CLI</b>
+</p>
+
+<p align="center">
+  <img src="https://www.inf.ufpr.br/vfgarcia/hosting/VNFOperation.png"> <br/>
+  <b>VNF Instance Operating Through the HoLMES CLI</b>
+</p>
+
 <p align="justify"> You can execute HoLMES through its CLI (CLI.py). The standard HoLMES login is "admin", as well as the standard password ("admin"). </p>
 
 ### HoLMES Platform
