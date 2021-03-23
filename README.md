@@ -21,7 +21,17 @@ HoLMES: Holistic, Lightweight and Malleable EMS Solution
 5. Internal Manager: this element is responsible for managing all the other operational elements of HoLMES. All the configuring operations are implemented in the Internal Manager.<br/>
 6. Internal Router: this element enables the internal communication between two different operational elements.
 
-You can execute HoLMES through its CLI (CLI.py). The standard HoLMES login is "admin", as well as the standard password ("admin").
+<p align="justify"> HoLMES can be operated by other systems, such as VNFM and OSS/BSS, through its HTTP interface. Furthermore, it is possible to straightforward access the EMS through HoLMES CLI (please, run the "list" command to see all the available operations). See next some examples of how doing that: </p>
+
+![New VNF Instance Insertion Through the HoLMES CLI](https://www.inf.ufpr.br/vfgarcia/hosting/VNFInserting.png)
+![New VNF Credential Insertion Through the HoLMES CLI](https://www.inf.ufpr.br/vfgarcia/hosting/VNFCredential.png)
+![Operating VNF Instance Through the HoLMES CLI](https://www.inf.ufpr.br/vfgarcia/hosting/VNFCredential.png)
+
+<p align="justify"> You can execute HoLMES through its CLI (CLI.py). The standard HoLMES login is "admin", as well as the standard password ("admin"). </p>
+
+### HoLMES Platform
+
+<p align="justify"> HoLMES is also provided as a platform on the Ubuntu Cloud operating system. You can download the platform version [HERE](https://drive.google.com/file/d/1b8ya-mVo1myf90v1uYmiNLHUvkrcCbBt/view?usp=sharing). The virtual machine standard credentials are "user" for the username and "holmes" for the password. </p>
 
 ### How does it was created?
 
