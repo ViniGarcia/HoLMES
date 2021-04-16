@@ -86,12 +86,25 @@ class SocketCovenDriver(VnfDriverTemplate.VnfDriverTemplate):
 		return response.decode()
 
 	def post_coven_setup(self, vibVnfInstance, covenOperationArguments):
-		
-		response = self.post_coven_package(vibVnfInstance, covenOperationArguments)
-		if not response.startswith("200"):
-			return response
-		covenOperationArguments["package"] = covenOperationArguments["name"]
-		return self.post_coven_install(vibVnfInstance, covenOperationArguments)
+
+		requestAddress = vibVnfInstance.vnfAddress.split(":")
+		vnfSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		vnfSocket.settimeout(8.0)
+		vnfSocket.connect((requestAddress[0], int(requestAddress[1])))
+
+		vnfSocket.send(("setup|" + covenOperationArguments["name"] + "|" + covenOperationArguments["size"]).encode())
+		while True:
+			if len(covenOperationArguments["package"]) > 1024:
+				vnfSocket.send(covenOperationArguments["package"][:1024])
+				covenOperationArguments["package"] = covenOperationArguments["package"][1024:]
+			else:
+				vnfSocket.send(covenOperationArguments["package"])
+				break
+
+		response = vnfSocket.recv(1024)
+		vnfSocket.close()
+
+		return response.decode()
 
 	def post_coven_configure(self, vibVnfInstance, covenOperationArguments):
 
