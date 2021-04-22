@@ -7,6 +7,14 @@ import json
 import sys
 import os
 
+def requestEncode(request):
+
+	if len(request) > 50:
+		return False
+	request = bytearray(request.encode())
+	request.extend(bytearray(50 - len(request)))
+	return request
+
 def httpRoutine(operation, url, arguments, secondary, rounds, signal):
 
 	measures = []
@@ -138,7 +146,7 @@ def socketPackage(sendIp, sendPort, package, rounds):
 				fileData = open(package, "rb")
 
 				mark = time.time()
-				sender.send(("setup|" + packageName + "|" + str(fileSize)).encode())
+				sender.send(requestEncode("setup|" + packageName + "|" + str(fileSize)))
 				while True:
 					fileBytes = fileData.read(1024)
 					if not fileBytes:
@@ -181,7 +189,7 @@ print("============================== EXECUTING OPERATIONS LATENCY TEST ========
 print("OPERATION: GET -- VNF EXECUTION PLATFORM STATUSES")
 
 '''print("\nClick-On-OSv")
-results = httpRoutine("GET", "http://192.168.18.15:8000/click_plugin/running", "", None, 150, False)
+results = httpRoutine("GET", "http://192.168.18.24:8000/click_plugin/running", "", None, 150, False)
 if results[0] == 0:
 	processResults(results[1][0], results[1][1], "Get-Status-COO-Direct.csv")
 else:
@@ -195,7 +203,7 @@ else:
 	print(results[1])'''
 
 '''print("\nLEAF")
-results = httpRoutine("GET", "http://192.168.18.18:8000/api/emsstatus", "", None, 150, True)
+results = httpRoutine("GET", "http://192.168.18.25:8000/api/emsstatus", "", None, 150, True)
 if results[0] == 0:
 	processResults(results[1][0], results[1][1], "Get-Status-Leaf-Direct.csv")
 else:
@@ -209,7 +217,7 @@ else:
 	print(results[1])'''
 
 '''print("\nCOVEN-HTTP")
-results = httpRoutine("GET", "http://192.168.18.11:6667/status/", "", None, 150, True)
+results = httpRoutine("GET", "http://192.168.18.23:6667/status/", "", None, 150, True)
 if results[0] == 0:
 	processResults(results[1][0], results[1][1], "Get-Status-COVENHTTP-Direct.csv")
 else:
@@ -223,7 +231,7 @@ else:
 	print(results[1])
 
 print("\nCOVEN-Socket")
-results = socketRoutine("192.168.18.11", 6668, "status", None, 150)
+results = socketRoutine("192.168.18.23", 6668, "status", None, 150)
 if results[0] == 0:
 	processResults(results[1][0], results[1][1], "Get-Status-COVENSocket-Direct.csv")
 else:
@@ -242,7 +250,7 @@ print("\nOPERATION: POST -- VNF SENDING NEW NETWORK FUNCTION")
 
 '''print("\nClick-On-OSv")
 function = open("firewall.click", "r")
-results = httpRoutine("POST", "http://192.168.18.15:8000/click_plugin/write_file", {"path": "/func.click", "content": str(function.read()).translate(str.maketrans({'"':r'\"'}))}, None, 150, False)
+results = httpRoutine("POST", "http://192.168.18.24:8000/click_plugin/write_file", {"path": "/func.click", "content": str(function.read()).translate(str.maketrans({'"':r'\"'}))}, None, 150, False)
 function.close()
 if results[0] == 0:
 	processResults(results[1][0], results[1][1], "Post-NF-COO-Direct.csv")
@@ -260,7 +268,7 @@ else:
 
 '''print("\nLEAF")
 function = open("apache2-vines-leaf.zip", "rb")
-results = httpRoutine("POST", "http://192.168.18.18:8000/api/push_vnfp", function.read(), None, 150, True)
+results = httpRoutine("POST", "http://192.168.18.25:8000/api/push_vnfp", function.read(), None, 150, True)
 function.close()
 if results[0] == 0:
 	processResults(results[1][0], results[1][1], "Post-NF-Leaf-Direct.csv")
@@ -277,15 +285,15 @@ else:
 	print(results[1])'''
 
 '''print("\nCOVEN-HTTP")
-function = open("Forwarder.zip", "rb")
-results = httpRoutine("POST", "http://192.168.18.11:6667/setup/Forwarder.zip/", function.read(), None, 150, True)
+function = open("/home/research/Desktop/Forwarder.zip", "rb")
+results = httpRoutine("POST", "http://192.168.18.23:6667/setup/Forwarder.zip/", function.read(), None, 150, True)
 if results[0] == 0:
 	processResults(results[1][0], results[1][1], "Post-NF-COVENHTTP-Direct.csv")
 else:
 	print(results[1])
 
 print("\nCOVEN-HTTP by local EMS")
-function = open("Forwarder.zip", "rb")
+function = open("/home/research/Desktop/Forwarder.zip", "rb")
 results = httpRoutine("POST", "http://127.0.0.1:9000//vnf/operation/COVEN-HTTP-VNF/post_setup", {'userAuth': 'admin;admin', 'operationArguments': yaml.dump({"name": "Forwarder.zip", "data": function.read()})}, None, 150, True)
 if results[0] == 0:
 	processResults(results[1][0], results[1][1], "Post-NF-COVENHTTP-EMS.csv")
@@ -293,14 +301,14 @@ else:
 	print(results[1])
 
 print("\nCOVEN-Socket")
-results = socketPackage("192.168.18.11", 6668, "C:/Users/vfulb/Desktop/Forwarder.zip", 150)
+results = socketPackage("192.168.18.23", 6668, "/home/research/Desktop/Forwarder.zip", 150)
 if results[0] == 0:
 	processResults(results[1][0], results[1][1], "Post-NF-COVENSocket-Direct.csv")
 else:
 	print(results[1])
 
 print("\nCOVEN-Socket by local EMS")
-function = open("Forwarder.zip", "rb")
+function = open("/home/research/Desktop/Forwarder.zip", "rb")
 results = httpRoutine("POST", "http://127.0.0.1:9000//vnf/operation/COVEN-Socket-VNF/post_setup", {'userAuth': 'admin;admin', 'operationArguments': yaml.dump({"name": "Forwarder.zip", "size": str(os.path.getsize("Forwarder.zip")), "package": function.read()})}, None, 150, True)
 if results[0] == 0:
 	processResults(results[1][0], results[1][1], "Post-NF-COVENSocket-EMS.csv")
@@ -313,16 +321,16 @@ print("\nOPERATION: POST -- START A NETWORK FUNCTION")
 
 '''print("\nClick-On-OSv")
 function = open("firewall.click", "r")
-httpRoutine("POST", "http://192.168.18.15:8000/click_plugin/write_file", {"path": "/func.click", "content": str(function.read()).translate(str.maketrans({'"':r'\"'}))}, None, 1, False)
+httpRoutine("POST", "http://192.168.18.24:8000/click_plugin/write_file", {"path": "/func.click", "content": str(function.read()).translate(str.maketrans({'"':r'\"'}))}, None, 1, False)
 function.close()
 results = [[], [], []]
 for r in range(15):
-	p_results = httpRoutine("POST", "http://192.168.18.15:8000/click_plugin/start", {}, "http://192.168.18.15:8000/click_plugin/stop", 10, False)
+	p_results = httpRoutine("POST", "http://192.168.18.24:8000/click_plugin/start", {}, "http://192.168.18.24:8000/click_plugin/stop", 10, False)
 	results[0].extend(p_results[1][0])
 	results[1].extend(p_results[1][1])
 	results[2].extend(p_results[1][2])
 	try:
-		requests.post("http://192.168.18.15:8000/os/reboot")
+		requests.post("http://192.168.18.24:8000/os/reboot")
 		time.sleep(10)
 	except:
 		time.sleep(2)
@@ -335,27 +343,27 @@ results = httpRoutine("POST", "http://127.0.0.1:9000//vnf/operation/ClickOnOSv-V
 function.close()
 results = [[], [], []]
 for r in range(15):
-	p_results = httpRoutine("POST", "http://127.0.0.1:9000//vnf/operation/ClickOnOSv-VNF/post_click_start", {'userAuth': 'admin;admin', 'operationArguments': '{}'}, "http://192.168.18.15:8000/click_plugin/stop", 10, True)
+	p_results = httpRoutine("POST", "http://127.0.0.1:9000//vnf/operation/ClickOnOSv-VNF/post_click_start", {'userAuth': 'admin;admin', 'operationArguments': '{}'}, "http://192.168.18.24:8000/click_plugin/stop", 10, True)
 	results[0].extend(p_results[1][0])
 	results[1].extend(p_results[1][1])
 	results[2].extend(p_results[1][2])
 	try:
-		requests.post("http://192.168.18.15:8000/os/reboot")
+		requests.post("http://192.168.18.24:8000/os/reboot")
 		time.sleep(10)
 	except:
 		time.sleep(2)
 		continue
 processResults(results[0], results[1], "Post-Start-COO-EMS.csv")'''
 
-'''print("\nLEAF")
-function = open("C:/Users/vfulb/Desktop/apache2-vines-leaf.zip", "rb")
-results = httpRoutine("POST", "http://192.168.18.18:8000/api/push_vnfp", function.read(), None, 1, True)
+print("\nLEAF")
+function = open("apache2-vines-leaf.zip", "rb")
+results = httpRoutine("POST", "http://192.168.18.25:8000/api/push_vnfp", function.read(), None, 1, True)
 function.close()
 results = [[], [], [], [], []]
 for r in range(150):
 	print(r)
-	p_results_i	= httpRoutine("POST", "http://192.168.18.18:8000/api/install", "", None, 1, True)
-	p_results_s = httpRoutine("POST", "http://192.168.18.18:8000/api/start", "", "http://192.168.18.18:8000/api/stop", 1, True)
+	p_results_i	= httpRoutine("POST", "http://192.168.18.25:8000/api/install", "", None, 1, True)
+	p_results_s = httpRoutine("POST", "http://192.168.18.25:8000/api/start", "", "http://192.168.18.25:8000/api/stop", 1, True)
 	results[0].append(p_results_i[1][0][0] + p_results_s[1][0][0])
 	results[1].extend(p_results_i[1][1])
 	results[2].extend(p_results_i[1][2])
@@ -365,80 +373,76 @@ for r in range(150):
 processResults(results[0], results[1], "Post-Start-Leaf-Direct.csv")
 
 print("\nLEAF by local EMS")
-function = open("C:/Users/vfulb/Desktop/apache2-vines-leaf.zip", "rb")
-httpRoutine("POST", "http://192.168.18.18:8000/api/push_vnfp", function.read(), None, 1, True)
+function = open("apache2-vines-leaf.zip", "rb")
+results = httpRoutine("POST", "http://192.168.18.25:8000/api/push_vnfp", function.read(), None, 1, True)
 function.close()
 results = [[], [], [], [], []]
 for r in range(150):
 	print(r)
 	p_results_i = httpRoutine("POST", "http://127.0.0.1:9000//vnf/operation/Leaf-VNF/post_install", {'userAuth': 'admin;admin', 'operationArguments': '{}'}, None, 1, True)
-	p_results_s = httpRoutine("POST", "http://127.0.0.1:9000//vnf/operation/Leaf-VNF/post_start", {'userAuth': 'admin;admin', 'operationArguments': '{}'}, "http://192.168.18.18:8000/api/stop", 1, True)
+	p_results_s = httpRoutine("POST", "http://127.0.0.1:9000//vnf/operation/Leaf-VNF/post_start", {'userAuth': 'admin;admin', 'operationArguments': '{}'}, "http://192.168.18.25:8000/api/stop", 1, True)
 	results[0].append(p_results_i[1][0][0] + p_results_s[1][0][0])
 	results[1].extend(p_results_i[1][1])
 	results[2].extend(p_results_i[1][2])
 	results[3].extend(p_results_s[1][1])
 	results[4].extend(p_results_s[1][2])
 	time.sleep(2)
-processResults(results[0], results[1], "Post-Start-Leaf-EMS.csv")'''
+processResults(results[0], results[1], "Post-Start-Leaf-EMS.csv")
 
 '''print("\nCOVEN-HTTP")
-results = [[], [], [], [], []]
+socketPackage("192.168.18.23", 6668, "/home/research/Desktop/Forwarder.zip", 1)
+results = [[], [], []]
 for r in range(150):
 	print("MAIN", r)
-	p_results_i = httpRoutine("POST", "http://192.168.18.11:6667/configure/", yaml.dump({"PPS": [{"Framework": "JavaFramework", "NFs":[{"File": "NFPackages/Forwarder/Forward.java", "Order": 1, "Input": 8008, "Output": 8009, "EMA": {"Port": 8020, "Requests": {"Packets": "PP"}}}]}, {"Framework": "ExeFramework", "NFs":[{"File": "NFPackages/Forwarder/ForwardC", "Order": 2, "Input": 8012, "Output": 8013}]}], "VNS": {"Tool": "L2Socket", "Input":["wlp3s0"], "Output":["enp0s25"]}, "NSHP": False}), None, 1, True)
-	p_results_s = httpRoutine("POST", "http://192.168.18.11:6667/start/", {}, "http://192.168.18.11:6667/stop/", 1, True)
-	httpRoutine("POST", "http://192.168.18.11:6667/reset/", {}, None, 1, True)
+	p_results = httpRoutine("POST", "http://192.168.18.23:6667/launch/", yaml.dump({"PPS": [{"Framework": "JavaFramework", "NFs":[{"File": "NFPackages/Forwarder/Forward.java", "Order": 1, "Input": 8008, "Output": 8009, "EMA": {"Port": 8020, "Requests": {"Packets": "PP"}}}]}, {"Framework": "ExeFramework", "NFs":[{"File": "NFPackages/Forwarder/ForwardC", "Order": 2, "Input": 8012, "Output": 8013}]}], "VNS": {"Tool": "L2Socket", "Input":["ens4"], "Output":["ens5"]}, "NSHP": False}), None, 1, True)
+	time.sleep(1)
+	httpRoutine("POST", "http://192.168.18.23:6667/stop/", {}, "http://192.168.18.23:6667/reset/", 1, True)
 	time.sleep(2)
-	results[0].append(p_results_i[1][0][0] + p_results_s[1][0][0])
-	results[1].extend(p_results_i[1][1])
-	results[2].extend(p_results_i[1][2])
-	results[3].extend(p_results_s[1][1])
-	results[4].extend(p_results_s[1][2])
+	results[0].append(p_results[1][0][0])
+	results[1].extend(p_results[1][1])
+	results[2].extend(p_results[1][2])
 processResults(results[0], results[1], "Post-Start-COVENHTTP-Direct.csv")
 
 print("\nCOVEN-HTTP by local EMS")
-results = [[], [], [], [], []]
+socketPackage("192.168.18.23", 6668, "/home/research/Desktop/Forwarder.zip", 1)
+results = [[], [], []]
 for r in range(150):
 	print("MAIN", r)
-	p_results_i = httpRoutine("POST", "http://127.0.0.1:9000//vnf/operation/COVEN-HTTP-VNF/post_nf", {'userAuth': 'admin;admin', 'operationArguments': yaml.dump({'package': "{'PPS': [{'Framework': 'JavaFramework', 'NFs':[{'File': 'NFPackages/Forwarder/Forward.java', 'Order': 1, 'Input': 8008, 'Output': 8009, 'EMA': {'Port': 8020, 'Requests': {'Packets': 'PP'}}}]}, {'Framework': 'ExeFramework', 'NFs':[{'File': 'NFPackages/Forwarder/ForwardC', 'Order': 2, 'Input': 8012, 'Output': 8013}]}], 'VNS': {'Tool': 'L2Socket', 'Input':['wlp3s0'], 'Output':['enp0s25']}, 'NSHP': false}"})}, None, 1, True)
-	p_results_s = httpRoutine("POST", "http://127.0.0.1:9000//vnf/operation/COVEN-HTTP-VNF/post_start", {'userAuth': 'admin;admin', 'operationArguments': '{}'}, "http://192.168.18.11:6667/stop/", 1, True)
-	httpRoutine("POST", "http://192.168.18.11:6667/reset/", {}, None, 1, True)
+	p_results = httpRoutine("POST", "http://127.0.0.1:9000//vnf/operation/COVEN-HTTP-VNF/post_launch", {'userAuth': 'admin;admin', 'operationArguments': yaml.dump({'package': "{'PPS': [{'Framework': 'JavaFramework', 'NFs':[{'File': 'NFPackages/Forwarder/Forward.java', 'Order': 1, 'Input': 8008, 'Output': 8009, 'EMA': {'Port': 8020, 'Requests': {'Packets': 'PP'}}}]}, {'Framework': 'ExeFramework', 'NFs':[{'File': 'NFPackages/Forwarder/ForwardC', 'Order': 2, 'Input': 8012, 'Output': 8013}]}], 'VNS': {'Tool': 'L2Socket', 'Input':['ens4'], 'Output':['ens5']}, 'NSHP': false}"})}, None, 1, True)
+	time.sleep(1)
+	httpRoutine("POST", "http://192.168.18.23:6667/stop/", {}, "http://192.168.18.23:6667/reset/", 1, True)
 	time.sleep(2)
-	results[0].append(p_results_i[1][0][0] + p_results_s[1][0][0])
-	results[1].extend(p_results_i[1][1])
-	results[2].extend(p_results_i[1][2])
-	results[3].extend(p_results_s[1][1])
-	results[4].extend(p_results_s[1][2])
+	results[0].append(p_results[1][0][0])
+	results[1].extend(p_results[1][1])
+	results[2].extend(p_results[1][2])
 processResults(results[0], results[1], "Post-Start-COVENHTTP-EMS.csv")
 
 print("\nCOVEN-Socket")
-results = [[], [], [], [], []]
+socketPackage("192.168.18.23", 6668, "/home/research/Desktop/Forwarder.zip", 1)
+results = [[], [], []]
 for r in range(150):
 	print("MAIN:", r)
-	p_results_i = socketRoutine("192.168.18.11", 6668, "configure|Forwarder", None, 1)
-	p_results_s = socketRoutine("192.168.18.11", 6668, "start", "stop", 1)
-	socketRoutine("192.168.18.11", 6668, "reset", None, 1)
-	results[0].append(p_results_i[1][0][0] + p_results_s[1][0][0])
-	results[1].extend(p_results_i[1][1])
-	results[2].extend(p_results_i[1][2])
-	results[3].extend(p_results_s[1][1])
-	results[4].extend(p_results_s[1][2])
+	p_results = socketRoutine("192.168.18.23", 6668, "launch|Forwarder", None, 1)
+	time.sleep(1)
+	httpRoutine("POST", "http://192.168.18.23:6667/stop/", {}, "http://192.168.18.23:6667/reset/", 1, True)
+	time.sleep(2)
+	results[0].append(p_results[1][0][0])
+	results[1].extend(p_results[1][1])
+	results[2].extend(p_results[1][2])
 processResults(results[0], results[1], "Post-Start-COVENSocket-Direct.csv")
 
-print("\nCOVEN-HTTP by local EMS")
-results = [[], [], [], [], []]
+print("\nCOVEN-Socket by local EMS")
+socketPackage("192.168.18.23", 6668, "/home/research/Desktop/Forwarder.zip", 1)
+results = [[], [], []]
 for r in range(150):
 	print("MAIN:", r)
-	p_results_i = httpRoutine("POST", "http://127.0.0.1:9000//vnf/operation/COVEN-Socket-VNF/post_configure", {'userAuth': 'admin;admin', 'operationArguments': yaml.dump({'package': 'Forwarder'})}, None, 1, True)
+	p_results = httpRoutine("POST", "http://127.0.0.1:9000//vnf/operation/COVEN-Socket-VNF/post_launch", {'userAuth': 'admin;admin', 'operationArguments': yaml.dump({'package': 'Forwarder'})}, None, 1, True)
 	time.sleep(1)
-	p_results_s = httpRoutine("POST", "http://127.0.0.1:9000//vnf/operation/COVEN-Socket-VNF/post_start", {'userAuth': 'admin;admin', 'operationArguments': '{}'}, "http://192.168.18.11:6667/stop/", 1, True)
-	httpRoutine("POST", "http://192.168.18.11:6667/reset/", {}, None, 1, True)
+	httpRoutine("POST", "http://192.168.18.23:6667/stop/", {}, "http://192.168.18.23:6667/reset/", 1, True)
 	time.sleep(2)
-	results[0].append(p_results_i[1][0][0] + p_results_s[1][0][0])
-	results[1].extend(p_results_i[1][1])
-	results[2].extend(p_results_i[1][2])
-	results[3].extend(p_results_s[1][1])
-	results[4].extend(p_results_s[1][2])
+	results[0].append(p_results[1][0][0])
+	results[1].extend(p_results[1][1])
+	results[2].extend(p_results[1][2])
 processResults(results[0], results[1], "Post-Start-COVENSocket-EMS.csv")'''
 
 print("\n===============================================================================================")

@@ -17,6 +17,7 @@ class HttpCovenDriver(VnfDriverTemplate.VnfDriverTemplate):
 				  "post_setup":VsModels.PlatformOperation().fromData("post_setup", self.post_coven_setup, {"name":"", "data":""}),
 				  "post_nf":VsModels.PlatformOperation().fromData("post_nf", self.post_coven_nf, {"package":""}),
 				  "post_start":VsModels.PlatformOperation().fromData("post_start", self.post_coven_start, {}),
+				  "post_launch":VsModels.PlatformOperation().fromData("post_launch", self.post_coven_launch, {"package":""}),
 				  "post_stop":VsModels.PlatformOperation().fromData("post_stop", self.post_coven_stop, {}),
 				  "post_reset":VsModels.PlatformOperation().fromData("post_reset", self.post_coven_reset, {}),
 				  "post_off":VsModels.PlatformOperation().fromData("post_off", self.post_coven_off, {}),
@@ -39,6 +40,7 @@ class HttpCovenDriver(VnfDriverTemplate.VnfDriverTemplate):
 				"post_setup":VsModels.PlatformOperation().fromData("post_setup", self.post_coven_setup, {"name":"", "data":""}),
 				"post_nf":VsModels.PlatformOperation().fromData("post_nf", self.post_coven_nf, {"package":""}),
 				"post_start":VsModels.PlatformOperation().fromData("post_start", self.post_coven_start, {}),
+				"post_launch":VsModels.PlatformOperation().fromData("post_launch", self.post_coven_launch, {"package":""}),
 				"post_stop":VsModels.PlatformOperation().fromData("post_stop", self.post_coven_stop, {}),
 				"post_reset":VsModels.PlatformOperation().fromData("post_reset", self.post_coven_reset, {}),
 				"post_off":VsModels.PlatformOperation().fromData("post_off", self.post_coven_off, {})}
@@ -85,6 +87,14 @@ class HttpCovenDriver(VnfDriverTemplate.VnfDriverTemplate):
 	def post_coven_start(self, vibVnfInstance, covenOperationArguments):
 
 		responseData = requests.post("http://" + vibVnfInstance.vnfAddress + "/start/")
+		if responseData.status_code >= 200 and responseData.status_code < 300:
+			return str(responseData.content)
+		else:
+			return str(responseData.status_code)
+
+	def post_coven_launch(self, vibVnfInstance, covenOperationArguments):
+
+		responseData = requests.post("http://" + vibVnfInstance.vnfAddress + "/launch/", data = covenOperationArguments["package"])
 		if responseData.status_code >= 200 and responseData.status_code < 300:
 			return str(responseData.content)
 		else:

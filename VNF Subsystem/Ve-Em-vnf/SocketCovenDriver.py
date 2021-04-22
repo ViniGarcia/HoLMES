@@ -19,6 +19,7 @@ class SocketCovenDriver(VnfDriverTemplate.VnfDriverTemplate):
 				  "post_setup":VsModels.PlatformOperation().fromData("post_setup", self.post_coven_setup, {"name":"", "size":"", "package":""}),
 				  "post_configure":VsModels.PlatformOperation().fromData("post_configure", self.post_coven_configure, {"package":""}),
 				  "post_start":VsModels.PlatformOperation().fromData("post_start", self.post_coven_start, {}),
+				  "post_launch":VsModels.PlatformOperation().fromData("post_launch", self.post_coven_launch, {"package":""}),
 				  "post_stop":VsModels.PlatformOperation().fromData("post_stop", self.post_coven_stop, {}),
 				  "post_reset":VsModels.PlatformOperation().fromData("post_reset", self.post_coven_reset, {}),
 				  "post_off":VsModels.PlatformOperation().fromData("post_off", self.post_coven_off, {}),
@@ -41,6 +42,7 @@ class SocketCovenDriver(VnfDriverTemplate.VnfDriverTemplate):
 				"post_setup":VsModels.PlatformOperation().fromData("post_setup", self.post_coven_setup, {"package":""}),
 				"post_configure":VsModels.PlatformOperation().fromData("post_configure", self.post_coven_configure, {"package":""}),
 				"post_start":VsModels.PlatformOperation().fromData("post_start", self.post_coven_start, {}),
+				"post_launch":VsModels.PlatformOperation().fromData("post_launch", self.post_coven_launch, {"package":""}),
 				"post_stop":VsModels.PlatformOperation().fromData("post_stop", self.post_coven_stop, {}),
 				"post_reset":VsModels.PlatformOperation().fromData("post_reset", self.post_coven_reset, {}),
 				"post_off":VsModels.PlatformOperation().fromData("post_off", self.post_coven_off, {})}
@@ -59,7 +61,13 @@ class SocketCovenDriver(VnfDriverTemplate.VnfDriverTemplate):
 		vnfSocket.settimeout(8.0)
 		vnfSocket.connect((requestAddress[0], int(requestAddress[1])))
 
-		vnfSocket.send(("package|" + covenOperationArguments["name"] + "|" + covenOperationArguments["size"]).encode())
+		packRequest = "package|" + covenOperationArguments["name"] + "|" + covenOperationArguments["size"]
+		if len(packRequest) > 50:
+			return "ERROR: REQUEST IS OVER 50 BYTES!!"
+		packRequest = bytearray(packRequest.encode())
+		packRequest.extend(bytearray(50 - len(packRequest)))
+
+		vnfSocket.send(packRequest)
 		while True:
 			if len(covenOperationArguments["package"]) > 1024:
 				vnfSocket.send(covenOperationArguments["package"][:1024])
@@ -92,7 +100,13 @@ class SocketCovenDriver(VnfDriverTemplate.VnfDriverTemplate):
 		vnfSocket.settimeout(8.0)
 		vnfSocket.connect((requestAddress[0], int(requestAddress[1])))
 
-		vnfSocket.send(("setup|" + covenOperationArguments["name"] + "|" + covenOperationArguments["size"]).encode())
+		packRequest = "setup|" + covenOperationArguments["name"] + "|" + covenOperationArguments["size"]
+		if len(packRequest) > 50:
+			return "ERROR: REQUEST IS OVER 50 BYTES!!"
+		packRequest = bytearray(packRequest.encode())
+		packRequest.extend(bytearray(50 - len(packRequest)))
+
+		vnfSocket.send(packRequest)
 		while True:
 			if len(covenOperationArguments["package"]) > 1024:
 				vnfSocket.send(covenOperationArguments["package"][:1024])
@@ -114,6 +128,19 @@ class SocketCovenDriver(VnfDriverTemplate.VnfDriverTemplate):
 		vnfSocket.connect((requestAddress[0], int(requestAddress[1])))
 
 		vnfSocket.send(("configure|" + covenOperationArguments["package"]).encode())
+
+		response = vnfSocket.recv(1024)
+		vnfSocket.close()
+		return response.decode()
+
+	def post_coven_launch(self, vibVnfInstance, covenOperationArguments):
+
+		requestAddress = vibVnfInstance.vnfAddress.split(":")
+		vnfSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		vnfSocket.settimeout(8.0)
+		vnfSocket.connect((requestAddress[0], int(requestAddress[1])))
+
+		vnfSocket.send(("launch|" + covenOperationArguments["package"]).encode())
 
 		response = vnfSocket.recv(1024)
 		vnfSocket.close()

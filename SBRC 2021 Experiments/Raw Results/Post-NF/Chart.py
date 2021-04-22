@@ -122,5 +122,5 @@ for fileResource in processFiles:
 	fileResource.append(csvFile)
 
 makeBar(processFiles)
-makeHistogram(createIntervals(processFiles, 10, 450), 450, ['COO','COO + EMS', "Leaf", "Leaf + EMS", "COVEN (HTTP)", "COVEN (HTTP) + EMS", "COVEN (Socket)", "COVEN (Socket) + EMS"])
-makeCDF(createCDFIntervals(createIntervals(processFiles, 10, 450), 120), 450, ['COO','COO + EMS', "Leaf", "Leaf + EMS", "COVEN (HTTP)", "COVEN (HTTP) + EMS", "COVEN (Socket)", "COVEN (Socket) + EMS"])
+makeHistogram(createIntervals(processFiles, 2, 50), 50, ['COO','COO + EMS', "Leaf", "Leaf + EMS", "COVEN (HTTP)", "COVEN (HTTP) + EMS", "COVEN (Socket)", "COVEN (Socket) + EMS"])
+makeCDF(createCDFIntervals(createIntervals(processFiles, 2, 50), 120), 50, ['COO','COO + EMS', "Leaf", "Leaf + EMS", "COVEN (HTTP)", "COVEN (HTTP) + EMS", "COVEN (Socket)", "COVEN (Socket) + EMS"])
