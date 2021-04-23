@@ -6,10 +6,13 @@ import time
 import json
 import flask
 import socket
+import os.path
 import getpass
 import logging
+import readline
 import requests
 import netifaces
+import rlcompleter
 import multiprocessing
 
 sys.path.insert(0,'VNF Subsystem/')
@@ -238,6 +241,99 @@ class EmsCli(cmd.Cmd):
 			responseData = requests.delete("http://"+ self.address + ":9000/" + args[1], params=resources)
 		print("#RESPONSE:", responseData.content, "[" + str(responseData.status_code) + "]\n")
 
+	def complete_send(self, text, line, begidx, endidx):
+
+		generalContexts = ["vlmi", "vpmi", "vfmi", "vii", "vci", "im"] 
+		imContexts = ["vib", "ms", "as", "vs"]
+
+		def next_hierachy(im, text, path, req):
+
+			if im:
+				candidates = [o for o in list(self.operations[path[2]].keys()) if o.startswith(text) and req in self.operations[path[2]][o]]
+			else:
+				candidates = [o for o in list(self.operations[path[1]].keys()) if o.startswith(text) and req in self.operations[path[1]][o]]
+			if len(candidates) < 2:
+				if text in candidates:
+					return []
+				else:
+					return candidates
+			else:
+				if not text.endswith("/") and text in candidates:
+					return [text, text + "/"]
+				else:
+					return list(set(["/".join(c.split("/")[:len(path)+1]) for c in candidates]))
+
+		args = line.split(' ')
+		if len(args) == 2:
+			if len(text) == 0:
+				return ["GET", "POST", "PUT", "PATCH", "DELETE"]
+			else:
+				selection = [a for a in ["GET", "POST", "PUT", "PATCH", "DELETE"] if a.startswith(text)]
+				if len(selection) == 1 and selection[0] == text:
+					return []
+				else:
+					return selection
+		
+		elif len(args) == 3:
+			if not args[1] in ["GET", "POST", "PUT", "PATCH", "DELETE"]:
+				return []
+			if len(text) == 0:
+				readline.insert_text("/")
+				text = "/"
+			if len(text) == 1:
+				if text != "/":
+					return []
+				else:
+					return generalContexts
+			else:
+				path = text.split("/")
+				if len(path) == 1:
+					return []
+				if not path[1] in generalContexts:
+					if len(path) == 2:
+						return ["/" + a + "/" for a in generalContexts if a.startswith(path[1])]
+					else:
+						return []
+				if len(path) == 2:
+					readline.insert_text("/")
+					path.append("")
+				if len(path) == 3 and path[1] == "im":
+					if path[2] == "":
+						return imContexts
+					else:
+						return ["/im/" + a + "/" for a in imContexts if a.startswith(path[2])]
+				if path[1] == "im":
+					return next_hierachy(True, text, path, args[1])
+				else:
+					return next_hierachy(False, text, path, args[1])
+
+		elif len(args) == 4:
+			if len(text) > 0:
+				return []
+			if not args[1] in ["GET", "POST", "PUT", "PATCH", "DELETE"]:
+				return []
+			path = args[2].split("/")
+			if len(path) < 3:
+				return []
+			if path[1] == "im":
+				if not path[2] in imContexts:
+					return []
+				if not args[2] in self.operations[path[2]]:
+					return []
+				if not args[1] in self.operations[path[2]][args[2]]:
+					return []
+				return [str(self.operations[path[2]][args[2]][args[1]])]
+			else:
+				if not path[1] in self.operations:
+					return []
+				if not args[2] in self.operations[path[1]]:
+					return []
+				if not args[1] in self.operations[path[1]][args[2]]:
+					return []
+				return [str(self.operations[path[1]][args[2]][args[1]])]
+
+		return []
+
 	def do_check(self, args):
 
 		for module in self.operations:
@@ -248,6 +344,58 @@ class EmsCli(cmd.Cmd):
 					print("  ", execution, "- ARGUMENTS:", self.operations[module][args][execution])
 				print("==============================================================================\n")
 				return
+
+	def complete_check(self, text, line, begidx, endidx):
+
+		def next_hierachy(im, text, path):
+
+			if im:
+				candidates = [o for o in list(self.operations[path[2]].keys()) if o.startswith(text)]
+			else:
+				candidates = [o for o in list(self.operations[path[1]].keys()) if o.startswith(text)]
+			if len(candidates) < 2:
+				if text in candidates:
+					return []
+				else:
+					return candidates
+			else:
+				if not text.endswith("/") and text in candidates:
+					return [text, text + "/"]
+				else:
+					return list(set(["/".join(c.split("/")[:len(path)+1]) for c in candidates]))
+
+		generalContexts = ["vlmi", "vpmi", "vfmi", "vii", "vci", "im"] 
+		imContexts = ["vib", "ms", "as", "vs"]
+
+		if len(text) == 0:
+			readline.insert_text("/")
+			text = "/"
+		if len(text) == 1:
+			if text != "/":
+				return []
+			else:
+				return generalContexts
+		else:
+			path = text.split("/")
+			if len(path) == 1:
+				return []
+			if not path[1] in generalContexts:
+				if len(path) == 2:
+					return ["/" + a + "/" for a in generalContexts if a.startswith(path[1])]
+				else:
+					return []
+			if len(path) == 2:
+				readline.insert_text("/")
+				path.append("")
+			if len(path) == 3 and path[1] == "im":
+				if path[2] == "":
+					return imContexts
+				else:
+					return ["/im/" + a + "/" for a in imContexts if a.startswith(path[2])]
+			if path[1] == "im":
+				return next_hierachy(True, text, path)
+			else:
+				return next_hierachy(False, text, path)
 
 	def do_list(self, args):
 
@@ -268,6 +416,18 @@ class EmsCli(cmd.Cmd):
 				print("==============================================================================")
 		print("")
 
+	def complete_list(self, text, line, begidx, endidx):
+
+		args = ["all", "vlmi", "vpmi", "vfmi", "vii", "vci", "vib", "ms", "as", "vs"]
+		if len(text) == 0:
+			return args
+		else:
+			selection = [a for a in args if a.startswith(text)]
+			if len(selection) == 1 and selection[0] == text:
+				return []
+			else:
+				return selection
+
 	def do_clear(self, args):
 		os.system('cls' if os.name=='nt' else 'clear')
 
@@ -277,6 +437,30 @@ class EmsCli(cmd.Cmd):
 	def do_exit(self, args):
 		self.exit = True
 		return True
+
+	def preloop(self):
+		try:
+			if 'libedit' in readline.__doc__:
+				readline.parse_and_bind("bind ^I rl_complete")
+			else:
+				readline.parse_and_bind("tab: complete")
+			readline.set_completer_delims(readline.get_completer_delims().replace('/', ''))
+			readline.set_completer_delims(readline.get_completer_delims().replace('<', ''))
+			readline.set_completer_delims(readline.get_completer_delims().replace('>', ''))
+			readline.set_completer_delims(readline.get_completer_delims().replace('[', ''))
+			readline.set_completer_delims(readline.get_completer_delims().replace(']', ''))
+			readline.set_history_length(100)
+			readline.read_history_file(os.path.abspath(__file__)[:os.path.abspath(__file__).rindex("/")] + "/CLIMEM")
+			return True
+		except Exception as e:
+			return False
+
+	def postloop(self):
+		try:
+			readline.write_history_file(os.path.abspath(__file__)[:os.path.abspath(__file__).rindex("/")] + "/CLIMEM")
+			return True
+		except Exception as e:
+			return False
 
 def validate(ip):
 
