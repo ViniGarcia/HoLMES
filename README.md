@@ -46,7 +46,7 @@ HoLMES: Holistic, Lightweight and Malleable EMS Solution
 
 ### How does it was created?
 
-<p align="justify"> The NIEP platform was developed using python 3.9 language and a number of libraries and applications: </p>
+<p align="justify"> The HoLMES platform was developed using python 3.9 language and a number of libraries and applications: </p>
 
 1. Python<br/>
 1.1 Python 3.9.1 (apt-get install python3.9)<br/>

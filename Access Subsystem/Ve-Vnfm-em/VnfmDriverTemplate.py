@@ -9,9 +9,11 @@ DESCRIPTION: Template for the implementation of VNFM drivers that run in the "Ac
 '''
 class VnfmDriverTemplate:
 	vnfmId = None
+	vnfmCredentials = None
 
-	def __init__(self, vnfmId):
+	def __init__(self, vnfmId, vnfmCredentials):
 		self.vnfmId = vnfmId
+		self.vnfmCredentials = vnfmCredentials
 	
 	'''
 	PATH: 		 /vlmi/vnf_instances/

@@ -1,0 +1,35 @@
+VibModels -> [i] Setup new column (vnfmCredentials) at VibVnfmInstance table.
+	- Changed: VibSummaryModels
+	- Changed: VibVnfmInstance
+
+VibManager -> [i] Upgraded __resetVibDatabase method to add a standard user, a standard vnfm driver and standard platforms. 
+              [ii] Updated the temporary vibTesting method to include VNFM credentials.
+	      [iii] Setup dummy names for the instances added during the temporary vibTesting method execution.
+              [iv] Reset VIB at the end of the temporary vibTesting method execution.
+	- Changed: VibManager
+
+AlfaTesting -> [i] Upgraded all the occurences of VibVnfmInstance to include the vnfmCredentials attribute.
+	       [ii] Changed dummy authentication of dummy users to generic PASSWD model.
+	       [iii] Changed DummyVnfmDriver to DummyVnfmDriver2 from adding and removing phases.
+               [iv] Upgraded adding and removing phases information printing.
+               [v] Changed previous DummyVnfmDriver2 to DummyVnfmDriver3 from testing phase.
+
+VnfmDriverTemplate -> [i] Updated the __init__ method to include credentials (as arguments) to access VNFM platforms.
+	- Changed: VnfmDriverTemplate
+
+DummyVnfmDriver -> [i] Updated the __init__ method to include id and credentials (as arguments).
+	- Changed: DummyVnfmDriver
+
+DummyVnfmDriver2 -> [i] Updated the __init__ method to include id and credentials (as arguments).
+	- Changed: DummyVnfmDriver2
+
+DummyVnfmDriver3 -> [i] Updated the __init__ method to include id and credentials (as arguments).
+	- Changed: DummyVnfmDriver3
+
+AsOpAgent -> [i] Updated the setupAgent method to provide the new arguments to instantiate a DummyVnfmDriver.
+             [ii] Updated the setupDriver method to provide the new arguments to instatiate a generic VNFM driver.
+	- Changed: OperationAgent
+
+README -> [i] Corrected NIEP bug (switched to HoLMES)
+
+install.bat -> [i] Included pyreadline package in the HoLMES installation process.

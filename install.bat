@@ -6,3 +6,4 @@ PAUSE
 pip install flask
 pip install psutil
 pip install requests
+pip install pyreadline

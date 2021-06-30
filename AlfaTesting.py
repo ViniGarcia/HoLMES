@@ -66,7 +66,6 @@ def main():
 	aiAgent.run(port=9000)
 
 if __name__ == '__main__':
-    
 	emsProcess = multiprocessing.Process(target=main, args=())
 	emsProcess.start()
 
@@ -76,24 +75,36 @@ if __name__ == '__main__':
 	time.sleep(2)
 
 	#SETUP: ALFA TESTING DEFAULT CONFIGURATIONS
-	requests.post("http://127.0.0.1:9000/" + "im/as/user", params={"vibUserInstance":json.dumps({"userId": "USER01", "userAuthentication": "AUTH01", "userSecrets": "", "userPrivileges": ["VLMI", "VPMI", "VFMI", "VII", "VCI", "VNF", "VIB", "MS", "AS", "VS"]}), "userAuth":"admin;admin"})
-	requests.post("http://127.0.0.1:9000/" + "im/as/user", params={"vibUserInstance":json.dumps({"userId": "USER02", "userAuthentication": "AUTH02", "userSecrets": "", "userPrivileges": ["VLMI", "VPMI", "VFMI", "VII", "VCI", "VNF", "VIB", "MS", "AS", "VS"]}), "userAuth":"admin;admin"})
+	print("\n==================================== ADDING ALPHA TESTING DATA ====================================\n") 
+	responseData = requests.post("http://127.0.0.1:9000/" + "im/as/user", params={"vibUserInstance":json.dumps({"userId": "USER01", "userAuthentication": "AUTH01", "userSecrets": "", "userPrivileges": ["VLMI", "VPMI", "VFMI", "VII", "VCI", "VNF", "VIB", "MS", "AS", "VS"]}), "userAuth":"admin;admin"})
+	print("User -- USER01:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.post("http://127.0.0.1:9000/" + "im/as/user", params={"vibUserInstance":json.dumps({"userId": "USER02", "userAuthentication": "AUTH02", "userSecrets": "", "userPrivileges": ["VLMI", "VPMI", "VFMI", "VII", "VCI", "VNF", "VIB", "MS", "AS", "VS"]}), "userAuth":"admin;admin"})
+	print("User -- USER02:", responseData.content, "[" + str(responseData.status_code) + "]")
 
-	requests.post("http://127.0.0.1:9000/" + "im/vs/driver", params={"vibPlatformInstance":json.dumps({"platformId": "Click-On-OSv-F", "platformDriver": "AlfaTesting Resources/CooDriver.py"}), "userAuth":"admin;admin"})
-	requests.post("http://127.0.0.1:9000/" + "im/vs/driver", params={"vibPlatformInstance":json.dumps({"platformId": "Click-On-OSv-S", "platformDriver": "AlfaTesting Resources/CooSocketDriver.py"}), "userAuth":"admin;admin"})
+	responseData = requests.post("http://127.0.0.1:9000/" + "im/vs/driver", params={"vibPlatformInstance":json.dumps({"platformId": "Click-On-OSv-F", "platformDriver": "AlfaTesting Resources/CooDriver.py"}), "userAuth":"admin;admin"})
+	print("VNF Platform -- Click-On-OSv-F:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.post("http://127.0.0.1:9000/" + "im/vs/driver", params={"vibPlatformInstance":json.dumps({"platformId": "Click-On-OSv-S", "platformDriver": "AlfaTesting Resources/CooSocketDriver.py"}), "userAuth":"admin;admin"})
+	print("VNF Platform -- Click-On-OSv-S:", responseData.content, "[" + str(responseData.status_code) + "]")
+
+	responseData = requests.post("http://127.0.0.1:9000/" + "im/vs/vnf_instance", params={"vibVnfInstance":json.dumps({"vnfId": "VNF01", "vnfAddress": "127.0.0.1:5000", "vnfPlatform": "Click-On-OSv-F", "vnfExtAgents": ["OP01", "OP02"], "vnfAuth": True}), "userAuth":"admin;admin"})
+	print("VNF Instance -- VNF01:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.post("http://127.0.0.1:9000/" + "im/vs/vnf_instance", params={"vibVnfInstance":json.dumps({"vnfId": "VNF02", "vnfAddress": "127.0.0.1:5005", "vnfPlatform": "Click-On-OSv-S", "vnfExtAgents": ["OP01", "OP02"], "vnfAuth": True}), "userAuth":"admin;admin"})
+	print("VNF Instance -- VNF02:", responseData.content, "[" + str(responseData.status_code) + "]")
+
+	responseData = requests.post("http://127.0.0.1:9000/" + "im/as/credential", params={"vibCredentialInstance":json.dumps({"userId": "USER01", "vnfId": "VNF01"}), "userAuth":"admin;admin"})
+	print("Credential -- USER01/VNF01:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.post("http://127.0.0.1:9000/" + "im/as/credential", params={"vibCredentialInstance":json.dumps({"userId": "USER01", "vnfId": "VNF02"}), "userAuth":"admin;admin"})
+	print("Credential -- USER01/VNF02:", responseData.content, "[" + str(responseData.status_code) + "]")
+
+	responseData = requests.post("http://127.0.0.1:9000/" + "im/ms/agent", params={"vibMaInstance":json.dumps({"maId": "CooRunning", "maSource": "AlfaTesting Resources/CooRunningAgent.py", "maPlatform": "Click-On-OSv-F"}), "userAuth":"admin;admin"})
+	print("Agent -- CooRunning:", responseData.content, "[" + str(responseData.status_code) + "]")
+
+	responseData = requests.post("http://127.0.0.1:9000/" + "im/vib/subscriptions", params={"vibSubscriptionInstance":json.dumps({"visId": "SUBS01", "visFilter": {"vnfInstanceSubscriptionFilter": {"vnfdIds": [], "vnfProductsFromProviders": [], "vnfInstanceIds": ["VNF01"], "vnfInstanceNames": []}, "notificationTypes": [], "indicatorIds": ["CooRunningAgent"]}, "visCallback": "http://127.0.0.1:5000/response", "visLinks": {"self": "127.0.0.1:5000"}}), "userAuth":"admin;admin"})
+	print("Subscriptions -- SUBS01:", responseData.content, "[" + str(responseData.status_code) + "]")
+
+	responseData = requests.post("http://127.0.0.1:9000/" + "im/as/vnfm/driver", params={"vibVnfmInstance":json.dumps({"vnfmId": "DummyVnfmDriver2", "vnfmDriver": "AlfaTesting Resources/DummyVnfmDriver2.py", "vnfmCredentials": "APIKey;SecretKey"}), "userAuth":"admin;admin"})
+	print("VNFM -- DummyVnfmDriver2:", responseData.content, "[" + str(responseData.status_code) + "]")
 	
-	requests.post("http://127.0.0.1:9000/" + "im/vs/vnf_instance", params={"vibVnfInstance":json.dumps({"vnfId": "VNF01", "vnfAddress": "127.0.0.1:5000", "vnfPlatform": "Click-On-OSv-F", "vnfExtAgents": ["OP01", "OP02"], "vnfAuth": True}), "userAuth":"admin;admin"})
-	requests.post("http://127.0.0.1:9000/" + "im/vs/vnf_instance", params={"vibVnfInstance":json.dumps({"vnfId": "VNF02", "vnfAddress": "127.0.0.1:5005", "vnfPlatform": "Click-On-OSv-S", "vnfExtAgents": ["OP01", "OP02"], "vnfAuth": True}), "userAuth":"admin;admin"})
-
-	requests.post("http://127.0.0.1:9000/" + "im/as/credential", params={"vibCredentialInstance":json.dumps({"userId": "USER01", "vnfId": "VNF01"}), "userAuth":"admin;admin"})
-	requests.post("http://127.0.0.1:9000/" + "im/as/credential", params={"vibCredentialInstance":json.dumps({"userId": "USER01", "vnfId": "VNF02"}), "userAuth":"admin;admin"})
-	
-	requests.post("http://127.0.0.1:9000/" + "im/ms/agent", params={"vibMaInstance":json.dumps({"maId": "CooRunning", "maSource": "AlfaTesting Resources/CooRunningAgent.py", "maPlatform": "Click-On-OSv-F"}), "userAuth":"admin;admin"})
-
-	requests.post("http://127.0.0.1:9000/" + "/im/vib/subscriptions", params={"vibSubscriptionInstance":json.dumps({"visId": "SUBS01", "visFilter": {"vnfInstanceSubscriptionFilter": {"vnfdIds": [], "vnfProductsFromProviders": [], "vnfInstanceIds": ["VNF01"], "vnfInstanceNames": []}, "notificationTypes": [], "indicatorIds": ["CooRunningAgent"]}, "visCallback": "http://127.0.0.1:5000/response", "visLinks": {"self": "127.0.0.1:5000"}}), "userAuth":"admin;admin"})
-	
-	requests.post("http://127.0.0.1:9000/" + "im/as/vnfm/driver", params={"vibPlatformInstance":json.dumps({"vnfmId": "DummyVnfmDriver", "vnfmDriver": "AlfaTesting Resources/DummyVnfmDriver.py"}), "userAuth":"admin;admin"})
-
 	#MAIN: ALFA TESTING
 	print("\n===================================================================================================\n")
 
@@ -106,7 +117,7 @@ if __name__ == '__main__':
 	print("LOG 1.1.1.1: RUNNING TEST ROUTINES OF IM/VIB -- USER TABLE\n")
 	
 	print("LOG 1.1.1.1.1: RUNNING TEST ROUTINES OF IM/VIB -- USER TABLE (/im/vib/users)")
-	vibUserInstance = VibModels.VibUserInstance().fromData("USER03", "PolentaFrita", "", ["VLMI", "VPMI", "VFMI", "VII", "VCI", "VNF", "VIB", "MS", "AS", "VS"])
+	vibUserInstance = VibModels.VibUserInstance().fromData("USER03", "PASSWD01", "", ["VLMI", "VPMI", "VFMI", "VII", "VCI", "VNF", "VIB", "MS", "AS", "VS"])
 	imRequest = ("/im/vib/users", {"vibUserInstance":json.dumps(vibUserInstance.toDictionary()), "userAuth":"USER01;AUTH01"})
     
 	responseData = requests.get("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
@@ -123,7 +134,7 @@ if __name__ == '__main__':
 	input("\nCONTINUE...")
 
 	print("\nLOG 1.1.1.1.2: RUNNING TEST ROUTINES OF IM/VIB -- USER TABLE (/im/vib/users/<userId>)")
-	vibCredentialInstance = vibUserInstance = VibModels.VibUserInstance().fromData("USER03", "PolentaFrita2", "", ["VLMI", "VPMI", "VFMI", "VII", "VCI", "VNF", "VIB", "MS", "AS", "VS"])
+	vibCredentialInstance = vibUserInstance = VibModels.VibUserInstance().fromData("USER03", "PASSWD2", "", ["VLMI", "VPMI", "VFMI", "VII", "VCI", "VNF", "VIB", "MS", "AS", "VS"])
 	imRequest = ("/im/vib/users/USER03", {"vibUserInstance":json.dumps(vibUserInstance.toDictionary()), "userAuth":"USER01;AUTH01"})
 
 	responseData = requests.patch("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
@@ -355,7 +366,7 @@ if __name__ == '__main__':
 	print("\nLOG 1.1.1.7: RUNNING TEST ROUTINES OF IM/VIB -- VNF MANAGER TABLE\n")
 
 	print("LOG 1.1.1.7.1: RUNNING TEST ROUTINES OF IM/VIB -- VNF MANAGER TABLE (/im/vib/vnf_managers)")
-	vibVnfmInstance = VibModels.VibVnfmInstance().fromData("Vines", "AlfaTesting Resources/DummyVnfmDriver.py")
+	vibVnfmInstance = VibModels.VibVnfmInstance().fromData("DummyVnfmDriver3", "AlfaTesting Resources/DummyVnfmDriver3.py", "APIKey;SecretKey")
 	imRequest = ("/im/vib/vnf_managers", {"vibVnfmInstance":json.dumps(vibVnfmInstance.toDictionary()), "userAuth":"USER01;AUTH01"})
 
 	responseData = requests.get("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
@@ -372,8 +383,8 @@ if __name__ == '__main__':
 	input("\nCONTINUE...")
 
 	print("\nLOG 1.1.1.7.2: RUNNING TEST ROUTINES OF IM/VIB -- VNF MANAGER TABLE (/im/vib/vnf_managers/<vnfmId>)")
-	vibVnfmInstance = VibModels.VibVnfmInstance().fromData("Vines", "AlfaTesting Resources/DummyVnfmDriver2.py")
-	imRequest = ("/im/vib/vnf_managers/Vines", {"vibVnfmInstance":json.dumps(vibVnfmInstance.toDictionary()), "userAuth":"USER01;AUTH01"})
+	vibVnfmInstance = VibModels.VibVnfmInstance().fromData("DummyVnfmDriver3", "DummyVnfmDriver3", "APIKey;SecretKey")
+	imRequest = ("/im/vib/vnf_managers/DummyVnfmDriver3", {"vibVnfmInstance":json.dumps(vibVnfmInstance.toDictionary()), "userAuth":"USER01;AUTH01"})
 
 	responseData = requests.patch("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#PATCH:", responseData.content, "[" + str(responseData.status_code) + "]")
@@ -562,7 +573,7 @@ if __name__ == '__main__':
 	input("\nCONTINUE...")
 
 	print("\nLOG 1.1.3.5: RUNNING TEST ROUTINES OF IM/AS (/im/as/user)")
-	vibUserInstance = VibModels.VibUserInstance().fromData("USER03", "PolentaFrita", "", ["VLMI", "VPMI", "VFMI", "VII", "VCI", "VNF", "VIB", "MS", "AS", "VS"])
+	vibUserInstance = VibModels.VibUserInstance().fromData("USER03", "PASSWD1", "", ["VLMI", "VPMI", "VFMI", "VII", "VCI", "VNF", "VIB", "MS", "AS", "VS"])
 	imRequest = ("/im/as/user", {"vibUserInstance":json.dumps(vibUserInstance.toDictionary()), "userAuth":"USER01;AUTH01"})
 
 	responseData = requests.get("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
@@ -579,7 +590,7 @@ if __name__ == '__main__':
 	input("\nCONTINUE...")
 
 	print("\nLOG 1.1.3.6: RUNNING TEST ROUTINES OF IM/AS (/im/as/user/<userId>)")
-	vibUserInstance = VibModels.VibUserInstance().fromData("USER03", "PolentaFrita2", "", ["VLMI", "VPMI", "VFMI", "VII", "VCI", "VNF", "VIB", "MS", "AS", "VS"])
+	vibUserInstance = VibModels.VibUserInstance().fromData("USER03", "PASSWD2", "", ["VLMI", "VPMI", "VFMI", "VII", "VCI", "VNF", "VIB", "MS", "AS", "VS"])
 	imRequest = ("/im/as/user/USER03", {"vibUserInstance":json.dumps(vibUserInstance.toDictionary()), "userAuth":"USER01;AUTH01"})
 
 	responseData = requests.patch("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1]) #TODO: AJUSTAR ESSA OPERAÇÃO
@@ -678,11 +689,20 @@ if __name__ == '__main__':
 	input("\nCONTINUE...")
 
 	print("\nLOG 1.1.3.12: RUNNING TEST ROUTINES OF IM/AS (/im/as/vnfm/running_driver/<vnfmId>)")
-	imRequest = ("/im/as/vnfm/running_driver/DummyVnfmDriver", {"userAuth":"USER01;AUTH01"})
+	imRequest = ("/im/as/vnfm/running_driver/DummyVnfmDriver2", {"userAuth":"USER01;AUTH01"})
+	imRequestAuxiliar = ("/im/as/vnfm/running_driver/DummyVnfmDriver", {"userAuth":"USER01;AUTH01"})
 
+	responseData = requests.get("http://127.0.0.1:9000/" + imRequestAuxiliar[0], params=imRequestAuxiliar[1])
+	print("#GET (Auxiliar):", responseData.content, "[" + str(responseData.status_code) + "]")
 	responseData = requests.get("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#GET:", responseData.content, "[" + str(responseData.status_code) + "]")
 	responseData = requests.post("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#POST:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.get("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
+	print("#GET:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.get("http://127.0.0.1:9000/" + imRequestAuxiliar[0], params=imRequestAuxiliar[1])
+	print("#GET (Auxiliar):", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.post("http://127.0.0.1:9000/" + imRequestAuxiliar[0], params=imRequestAuxiliar[1])
 	print("#POST:", responseData.content, "[" + str(responseData.status_code) + "]")
 	responseData = requests.put("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#PUT:", responseData.content, "[" + str(responseData.status_code) + "]")
@@ -694,7 +714,7 @@ if __name__ == '__main__':
 	input("\nCONTINUE...")
 
 	print("\nLOG 1.1.3.13: RUNNING TEST ROUTINES OF IM/AS (/im/as/vnfm/driver)")
-	vibVnfmInstance = VibModels.VibVnfmInstance().fromData("Vines", "AlfaTesting Resources/DummyVnfmDriver2.py")
+	vibVnfmInstance = VibModels.VibVnfmInstance().fromData("DummyVnfmDriver3", "AlfaTesting Resources/DummyVnfmDriver3.py", "APIKey;SecretKey")
 	imRequest = ("/im/as/vnfm/driver", {"vibVnfmInstance":json.dumps(vibVnfmInstance.toDictionary()), "userAuth":"USER01;AUTH01"})
 
 	responseData = requests.get("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
@@ -711,7 +731,7 @@ if __name__ == '__main__':
 	input("\nCONTINUE...")
 
 	print("\nLOG 1.1.3.14: RUNNING TEST ROUTINES OF IM/AS (/im/as/vnfm/driver/<vnfmId>)")
-	imRequest = ("/im/as/vnfm/driver/Vines", {"vibVnfmInstance":json.dumps(vibVnfmInstance.toDictionary()), "userAuth":"USER01;AUTH01"})
+	imRequest = ("/im/as/vnfm/driver/DummyVnfmDriver3", {"vibVnfmInstance":json.dumps(vibVnfmInstance.toDictionary()), "userAuth":"USER01;AUTH01"})
 
 	responseData = requests.patch("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
 	print("#PATCH:", responseData.content, "[" + str(responseData.status_code) + "]")
@@ -920,25 +940,39 @@ if __name__ == '__main__':
 	print("#", responseData.content, "[" + str(responseData.status_code) + "]")
 
 	#DELETE: ALFA TESTING DEFAULT CONFIGURATIONS
-	requests.delete("http://127.0.0.1:9000/" + "im/as/vnfm/driver/DummyVnfmDriver", params={"userAuth":"admin;admin"})
+	print("\n=================================== REMOVING ALPHA TESTING DATA ===================================\n") 
+	responseData = requests.delete("http://127.0.0.1:9000/" + "im/as/vnfm/driver/DummyVnfmDriver2", params={"userAuth":"admin;admin"})
+	print("VNFM -- DummyVnfmDriver2:", responseData.content, "[" + str(responseData.status_code) + "]")
 
-	requests.delete("http://127.0.0.1:9000/" + "im/vib/subscriptions/SUBS01", params={"userAuth":"admin;admin"})
+	responseData = requests.delete("http://127.0.0.1:9000/" + "im/vib/subscriptions/SUBS01", params={"userAuth":"admin;admin"})
+	print("Subscriptions -- SUBS01:", responseData.content, "[" + str(responseData.status_code) + "]")
 
-	requests.delete("http://127.0.0.1:9000/" + "im/ms/agent/CooRunning", params={"userAuth":"admin;admin"})
+	responseData = requests.delete("http://127.0.0.1:9000/" + "im/ms/agent/CooRunning", params={"userAuth":"admin;admin"})
+	print("Agent -- CooRunning:", responseData.content, "[" + str(responseData.status_code) + "]")
 
-	requests.delete("http://127.0.0.1:9000/" + "im/as/credential/USER01/VNF01", params={"userAuth":"admin;admin"})
-	requests.delete("http://127.0.0.1:9000/" + "im/as/credential/USER01/VNF02", params={"userAuth":"admin;admin"})
+	responseData = requests.delete("http://127.0.0.1:9000/" + "im/as/credential/USER01/VNF01", params={"userAuth":"admin;admin"})
+	print("Credential -- USER01/VNF01:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.delete("http://127.0.0.1:9000/" + "im/as/credential/USER01/VNF02", params={"userAuth":"admin;admin"})
+	print("Credential -- USER01/VNF02:", responseData.content, "[" + str(responseData.status_code) + "]")
 
-	requests.delete("http://127.0.0.1:9000/" + "im/vs/vnf_instance/VNF01", params={"userAuth":"admin;admin"})
-	requests.delete("http://127.0.0.1:9000/" + "im/vs/vnf_instance/VNF02", params={"userAuth":"admin;admin"})
+	responseData = requests.delete("http://127.0.0.1:9000/" + "im/vs/vnf_instance/VNF01", params={"userAuth":"admin;admin"})
+	print("VNF Instance -- VNF01:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.delete("http://127.0.0.1:9000/" + "im/vs/vnf_instance/VNF02", params={"userAuth":"admin;admin"})
+	print("VNF Instance -- VNF02:", responseData.content, "[" + str(responseData.status_code) + "]")
 
-	requests.delete("http://127.0.0.1:9000/" + "im/vs/driver/Click-On-OSv-F", params={"userAuth":"admin;admin"})
-	requests.delete("http://127.0.0.1:9000/" + "im/vs/driver/Click-On-OSv-S", params={"userAuth":"admin;admin"})
+	responseData = requests.delete("http://127.0.0.1:9000/" + "im/vs/driver/Click-On-OSv-F", params={"userAuth":"admin;admin"})
+	print("VNF Platform -- Click-On-OSv-F:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.delete("http://127.0.0.1:9000/" + "im/vs/driver/Click-On-OSv-S", params={"userAuth":"admin;admin"})
+	print("VNF Platform -- Click-On-OSv-S:", responseData.content, "[" + str(responseData.status_code) + "]")
 
-	requests.delete("http://127.0.0.1:9000/" + "im/as/user/USER01", params={"userAuth":"admin;admin"})
-	requests.delete("http://127.0.0.1:9000/" + "im/as/user/USER02", params={"userAuth":"admin;admin"})
+	responseData = requests.delete("http://127.0.0.1:9000/" + "im/as/user/USER01", params={"userAuth":"admin;admin"})
+	print("User -- USER01:", responseData.content, "[" + str(responseData.status_code) + "]")
+	responseData = requests.delete("http://127.0.0.1:9000/" + "im/as/user/USER02", params={"userAuth":"admin;admin"})
+	print("User -- USER02:", responseData.content, "[" + str(responseData.status_code) + "]")
 
 	emsProcess.terminate()
 	dummyCooHttp.terminate()
 	dummyCooSocket.terminate()
+
+	print("\n===================================================================================================\n")
 	

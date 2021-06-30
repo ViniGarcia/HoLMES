@@ -66,7 +66,7 @@ class OperationAgent:
 		if not os.path.isfile("Access Subsystem/Ve-Vnfm-em/" + veVnfmEm + ".py"):
 			return -3
 		try:
-			self.__veVnfmEm = getattr(importlib.import_module("Ve-Vnfm-em." + veVnfmEm), veVnfmEm)()
+			self.__veVnfmEm = getattr(importlib.import_module("Ve-Vnfm-em." + veVnfmEm), veVnfmEm)(veVnfmEm, "")
 		except Exception as e:
 			return -4
 
@@ -90,7 +90,7 @@ class OperationAgent:
 		if not os.path.isfile("Access Subsystem/Ve-Vnfm-em/" + vibVnfmInstance.vnfmDriver + ".py"):
 			return -3
 		try:
-			self.__veVnfmEm = getattr(importlib.import_module("Ve-Vnfm-em." + vibVnfmInstance.vnfmDriver), vibVnfmInstance.vnfmDriver)()
+			self.__veVnfmEm = getattr(importlib.import_module("Ve-Vnfm-em." + vibVnfmInstance.vnfmDriver), vibVnfmInstance.vnfmDriver)(vibVnfmInstance.vnfmDriver, vibVnfmInstance.vnfmCredentials)
 		except Exception as e:
 			return -4
 
@@ -4050,7 +4050,7 @@ class OperationAgent:
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "delete_as_vd_vnfmId", vnfmId), "AS", "IM")
 		driver = self.__asIr.sendMessage(request)
 		if type(driver.messageData) == tuple:
-			return "ERROR CODE #3 (AS): IM/MS ERROR DURING VNFM DRIVER INSTANCE OPERATION (" + str(driver.messageData[1]) + ")", 400
+			return "ERROR CODE #3 (AS): IM/AS ERROR DURING VNFM DRIVER INSTANCE OPERATION (" + str(driver.messageData[1]) + ")", 400
 
 		return json.dumps(driver.messageData.toDictionary())
 

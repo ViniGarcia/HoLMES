@@ -78,7 +78,8 @@ class VibSummaryModels:
 
 	VibVnfmInstance = """ CREATE TABLE IF NOT EXISTS VnfmInstance (
                      	 vnfmId text PRIMARY KEY,
-                     	 vnfmDriver text NOT NULL
+                     	 vnfmDriver text NOT NULL,
+                     	 vnfmCredentials text
                     	); """
 
 '''
@@ -453,6 +454,7 @@ DESCRIPTION: This class represents the VnfmInstance table of the
 class VibVnfmInstance:
 	vnfmId = None
 	vnfmDriver = None
+	vnfmCredentials = None
 
 	def __init__(self):
 		return
@@ -462,27 +464,32 @@ class VibVnfmInstance:
 			return ("0", -1)
 		if type(self.vnfmDriver) != str:
 			return ("1", -1)
+		if type(self.vnfmCredentials) != str:
+			return ("2", -1)
 
-		return ("2", 0)
+		return ("3", 0)
 
-	def fromData(self, vnfmId, vnfmDriver):
+	def fromData(self, vnfmId, vnfmDriver, vnfmCredentials):
 		self.vnfmId = vnfmId
 		self.vnfmDriver = vnfmDriver
+		self.vnfmCredentials = vnfmCredentials
 		return self
 
 	def fromSql(self, sqlData):
 		self.vnfmId = sqlData[0]
 		self.vnfmDriver = sqlData[1]
+		self.vnfmCredentials = sqlData[2]
 		return self
 
 	def fromDictionary(self, dictData):
 		self.vnfmId = dictData["vnfmId"]
 		self.vnfmDriver = dictData["vnfmDriver"]
+		self.vnfmCredentials = dictData["vnfmCredentials"]
 		return self
 
 	def toSql(self):
-		return ('''INSERT INTO VnfmInstance(vnfmId,vnfmDriver)
-              	   VALUES(?,?)''', (self.vnfmId, self.vnfmDriver))
+		return ('''INSERT INTO VnfmInstance(vnfmId,vnfmDriver,vnfmCredentials)
+              	   VALUES(?,?,?)''', (self.vnfmId, self.vnfmDriver, self.vnfmCredentials))
 
 	def toDictionary(self):
-		return {"vnfmId":self.vnfmId, "vnfmDriver":self.vnfmDriver}
+		return {"vnfmId":self.vnfmId, "vnfmDriver":self.vnfmDriver, "vnfmCredentials":self.vnfmCredentials}

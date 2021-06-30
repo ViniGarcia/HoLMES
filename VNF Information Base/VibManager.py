@@ -43,7 +43,14 @@ class VibManager:
             for tableName in dir(tablesData):
                 if not tableName.startswith("_"):
                     self.queryVibDatabase(getattr(tablesData, tableName))
-                
+            
+            standardUser = VibModels.VibUserInstance().fromData("admin", "admin", None, ["VLMI", "VPMI", "VFMI", "VII", "VCI", "VNF", "VIB", "MS", "AS", "VS"])
+            self.operateVibDatabase(standardUser.toSql())
+            standardVnfm = VibModels.VibVnfmInstance().fromData("DummyVnfmDriver", "DummyVnfmDriver", "")
+            self.operateVibDatabase(standardVnfm.toSql())
+            for standardPlatform in [{"platformId": "Click-On-OSv", "platformDriver": "ClickOnOSvDriver"}, {"platformId": "COVEN-HTTP", "platformDriver": "HttpCovenDriver"}, {"platformId": "COVEN-Socket", "platformDriver": "SocketCovenDriver"}, {"platformId": "Leaf", "platformDriver": "LeafDriver"}]:
+                self.operateVibDatabase(VibModels.VibPlatformInstance().fromDictionary(standardPlatform).toSql())
+
             return True
         
         except sqlite3.Error as e:
@@ -71,17 +78,18 @@ class VibManager:
         except sqlite3.Error as e:
             raise e
 
-    '''#TEMPORARY
-    def vibTesting(self):
+    #TEMPORARY
+    '''def vibTesting(self):
 
         if self.__resetVibDatabase():
             
-            classTest = VibModels.VibPlatformInstance().fromData("Click-On-OSv", "CooDriver")
+            print(self.queryVibDatabase("SELECT * FROM PlatformInstance;"))
+            classTest = VibModels.VibPlatformInstance().fromData("PLATFORM01", "CooDriver")
             self.operateVibDatabase(classTest.toSql())
-            print(self.queryVibDatabase("SELECT * FROM PlatformInstance WHERE platformId = \"Click-On-OSv\";"))
-            classTest = VibModels.VibPlatformInstance().fromData("Click-On-OSv-S", "CooSocketDriver")
+            print(self.queryVibDatabase("SELECT * FROM PlatformInstance WHERE platformId = \"PLATFORM01\";"))
+            classTest = VibModels.VibPlatformInstance().fromData("PLATFORM02", "CooSocketDriver")
             self.operateVibDatabase(classTest.toSql())
-            print(self.queryVibDatabase("SELECT * FROM PlatformInstance WHERE platformId = \"Click-On-OSv-S\";"))
+            print(self.queryVibDatabase("SELECT * FROM PlatformInstance WHERE platformId = \"PLATFORM02\";"))
 
             classTest = VibModels.VibVnfInstance().fromData("VNF01", "127.0.0.1:5000", "Click-On-OSv", ["OP01", "OP02"], True)
             self.operateVibDatabase(classTest.toSql())
@@ -98,15 +106,17 @@ class VibManager:
             self.operateVibDatabase(classTest.toSql())
             print(self.queryVibDatabase("SELECT * FROM CredentialInstance WHERE userId = \"USER01\";"))
 
-            classTest = VibModels.VibMaInstance().fromData("CooRunning", "CooRunningAgent", "Click-On-OSv")
+            classTest = VibModels.VibMaInstance().fromData("MONITOR01", "CooRunningAgent", "Click-On-OSv")
             self.operateVibDatabase(classTest.toSql())
-            print(self.queryVibDatabase("SELECT * FROM MaInstance WHERE maId = \"CooRunning\";"))
+            print(self.queryVibDatabase("SELECT * FROM MaInstance WHERE maId = \"MONITOR01\";"))
 
             vnfIndicatorNotificationsFilter = AsModels.VnfIndicatorNotificationsFilter().fromData(AsModels.VnfInstanceSubscriptionFilter().fromData([], [], ["VNF01"], []), [], ["CooRunningAgent"])
             classTest = VibModels.VibSubscriptionInstance().fromData("SUBS01", vnfIndicatorNotificationsFilter, "http://127.0.0.1:5000/response", {"self":"127.0.0.1:5000"})
             self.operateVibDatabase(classTest.toSql())
             print(self.queryVibDatabase("SELECT * FROM SubscriptionInstance WHERE visId = \"SUBS01\";"))
 
-            classTest = VibModels.VibVnfmInstance().fromData("DummyVnfmDriver", "DummyVnfmDriver")
+            classTest = VibModels.VibVnfmInstance().fromData("VNFM01", "DummyVnfmDriver", "APIKey;APIPasswd")
             self.operateVibDatabase(classTest.toSql())
-            print(self.queryVibDatabase("SELECT * FROM VnfmInstance WHERE vnfmId = \"DummyVnfmDriver\";"))'''
+            print(self.queryVibDatabase("SELECT * FROM VnfmInstance WHERE vnfmId = \"VNFM01\";"))
+
+            self.__resetVibDatabase()'''

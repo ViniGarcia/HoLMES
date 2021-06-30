@@ -1,7 +1,10 @@
+import sys
+sys.path.insert(0,'Access Subsystem/Ve-Vnfm-em')
+
 import VnfmDriverTemplate
 
 class DummyVnfmDriver(VnfmDriverTemplate.VnfmDriverTemplate):
 
-	def __init__(self):
+	def __init__(self, vnfmId, vnfmCredentials):
 		
-		super().__init__("DummyVnfmDriver")
+		super().__init__(vnfmId, vnfmCredentials)
