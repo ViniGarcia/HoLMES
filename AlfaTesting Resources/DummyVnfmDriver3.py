@@ -5,6 +5,6 @@ import VnfmDriverTemplate
 
 class DummyVnfmDriver3(VnfmDriverTemplate.VnfmDriverTemplate):
 
-	def __init__(self, vnfmId, vnfmCredentials):
+	def __init__(self, vnfmId, vnfmAddress, vnfmCredentials):
 		
-		super().__init__(vnfmId, vnfmCredentials)
+		super().__init__(vnfmId, vnfmAddress, vnfmCredentials)

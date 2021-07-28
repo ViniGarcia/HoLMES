@@ -17,8 +17,8 @@ import AsAuthAgent
 CLASS: OperationAgent
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 05 Nov. 2020
-L. UPDATE: 04 Jan. 2021 (Fulber-Garcia; Integration of the authen-
-						 tication system)
+L. UPDATE: 28 Jul. 2021 (Fulber-Garcia; Update of DummyVnfmDriver instantiation; 
+						 Included the VNFM address to SetupDriver method)
 DESCRIPTION: Operation agent implementation. This class
 			 has the kernel functionalites of the access
 			 subsystem. It holds the implementation of all
@@ -66,7 +66,7 @@ class OperationAgent:
 		if not os.path.isfile("Access Subsystem/Ve-Vnfm-em/" + veVnfmEm + ".py"):
 			return -3
 		try:
-			self.__veVnfmEm = getattr(importlib.import_module("Ve-Vnfm-em." + veVnfmEm), veVnfmEm)(veVnfmEm, "")
+			self.__veVnfmEm = getattr(importlib.import_module("Ve-Vnfm-em." + veVnfmEm), veVnfmEm)(veVnfmEm, "127.0.0.1", "")
 		except Exception as e:
 			return -4
 
@@ -90,7 +90,7 @@ class OperationAgent:
 		if not os.path.isfile("Access Subsystem/Ve-Vnfm-em/" + vibVnfmInstance.vnfmDriver + ".py"):
 			return -3
 		try:
-			self.__veVnfmEm = getattr(importlib.import_module("Ve-Vnfm-em." + vibVnfmInstance.vnfmDriver), vibVnfmInstance.vnfmDriver)(vibVnfmInstance.vnfmDriver, vibVnfmInstance.vnfmCredentials)
+			self.__veVnfmEm = getattr(importlib.import_module("Ve-Vnfm-em." + vibVnfmInstance.vnfmDriver), vibVnfmInstance.vnfmDriver)(vibVnfmInstance.vnfmDriver, vibVnfmInstance.vnfmAddress, vibVnfmInstance.vnfmCredentials)
 		except Exception as e:
 			return -4
 

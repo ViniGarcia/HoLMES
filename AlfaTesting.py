@@ -102,7 +102,7 @@ if __name__ == '__main__':
 	responseData = requests.post("http://127.0.0.1:9000/" + "im/vib/subscriptions", params={"vibSubscriptionInstance":json.dumps({"visId": "SUBS01", "visFilter": {"vnfInstanceSubscriptionFilter": {"vnfdIds": [], "vnfProductsFromProviders": [], "vnfInstanceIds": ["VNF01"], "vnfInstanceNames": []}, "notificationTypes": [], "indicatorIds": ["CooRunningAgent"]}, "visCallback": "http://127.0.0.1:5000/response", "visLinks": {"self": "127.0.0.1:5000"}}), "userAuth":"admin;admin"})
 	print("Subscriptions -- SUBS01:", responseData.content, "[" + str(responseData.status_code) + "]")
 
-	responseData = requests.post("http://127.0.0.1:9000/" + "im/as/vnfm/driver", params={"vibVnfmInstance":json.dumps({"vnfmId": "DummyVnfmDriver2", "vnfmDriver": "AlfaTesting Resources/DummyVnfmDriver2.py", "vnfmCredentials": "APIKey;SecretKey"}), "userAuth":"admin;admin"})
+	responseData = requests.post("http://127.0.0.1:9000/" + "im/as/vnfm/driver", params={"vibVnfmInstance":json.dumps({"vnfmId": "DummyVnfmDriver2", "vnfmDriver": "AlfaTesting Resources/DummyVnfmDriver2.py", "vnfmAddress":"127.0.0.1", "vnfmCredentials": "APIKey;SecretKey"}), "userAuth":"admin;admin"})
 	print("VNFM -- DummyVnfmDriver2:", responseData.content, "[" + str(responseData.status_code) + "]")
 	
 	#MAIN: ALFA TESTING
@@ -366,7 +366,7 @@ if __name__ == '__main__':
 	print("\nLOG 1.1.1.7: RUNNING TEST ROUTINES OF IM/VIB -- VNF MANAGER TABLE\n")
 
 	print("LOG 1.1.1.7.1: RUNNING TEST ROUTINES OF IM/VIB -- VNF MANAGER TABLE (/im/vib/vnf_managers)")
-	vibVnfmInstance = VibModels.VibVnfmInstance().fromData("DummyVnfmDriver3", "AlfaTesting Resources/DummyVnfmDriver3.py", "APIKey;SecretKey")
+	vibVnfmInstance = VibModels.VibVnfmInstance().fromData("DummyVnfmDriver3", "AlfaTesting Resources/DummyVnfmDriver3.py", "127.0.0.1", "APIKey;SecretKey")
 	imRequest = ("/im/vib/vnf_managers", {"vibVnfmInstance":json.dumps(vibVnfmInstance.toDictionary()), "userAuth":"USER01;AUTH01"})
 
 	responseData = requests.get("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
@@ -383,7 +383,7 @@ if __name__ == '__main__':
 	input("\nCONTINUE...")
 
 	print("\nLOG 1.1.1.7.2: RUNNING TEST ROUTINES OF IM/VIB -- VNF MANAGER TABLE (/im/vib/vnf_managers/<vnfmId>)")
-	vibVnfmInstance = VibModels.VibVnfmInstance().fromData("DummyVnfmDriver3", "DummyVnfmDriver3", "APIKey;SecretKey")
+	vibVnfmInstance = VibModels.VibVnfmInstance().fromData("DummyVnfmDriver3", "DummyVnfmDriver3", "127.0.0.1", "APIKey;SecretKey")
 	imRequest = ("/im/vib/vnf_managers/DummyVnfmDriver3", {"vibVnfmInstance":json.dumps(vibVnfmInstance.toDictionary()), "userAuth":"USER01;AUTH01"})
 
 	responseData = requests.patch("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])
@@ -714,7 +714,7 @@ if __name__ == '__main__':
 	input("\nCONTINUE...")
 
 	print("\nLOG 1.1.3.13: RUNNING TEST ROUTINES OF IM/AS (/im/as/vnfm/driver)")
-	vibVnfmInstance = VibModels.VibVnfmInstance().fromData("DummyVnfmDriver3", "AlfaTesting Resources/DummyVnfmDriver3.py", "APIKey;SecretKey")
+	vibVnfmInstance = VibModels.VibVnfmInstance().fromData("DummyVnfmDriver3", "AlfaTesting Resources/DummyVnfmDriver3.py", "127.0.0.1", "APIKey;SecretKey")
 	imRequest = ("/im/as/vnfm/driver", {"vibVnfmInstance":json.dumps(vibVnfmInstance.toDictionary()), "userAuth":"USER01;AUTH01"})
 
 	responseData = requests.get("http://127.0.0.1:9000/" + imRequest[0], params=imRequest[1])

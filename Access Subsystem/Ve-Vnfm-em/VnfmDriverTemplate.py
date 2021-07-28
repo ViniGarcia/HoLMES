@@ -2,17 +2,19 @@
 CLASS: VnfmDriverTemplate
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 21 Oct. 2020
-L. UPDATE: 29 Oct. 2020 (Fulber-Garcia; Template refactoring)
+L. UPDATE: 28 Jul. 2021 (Fulber-Garcia; Included the "vnfmAddress" attribute)
 DESCRIPTION: Template for the implementation of VNFM drivers that run in the "Access Subsystem"
 			 internal module. The drivers must inhert this class and overload the functions that
 			 return the HTTP code 501 (Not Implemented).
 '''
 class VnfmDriverTemplate:
 	vnfmId = None
+	vnfmAddress = None
 	vnfmCredentials = None
 
-	def __init__(self, vnfmId, vnfmCredentials):
+	def __init__(self, vnfmId, vnfmAddress, vnfmCredentials):
 		self.vnfmId = vnfmId
+		self.vnfmAddress = vnfmAddress
 		self.vnfmCredentials = vnfmCredentials
 	
 	'''

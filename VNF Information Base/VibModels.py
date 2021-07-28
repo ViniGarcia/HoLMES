@@ -23,8 +23,7 @@ import json
 CLASS: VibSummaryModels
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 30 Oct. 2020
-L. UPDATE: 31 Dez. 2020 (Fulber-Garcia; New table of users;
-						modifications on credential table)
+L. UPDATE: 28 Jul. 2021 (Fulber-Garcia; Included "vnfmAddress" into VibVnfmInstance model)
 DESCRIPTION: This class represents the table creation rou-
 			 tines of all the tables of the VIB. Once a
 			 table is updated in its respective class, the
@@ -79,6 +78,7 @@ class VibSummaryModels:
 	VibVnfmInstance = """ CREATE TABLE IF NOT EXISTS VnfmInstance (
                      	 vnfmId text PRIMARY KEY,
                      	 vnfmDriver text NOT NULL,
+                     	 vnfmAddress text NOT NULL,
                      	 vnfmCredentials text
                     	); """
 
@@ -445,7 +445,7 @@ class VibPlatformInstance:
 CLASS: VibVnfmInstance
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 01 Dez. 2020
-L. UPDATE: 07 Dez. 2020 (Fulber-Garcia; "validate" method implementation)
+L. UPDATE: 28 Jul. 2021 (Fulber-Garcia; included the "vnfmAddress" attribute)
 DESCRIPTION: This class represents the VnfmInstance table of the
 			 VIB. Note that modifications on this class, particu-
 			 lary in the attributes, must be updated in the Vib-
@@ -454,6 +454,7 @@ DESCRIPTION: This class represents the VnfmInstance table of the
 class VibVnfmInstance:
 	vnfmId = None
 	vnfmDriver = None
+	vnfmAddress = None
 	vnfmCredentials = None
 
 	def __init__(self):
@@ -464,32 +465,37 @@ class VibVnfmInstance:
 			return ("0", -1)
 		if type(self.vnfmDriver) != str:
 			return ("1", -1)
-		if type(self.vnfmCredentials) != str:
+		if type(self.vnfmAddress) != str:
 			return ("2", -1)
+		if type(self.vnfmCredentials) != str:
+			return ("3", -1)
 
-		return ("3", 0)
+		return ("4", 0)
 
-	def fromData(self, vnfmId, vnfmDriver, vnfmCredentials):
+	def fromData(self, vnfmId, vnfmDriver, vnfmAddress, vnfmCredentials):
 		self.vnfmId = vnfmId
 		self.vnfmDriver = vnfmDriver
+		self.vnfmAddress = vnfmAddress
 		self.vnfmCredentials = vnfmCredentials
 		return self
 
 	def fromSql(self, sqlData):
 		self.vnfmId = sqlData[0]
 		self.vnfmDriver = sqlData[1]
-		self.vnfmCredentials = sqlData[2]
+		self.vnfmAddress = sqlData[2]
+		self.vnfmCredentials = sqlData[3]
 		return self
 
 	def fromDictionary(self, dictData):
 		self.vnfmId = dictData["vnfmId"]
 		self.vnfmDriver = dictData["vnfmDriver"]
+		self.vnfmAddress = dictData["vnfmAddress"]
 		self.vnfmCredentials = dictData["vnfmCredentials"]
 		return self
 
 	def toSql(self):
-		return ('''INSERT INTO VnfmInstance(vnfmId,vnfmDriver,vnfmCredentials)
-              	   VALUES(?,?,?)''', (self.vnfmId, self.vnfmDriver, self.vnfmCredentials))
+		return ('''INSERT INTO VnfmInstance(vnfmId,vnfmDriver,vnfmAddress,vnfmCredentials)
+              	   VALUES(?,?,?,?)''', (self.vnfmId, self.vnfmDriver, self.vnfmAddress, self.vnfmCredentials))
 
 	def toDictionary(self):
-		return {"vnfmId":self.vnfmId, "vnfmDriver":self.vnfmDriver, "vnfmCredentials":self.vnfmCredentials}
+		return {"vnfmId":self.vnfmId, "vnfmDriver":self.vnfmDriver, "vnfmAddress":self.vnfmAddress, "vnfmCredentials":self.vnfmCredentials}

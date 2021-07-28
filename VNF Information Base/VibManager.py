@@ -8,7 +8,7 @@ import AsModels
 CLASS: VibManager
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 21 Oct. 2020
-L. UPDATE: 10 Nov. 2020 (Fulber-Garcia; Delete method)
+L. UPDATE: 28 Jul. 2021 (Fulber-Garcia; Included vnfmAdrress into DummyVnfmDriver register)
 DESCRIPTION: Implementation of the VIB manager. In summary, this class control the
              information insertion and retrieving from the VIB. It can also modify
              the VIB internally, reseting the base when necessary.
@@ -46,7 +46,7 @@ class VibManager:
             
             standardUser = VibModels.VibUserInstance().fromData("admin", "admin", None, ["VLMI", "VPMI", "VFMI", "VII", "VCI", "VNF", "VIB", "MS", "AS", "VS"])
             self.operateVibDatabase(standardUser.toSql())
-            standardVnfm = VibModels.VibVnfmInstance().fromData("DummyVnfmDriver", "DummyVnfmDriver", "")
+            standardVnfm = VibModels.VibVnfmInstance().fromData("DummyVnfmDriver", "DummyVnfmDriver", "127.0.0.1", "")
             self.operateVibDatabase(standardVnfm.toSql())
             for standardPlatform in [{"platformId": "Click-On-OSv", "platformDriver": "ClickOnOSvDriver"}, {"platformId": "COVEN-HTTP", "platformDriver": "HttpCovenDriver"}, {"platformId": "COVEN-Socket", "platformDriver": "SocketCovenDriver"}, {"platformId": "Leaf", "platformDriver": "LeafDriver"}]:
                 self.operateVibDatabase(VibModels.VibPlatformInstance().fromDictionary(standardPlatform).toSql())
@@ -79,7 +79,7 @@ class VibManager:
             raise e
 
     #TEMPORARY
-    '''def vibTesting(self):
+    def vibTesting(self):
 
         if self.__resetVibDatabase():
             
@@ -115,8 +115,8 @@ class VibManager:
             self.operateVibDatabase(classTest.toSql())
             print(self.queryVibDatabase("SELECT * FROM SubscriptionInstance WHERE visId = \"SUBS01\";"))
 
-            classTest = VibModels.VibVnfmInstance().fromData("VNFM01", "DummyVnfmDriver", "APIKey;APIPasswd")
+            classTest = VibModels.VibVnfmInstance().fromData("VNFM01", "DummyVnfmDriver", "127.0.0.1", "APIKey;APIPasswd")
             self.operateVibDatabase(classTest.toSql())
             print(self.queryVibDatabase("SELECT * FROM VnfmInstance WHERE vnfmId = \"VNFM01\";"))
 
-            self.__resetVibDatabase()'''
+            self.__resetVibDatabase()
