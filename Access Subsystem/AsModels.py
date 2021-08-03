@@ -22,7 +22,7 @@ VALIDATION ERROR CODES:
 CLASS: VnfInstanceSubscriptionFilter
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 27 Oct. 2020
-L. UPDATE: 10 Nov. 2020 (Fulber-Garcia; Methods implementation)
+L. UPDATE: 28 Jul. 2021 (Fulber-Garcia; Removed FromData method)
 DESCRIPTION: This type represents subscription filter cri-
 			 teria to match VNF instances.
 '''
@@ -137,6 +137,16 @@ class VnfInstanceSubscriptionFilter:
 
 		return ("4", 0)
 
+	def fromDictionary(self, dictData):
+		self.vnfdIds = dictData["vnfdIds"]
+		self.vnfProductsFromProviders = dictData["vnfProductsFromProviders"]
+		self.vnfInstanceIds = dictData["vnfInstanceIds"]
+		self.vnfInstanceNames = dictData["vnfInstanceNames"]
+		return self
+
+	def toDictionary(self):
+		return {"vnfdIds":self.vnfdIds, "vnfProductsFromProviders":self.vnfProductsFromProviders, "vnfInstanceIds":self.vnfInstanceIds, "vnfInstanceNames":self.vnfInstanceNames}
+
 	def fromData(self, vnfdIds, vnfProductsFromProviders, vnfInstanceIds, vnfInstanceNames):
 		
 		self.vnfdIds = vnfdIds
@@ -150,18 +160,6 @@ class VnfInstanceSubscriptionFilter:
 			print(self.validate())
 			return False
 
-	def toDictionary(self):
-
-		return {"vnfdIds":self.vnfdIds, "vnfProductsFromProviders":self.vnfProductsFromProviders, "vnfInstanceIds":self.vnfInstanceIds, "vnfInstanceNames":self.vnfInstanceNames} 
-
-	def fromDictionary(self, dictData):
-		
-		self.vnfdIds = dictData["vnfdIds"]
-		self.vnfProductsFromProviders = dictData["vnfProductsFromProviders"]
-		self.vnfInstanceIds = dictData["vnfInstanceIds"]
-		self.vnfInstanceNames = dictData["vnfInstanceNames"]
-		return self
-
 #######################################################################################################
 #######################################################################################################
 
@@ -169,7 +167,7 @@ class VnfInstanceSubscriptionFilter:
 CLASS: VnfInstance
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 22 Oct. 2020
-L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
+L. UPDATE: 29 Jul. 2021 (Fulber-Garcia; Implemented "fromDictionary" and "toDictionary" methods; Declared "validate" method)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a VNF instance in the Ve-Vnfm-em re-
 			 ference point.
@@ -219,11 +217,121 @@ class VnfInstance:
 			 "createSnapshot":None,						#URI (String), optinal (0..1)
 			 "revertToSnapshot":None}					#URI (String), optinal (0..1)
 
+	def validate(self):
+		#TODO
+		pass
+
+	def fromDictionary(self, dictData):
+		self.id = dictData["id"]
+		self.vnfInstanceName = dictData["vnfInstanceName"]
+		self.vnfInstanceDescription = dictData["vnfInstanceDescription"]
+		self.vnfdId = dictData["vnfdId"]
+		self.vnfProvider = dictData["vnfProvider"]
+		self.vnfProductName = dictData["vnfProductName"]
+		self.vnfSoftwareVersion = dictData["vnfSoftwareVersion"]
+		self.vnfdVersion = dictData["vnfdVersion"]
+		self.vnfConfigurableProperties = dictData["vnfConfigurableProperties"]
+		self.instantiationState = dictData["instantiationState"]
+		self.instantiatedVnfInfo = dictData["instantiatedVnfInfo"]
+		self.metadata = dictData["metadata"]
+		self.extensions = dictData["extensions"]
+		self.links = dictData["links"]
+
+		if type(self.instantiatedVnfInfo) == dict:
+			if self.instantiatedVnfInfo["vnfState"] != None:
+				self.instantiatedVnfInfo["vnfState"] = VnfOperationalStateType(int(self.instantiatedVnfInfo["vnfState"]))
+
+			classList = []
+			for ss in self.instantiatedVnfInfo["scaleStatus"]:
+				classList.append(ScaleInfo().fromDictionary(ss))
+			self.instantiatedVnfInfo["scaleStatus"] = classList
+
+			classList = []
+			for msl in self.instantiatedVnfInfo["maxScaleLevels"]:
+				classList.append(ScaleInfo().fromDictionary(msl))
+			self.instantiatedVnfInfo["maxScaleLevels"] = classList
+
+			classList = []
+			for eci in self.instantiatedVnfInfo["extCpInfo"]:
+				classList.append(VnfExtCpInfo().fromDictionary(eci))
+			self.instantiatedVnfInfo["extCpInfo"] = classList
+
+			classList = []
+			for evli in self.instantiatedVnfInfo["extVirtualLinkInfo"]:
+				classList.append(ExtVirtualLinkInfo().fromDictionary(evli))
+			self.instantiatedVnfInfo["extVirtualLinkInfo"] = classList
+
+			classList = []
+			for emvli in self.instantiatedVnfInfo["extManagedVirtualLinkInfo"]:
+				classList.append(ExtManagedVirtualLinkInfo().fromDictionary(emvli))
+			self.instantiatedVnfInfo["extManagedVirtualLinkInfo"] = classList
+			
+			classList = []
+			for mp in self.instantiatedVnfInfo["monitoringParameters"]:
+				classList.append(MonitoringParameter().fromDictionary(mp))
+			self.instantiatedVnfInfo["monitoringParameters"] = classList
+			
+			classList = []
+			for vri in self.instantiatedVnfInfo["vnfcResourceInfo"]:
+				classList.append(VnfcResourceInfo().fromDictionary(vri))
+			self.instantiatedVnfInfo["vnfcResourceInfo"] = classList
+
+			classList = []
+			for vvri in self.instantiatedVnfInfo["vnfVirtualLinkResourceInfo"]:
+				classList.append(VnfVirtualLinkResourceInfo().fromDictionary(vvri))
+			self.instantiatedVnfInfo["vnfVirtualLinkResourceInfo"] = classList
+
+			classList = []
+			for vsri in self.instantiatedVnfInfo["virtualStorageResourceInfo"]:
+				classList.append(VirtualStorageResourceInfo().fromDictionary(vsri))
+			self.instantiatedVnfInfo["virtualStorageResourceInfo"] = classList
+
+			classList = []
+			for vi in self.instantiatedVnfInfo["vnfcInfo"]:
+				classList.append(VnfcInfo().fromDictionary(vi))
+			self.instantiatedVnfInfo["vnfcInfo"] = classList
+
+		return self
+
+	def toDictionary(self):
+		dictData = {}
+		dictData["id"] = self.id
+		dictData["vnfInstanceName"] = self.vnfInstanceName
+		dictData["vnfInstanceDescription"] = self.vnfInstanceDescription
+		dictData["vnfdId"] = self.vnfdId
+		dictData["vnfProvider"] = self.vnfProvider
+		dictData["vnfProductName"] = self.vnfProductName
+		dictData["vnfSoftwareVersion"] = self.vnfSoftwareVersion
+		dictData["vnfdVersion"] = self.vnfdVersion
+		dictData["vnfConfigurableProperties"] = self.vnfConfigurableProperties
+		dictData["instantiationState"] = self.instantiationState
+		dictData["instantiatedVnfInfo"] = self.instantiatedVnfInfo
+		dictData["metadata"] = self.metadata
+		dictData["extensions"] = self.extensions
+		dictData["links"] = self.links
+		
+		if type(dictData["instantiatedVnfInfo"]) == dict:
+			if self.instantiatedVnfInfo["vnfState"] != None:
+				dictData["instantiatedVnfInfo"].vnfState = dictData["instantiatedVnfInfo"].vnfState.value
+
+			dictData["instantiatedVnfInfo"]["scaleStatus"] = [ss.toDictionary() for ss in dictData["instantiatedVnfInfo"]["scaleStatus"]]
+			dictData["instantiatedVnfInfo"]["maxScaleLevels"] = [msl.toDictionary() for msl in dictData["instantiatedVnfInfo"]["maxScaleLevels"]]
+			dictData["instantiatedVnfInfo"]["extCpInfo"] = [eci.toDictionary() for eci in dictData["instantiatedVnfInfo"]["extCpInfo"]]
+			dictData["instantiatedVnfInfo"]["extVirtualLinkInfo"] = [evli.toDictionary() for evli in dictData["instantiatedVnfInfo"]["extVirtualLinkInfo"]]
+			dictData["instantiatedVnfInfo"]["extManagedVirtualLinkInfo"] = [emvli.toDictionary() for emvli in dictData["instantiatedVnfInfo"]["extManagedVirtualLinkInfo"]]
+			dictData["instantiatedVnfInfo"]["monitoringParameters"] = [mp.toDictionary() for mp in dictData["instantiatedVnfInfo"]["monitoringParameters"]]
+			dictData["instantiatedVnfInfo"]["vnfcResourceInfo"] = [vri.toDictionary() for vri in dictData["instantiatedVnfInfo"]["vnfcResourceInfo"]]
+			dictData["instantiatedVnfInfo"]["vnfVirtualLinkResourceInfo"] = [vvlri.toDictionary() for vvlri in dictData["instantiatedVnfInfo"]["vnfVirtualLinkResourceInfo"]]
+			dictData["instantiatedVnfInfo"]["virtualStorageResourceInfo"] = [vsri.toDictionary() for vsri in dictData["instantiatedVnfInfo"]["virtualStorageResourceInfo"]]
+			dictData["instantiatedVnfInfo"]["vnfcInfo"] = [vi.toDictionary() for vi in dictData["instantiatedVnfInfo"]["vnfcInfo"]]
+
+		return dictData
+
 '''
 CLASS: CreateVnfRequest
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 22 Oct. 2020
-L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
+L. UPDATE: 29 Jul. 2021 (Fulber-Garcia; Implemented "fromDictionary" and "toDictionary" methods; Declared "validate" method)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a creation request of a VNF instance
 			 in the Ve-Vnfm-em reference point.
@@ -233,6 +341,19 @@ class CreateVnfRequest:
 	vnfInstanceName = None					#String, optional (0..1)
 	vnfInstanceDescription = None			#String, optional (0..1)
 	metadata = None							#Structure (Dictionary), optinal (0..1)
+
+	def validate(self):
+		#TODO
+		pass
+
+	def fromDictionary(self, dictData):
+		self.vnfdId = dictData["vnfdId"]
+		self.vnfInstanceName = dictData["vnfInstanceName"]
+		self.vnfInstanceDescription = dictData["vnfInstanceDescription"]
+		self.metadata = dictData["metadata"]
+
+	def toDictionary(self):
+		return {"vnfdId":self.vnfdId, "vnfInstanceName":self.vnfInstanceName, "vnfInstanceDescription":self.vnfInstanceDescription, "metadata":self.metadata}
 
 '''
 CLASS: InstantiateVnfRequest
@@ -272,7 +393,7 @@ class ScaleVnfRequest:
 CLASS: ScaleVnfToLevelRequest
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 22 Oct. 2020
-L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
+L. UPDATE: 29 Jul. 2021 (Fulber-Garcia; Implemented "fromDictionary" and "toDictionary" methods; Declared "validate" method)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a level scaling request of a VNF ins-
 			 tance in the Ve-Vnfm-em reference point.
@@ -281,6 +402,22 @@ class ScaleVnfToLevelRequest:
 	instantiationLevelId = None 			#IdentifierInVnfd (String), optional (0..1)
 	scaleInfo = []							#ScaleInfo (Class), optinal (0..N)
 	additionalParams = None					#KeyValuePairs (Dictionary), optional (0..1)
+
+	def validate(self):
+		#TODO
+		pass
+
+	def fromDictionary(self, dictData):
+		self.instantiationLevelId = dictData["instantiationLevelId"]
+		self.scaleInfo = []
+		for si in self.dictData["scaleInfo"]:
+			self.scaleInfo.append(ScaleInfo().fromDictionary(si))
+		self.additionalParams = dictData["additionalParams"]
+
+		return self
+
+	def toDictionary(self):
+		return {"instantiationLevelId":self.instantiationLevelId, "scaleInfo":[si.toDictionary() for si in self.scaleInfo], "additionalParams":self.additionalParams}
 
 '''
 CLASS: ChangeVnfFlavourRequest
@@ -344,6 +481,23 @@ class OperateVnfRequest:
 	stopType = None							#StopType (Class), optional (0..1)
 	gracefulStopTimeout = None				#Integer, optional (0..1)
 	additionalParams = None					#KeyValuePairs (Dictionary), optional (0..1)
+
+	def validate(self):
+		#TODO
+		pass
+
+	def fromDictionary(self, dictData):
+		self.vnfcInstanceId = dictData["vnfcInstanceId"]
+		self.changeStateTo = VnfOperationalStateType(int(dictData["changeStateTo"]))
+		self.stopType = StopType(int(dictData["stopType"]))
+		self.gracefulStopTimeout = int(dictData["gracefulStopTimeout"])
+		self.additionalParams = dictData["additionalParams"]
+
+		return self
+
+	def toDictionary(self):
+		return {"vnfcInstanceId":self.vnfcInstanceId, "changeStateTo":self.changeStateTo.value, "stopType":self.stopType.value,
+				"gracefulStopTimeout":self.gracefulStopTimeout, "additionalParams":self.additionalParams}
 
 '''
 CLASS: ChangeExtVnfConnectivityRequest
@@ -686,7 +840,7 @@ class ExtVirtualLinkData:
 CLASS: ExtVirtualLinkInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
+L. UPDATE: 29 Jul. 2021 (Fulber-Garcia; Implemented "fromDictionary" and "toDictionary" methods; Declared "validate" method)
 DESCRIPTION: Implementation of the reference structure that
 			 describes information about an external virtual
 			 link of a VNF instance in the Ve-Vnfm-em refe-
@@ -697,6 +851,26 @@ class ExtVirtualLinkInfo:
 	resourceHandle = None					#ResourceHandle (Class), mandatory (1)
 	extLinkPorts = []						#ExtLinkPortInfo (Class), optional (0..N)
 	currentVnfExtCpData = []				#VnfExtCpData (Class), mandatory (1..N)
+
+	def validate(self):
+		#TODO
+		pass
+
+	def fromDictionary(self, dictData):
+		self.id = dictData["id"]
+		self.resourceHandle = ResourceHandle().fromDictionary(dictData["resourceHandle"])
+		self.extLinkPorts = []
+		for elp in dictData["extLinkPorts"]:
+			self.extLinkPorts.append(ExtLinkPortInfo().fromDictionary(elp))
+		self.currentVnfExtCpData = []
+		for cvecd in dictData["currentVnfExtCpData"]:
+			self.currentVnfExtCpData.append(VnfExtCpData().fromDictionary(cvecd))
+
+		return self
+
+	def toDictionary(self):
+		return {"id":self.id, "resourceHandle":self.resourceHandle.toDictionary(), "extLinkPorts":[elp.toDictionary() for elp in self.extLinkPorts], 
+				"currentVnfExtCpData":[cvecd.toDictionary() for cvecd in self.currentVnfExtCpData]}
 
 '''
 CLASS: ExtManagedVirtualLinkData
@@ -719,7 +893,7 @@ class ExtManagedVirtualLinkData:
 CLASS: ExtManagedVirtualLinkInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
+L. UPDATE: 29 Jul. 2021 (Fulber-Garcia; Implemented "fromDictionary" and "toDictionary" methods; Declared "validate" method)
 DESCRIPTION: Implementation of the reference structure that
 			 describes information about externally-managed
 			 internal virtual link of a VNF instance in the
@@ -732,11 +906,30 @@ class ExtManagedVirtualLinkInfo:
 	networkResource = None					#ResourceHandle (Class), mandatory (1)
 	vnfLinkPorts = []						#VnfLinkPortInfo (Class), optional (0..N)
 
+	def validate(self):
+		#TODO
+		pass
+
+	def fromDictionary(self, dictData):
+		self.id = dictData["id"]
+		self.vnfVirtualLinkDescId = dictData["vnfVirtualLinkDescId"]
+		self.vnfdId = dictData["vnfdId"]
+		self.networkResource = ResourceHandle().fromDictionary(dictData["networkResource"])
+		self.vnfLinkPorts = []
+		for vlp in dictData["vnfLinkPorts"]:
+			self.vnfLinkPorts.append(VnfLinkPortInfo().fromDictionary(vlp))
+
+		return self
+
+	def toDictionary(self):
+		return {"id":self.id, "vnfVirtualLinkDescId":self.vnfVirtualLinkDescId, "vnfdId":self.vnfdId, "networkResource":self.networkResource.toDictionary(),
+				"vnfLinkPorts":[vlp.toDictionary() for vlp in self.vnfLinkPorts]}
+
 '''
 CLASS: VnfExtCpData
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
+L. UPDATE: 29 Jul. 2021 (Fulber-Garcia; Implemented "fromDictionary" and "toDictionary" methods; Declared "validate" method)
 DESCRIPTION: Implementation of the reference structure that
 			 describes external connection points of a VNF
 			 instance in the Ve-Vnfm-em reference point.
@@ -744,6 +937,19 @@ DESCRIPTION: Implementation of the reference structure that
 class VnfExtCpData:
 	cpdId = None							#IdentifierInVnfd (String), mandatory (1)
 	cpConfig = []							#KeyValuePairs (Dictionary), mandatory (1..N)
+
+	def validate(self):
+		#TODO
+		pass
+
+	def fromDictionary(self, dictData):
+		self.cpdId = dictData["cpdId"]
+		self.cpConfig = dictData["cpConfig"]
+
+		return self
+
+	def toDictionary(self):
+		return {"cpdId":self.cpdId, "cpConfig":self.cpConfig}
 
 '''
 CLASS: VnfExtCpConfig
@@ -803,7 +1009,7 @@ class IpOverEthernetAddressData:
 CLASS: ScaleInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
+L. UPDATE: 29 Jul. 2021 (Fulber-Garcia; Implemented "fromDictionary" and "toDictionary" methods; Declared "validate" method)
 DESCRIPTION: Implementation of the reference structure that
 			 describes information about scaling operations
 			 of a VNF instance in the Ve-Vnfm-em reference
@@ -814,11 +1020,28 @@ class ScaleInfo:
 	vnfdId = None							#Identifier (String), optional (0..1)
 	scaleLevel = None						#Integer, mandatory (1)
 
+	def validate(self):
+		#TODO
+		pass
+
+	def fromDictionary(self, dictData):
+		self.aspectId = dictData["aspectId"]
+		self.vnfdId = dictData["vnfdId"]
+		try:
+			self.scaleLevel = int(dictData["scaleLevel"])
+		except:
+			self.scaleLevel = None
+
+		return self
+
+	def toDictionary(self):
+		return {"aspectId":self.aspectId, "vnfdId":self.vnfdId, "scaleLevel":self.scaleLevel}
+
 '''
 CLASS: VnfcResourceInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
+L. UPDATE: 29 Jul. 2021 (Fulber-Garcia; Implemented "fromDictionary" and "toDictionary" methods; Declared "validate" method)
 DESCRIPTION: Implementation of the reference structure that
 			 describes information about virtualized compute
 			 and storage resources of a VNF instance in the
@@ -841,13 +1064,50 @@ class VnfcResourceInfo:
 		 		"cpProtocolInfo":[],		#CpProtocolInfo (Class), optional (0..N)
 				"vnfLinkPortId":None,		#IdentifierInVnf (String), optional (0..1)
 		 		"metadata":None}			#KeyValuePairs (Dictionary), optional (0..1)
-	
 
+	def validate(self):
+		#TODO
+		pass
+
+	def fromDictionary(self, dictData):
+		self.id = dictData["id"]
+		self.vduId = dictData["vduId"]
+		self.vnfdId = dictData["vnfdId"]
+		self.computeResource = ResourceHandle().fromDictionary(dictData["computeResource"])
+		self.storageResourceIds = dictData["storageResourceIds"]
+		self.reservationId = dictData["reservationId"]
+		self.vnfcCpInfo = dictData["vnfcCpInfo"]
+		self.metadata = dictData["metadata"]
+
+		if type(self.vnfcCpInfo) == dict:
+			classList = []
+			for cpi in self.vnfcCpInfo["cpProtocolInfo"]:
+				classList.append(CpProtocolInfo().fromDictionary(cpi))
+			self.vnfcCpInfo["cpProtocolInfo"] = classList
+
+		return self
+
+	def toDictionary(self):
+		dictData = {}
+		dictData["id"] = self.id
+		dictData["vduId"] = self.vduId
+		dictData["vnfdId"] = self.vnfdId
+		dictData["computeResource"] = self.computeResource.toDictionary()
+		dictData["storageResourceIds"] = self.storageResourceIds,
+		dictData["reservationId"] = self.reservationId
+		dictData["vnfcCpInfo"] = self.vnfcCpInfo
+		dictData["metadata"] = self.metadata
+
+		if type(dictData["vnfcCpInfo"]) == dict:
+			dictData["vnfcCpInfo"]["cpProtocolInfo"] = [cpi.toDictionary() for cpi in dictData["vnfcCpInfo"]["cpProtocolInfo"]]
+
+		return dictData
+	
 '''
 CLASS: VnfVirtualLinkResourceInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
+L. UPDATE: 29 Jul. 2021 (Fulber-Garcia; Implemented "fromDictionary" and "toDictionary" methods; Declared "validate" method)
 DESCRIPTION: Implementation of the reference structure that
 			 describes information about virtualized link
 			 resources of a VNF instance in the Ve-Vnfm-em
@@ -862,11 +1122,32 @@ class VnfVirtualLinkResourceInfo:
 	vnfLinkPorts = []						#VnfLinkPortInfo (Class), optional (0..N)
 	metadata = None							#KeyValuePairs (Dictionary), optional (0..1)
 
+	def validate(self):
+		#TODO
+		pass
+
+	def fromDictionary(self, dictData):
+		self.id = dictData["id"]
+		self.vnfVirtualLinkDescId = dictData["vnfVirtualLinkDescId"]
+		self.vnfdId = dictData["vnfdId"]
+		self.networkResource = ResourceHandle().fromDictionary(dictData["networkResource"])
+		self.reservationId = dictData["reservationId"]
+		self.vnfLinkPorts = []
+		for vlp in dictData["vnfLinkPorts"]:
+			self.vnfLinkPorts.append(VnfLinkPortInfo().fromDictionary(vlp))
+		self.metadata = dictData["metadata"]
+
+		return self
+
+	def toDictionary(self):
+		return {"id":self.id, "vnfVirtualLinkDescId":self.vnfVirtualLinkDescId, "vnfdId":self.vnfdId, "networkResource":self.networkResource.toDictionary(),
+				"reservationId":self.reservationId, "vnfLinkPorts":[vlp.toDictionary() for vlp in self.vnfLinkPorts], "metadata":self.metadata}
+
 '''
 CLASS: VirtualStorageResourceInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
+L. UPDATE: 29 Jul. 2021 (Fulber-Garcia; Implemented "fromDictionary" and "toDictionary" methods; Declared "validate" method)
 DESCRIPTION: Implementation of the reference structure that
 			 describes information about virtualized storage
 			 resources of a VNF instance in the Ve-Vnfm-em
@@ -880,11 +1161,29 @@ class VirtualStorageResourceInfo:
 	reservationId = None					#Identifier (String), optional (0..1)
 	metadata = None							#KeyValuePairs (Dictionary), optional (0..1)
 
+	def validate(self):
+		#TODO
+		pass
+
+	def fromDictionary(self, dictData):
+		self.id = dictData["id"]
+		self.virtualStorageDescId = dictData["virtualStorageDescId"]
+		self.vnfdId = dictData["vnfdId"]
+		self.storageResource = ResourceHandle().fromDictionary(dictData["storageResource"])
+		self.reservationId = dictData["reservationId"]
+		self.metadata = dictData["metadata"]
+
+		return self
+
+	def toDictionary(self):
+		return {"id":self.id, "virtualStorageDescId":self.virtualStorageDescId, "vnfdId":self.vnfdId, "storageResource":self.storageResource.toDictionary(), 
+				"reservationId":self.reservationId, "metadata":self.metadata}
+
 '''
 CLASS: VnfLinkPortInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
+L. UPDATE: 29 Jul. 2021 (Fulber-Garcia; Implemented "fromDictionary" and "toDictionary" methods; Declared "validate" method)
 DESCRIPTION: Implementation of the reference structure that
 			 describes information about ports of internal
 			 virtual links of a VNF instance in the Ve-Vn-
@@ -896,20 +1195,49 @@ class VnfLinkPortInfo:
 	cpInstanceId = None						#IdentifierInVnf (String), optional (0..1)
 	cpInstanceType = None					#String (VNFC_CP | EXT_CP), optional (0..1)
 
+	def validate(self):
+		#TODO
+		pass
+
+	def fromDictionary(self, dictData):
+		self.id = dictData["id"]
+		self.resourceHandle = ResourceHandl().fromDictionary(dictData["resourceHandle"])
+		self.cpInstanceId = dictData["cpInstanceId"]
+		self.cpInstanceType = dictData["cpInstanceType"]
+
+		return self
+
+	def toDictionary(self):
+		return {"id":self.id, "resourceHandle":self.resourceHandle.toDictionary(), "cpInstanceId":self.cpInstanceId, "cpInstanceType":self.cpInstanceType}
+
 '''
 CLASS: ExtLinkPortInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
+L. UPDATE: 29 Jul. 2021 (Fulber-Garcia; Implemented "fromDictionary" and "toDictionary" methods; Declared "validate" method)
 DESCRIPTION: Implementation of the reference structure that
 			 describes information about link ports of ext-
 			 ernal virtual links of a VNF instance in the
 			 Ve-Vnfm-em reference point.
 '''
-class VnfLinkPortInfo:
+class ExtLinkPortInfo:
 	id = None								#Identifier (String), mandatory (1)
 	resourceHandle = None					#ResourceHandle (Class), mandatory (1)
 	cpInstanceId = None						#IdentifierInVnf (String), optional (0..1)
+
+	def validate(self):
+		#TODO
+		pass
+
+	def fromDictionary(self, dictData):
+		self.id = dictData["id"]
+		self.resourceHandle = ResourceHandle().fromDictionary(dictData["resourceHandle"])
+		self.cpInstanceId = dictData["cpInstanceId"]
+
+		return self
+
+	def toDictionary(self):
+		return {"id":self.id, "resourceHandle":self.resourceHandle, "cpInstanceId":self.cpInstanceId}
 
 '''
 CLASS: ExtLinkPortData
@@ -921,7 +1249,7 @@ DESCRIPTION: Implementation of the reference structure that
 			 nks of a VNF instance in the Ve-Vnfm-em refe-
 			 rence point.
 '''
-class VnfLinkPortInfo:
+class ExtLinkPortData:
 	id = None								#Identifier (String), mandatory (1)
 	resourceHandle = None					#ResourceHandle (Class), mandatory (1)
 
@@ -929,7 +1257,7 @@ class VnfLinkPortInfo:
 CLASS: ResourceHandle
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
+L. UPDATE: 29 Jul. 2021 (Fulber-Garcia; Implemented "fromDictionary" and "toDictionary" methods; Declared "validate" method)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a particular computational resource 
 			 of a VNF instance in the Ve-Vnfm-em reference
@@ -941,11 +1269,26 @@ class ResourceHandle:
 	resourceId = None						#IdentifierInVim (String), mandatory (1)
 	vimLevelResourceType = None				#String, optional (0..1)
 
+	def validate(self):
+		#TODO
+		pass
+
+	def fromDictionary(self, dictData):
+		self.vimConnectionId = dictData["vimConnectionId"]
+		self.resourceProviderId = dictData["resourceProviderId"]
+		self.resourceId = dictData["resourceId"]
+		self.vimLevelResourceType = dictData["vimLevelResourceType"]
+
+		return self
+
+	def toDictionary(self):
+		return {"vimConnectionId":self.vimConnectionId, "resourceProviderId":self.resourceProviderId, "resourceId":self.resourceId, "vimLevelResourceType":self.vimLevelResourceType}
+
 '''
 CLASS: CpProtocolInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
+L. UPDATE: 29 Jul. 2021 (Fulber-Garcia; Implemented "fromDictionary" and "toDictionary" methods; Declared "validate" method)
 DESCRIPTION: Implementation of the reference structure that
 			 describes information about the protocol layers
 			 of a CP of a VNF instance in the Ve-Vnfm-em re-
@@ -955,11 +1298,24 @@ class CpProtocolInfo:
 	layerProtocol = None					#String (IP_OVER_ETHERNET), mandatory (1)
 	ipOverEthernet = None					#IpOverEthernetAddressInfo (Class), optional (0..1)
 
+	def validate(self):
+		#TODO
+		pass
+
+	def fromDictionary(self, dictData):
+		self.layerProtocol = dictData["layerProtocol"]
+		self.ipOverEthernet = IpOverEthernetAddressInfo().fromDictionary(dictData["ipOverEthernet"])
+
+		return self
+
+	def toDictionary(self):
+		return {"layerProtocol":self.layerProtocol, "ipOverEthernet":self.ipOverEthernet.toDictionary()}
+
 '''
 CLASS: IpOverEthernetAddressInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
+L. UPDATE: 29 Jul. 2021 (Fulber-Garcia; Implemented "fromDictionary" and "toDictionary" methods; Declared "validate" method)
 DESCRIPTION: Implementation of the reference structure that
 			 describes information about the network address
 			 of a VNF instance in the Ve-Vnfm-em reference
@@ -981,11 +1337,25 @@ class IpOverEthernetAddressInfo:
 		return {"minAddress":"",			#IpAddress (String), optional (0..1)
 				"maxAddress":""}			#IpAddress (String), optional (0..1)
 
+	def validate(self):
+		#TODO
+		pass
+
+	def fromDictionary(self, dictData):
+		self.macAddress = dictData["macAddress"]
+		self.segmentationId = dictData["segmentationId"]
+		self.ipAddresses = dictData["ipAddresses"]
+
+		return self
+
+	def toDictionary(self):
+		return {"macAddress":self.macAddress, "segmentationId":self.segmentationId, "ipAddresses":self.ipAddresses}
+
 '''
 CLASS: MonitoringParameter
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
+L. UPDATE: 29 Jul. 2021 (Fulber-Garcia; Implemented "fromDictionary" and "toDictionary" methods; Declared "validate" method)
 DESCRIPTION: Implementation of the reference structure that
 			 describes a monitoring parameter of a VNF ins-
 			 tance in the Ve-Vnfm-em reference point.
@@ -995,6 +1365,21 @@ class MonitoringParameter:
 	vnfdId = None							#Identifier (String), optional (0..1)
 	name = None								#String, optional (0..1)
 	performanceMetric = None				#String, mandatory (1)
+
+	def validate(self):
+		#TODO
+		pass
+
+	def fromDictionary(self, dictData):
+		self.id = dictData["id"]
+		self.vnfdId = dictData["vnfdId"]
+		self.name = dictData["name"]
+		self.performanceMetric = dictData["performanceMetric"]
+
+		return self
+
+	def toDictionary(self):
+		return {"id":self.id, "vnfdId":self.vnfdId, "name":self.name, "performanceMetric":self.performanceMetric}
 
 '''
 CLASS: LifecycleChangeNotificationsFilter
@@ -1105,7 +1490,7 @@ class LccnLinks:
 CLASS: VnfcInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
+L. UPDATE: 29 Jul. 2021 (Fulber-Garcia; Implemented "fromDictionary" and "toDictionary" methods; Declared "validate" method)
 DESCRIPTION: Implementation of the reference structure that
 			 describes information about a VNFC instance of
 			 a VNF instance in the Ve-Vnfm-em reference point.
@@ -1116,6 +1501,22 @@ class VnfcInfo:
 	vnfcResourceInfoId = None				#IdentifierInVnf (String), optional (0..1)
 	vnfcState = None						#String (STARTED | STOPPED), mandatory (1)
 	vnfcConfigurableProperties = None		#KeyValuePairs (Dictionary), optional (0..1)
+
+	def validate(self):
+		#TODO
+		pass
+
+	def fromDictionary(self, dictData):
+		self.id = dictData["id"]
+		self.vduId = dictData["vduId"]
+		self.vnfcResourceInfoId = dictData["vnfcResourceInfoId"]
+		self.vnfcState = dictData["vnfcState"]
+		self.vnfcConfigurableProperties = dictData["vnfcConfigurableProperties"]
+
+		return self
+
+	def toDictionary(self):
+		return {"id":self.id, "vduId":self.vduId, "vnfcResourceInfoId":self.vnfcResourceInfoId, "vnfcState":self.vnfcState, "vnfcConfigurableProperties":self.vnfcConfigurableProperties}
 
 '''
 CLASS: VnfcInfoModifications
@@ -1135,7 +1536,7 @@ class VnfcInfoModifications:
 CLASS: VnfExtCpInfo
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 23 Oct. 2020
-L. UPDATE: 28 Oct. 2020 (Fulber-Garcia; Data update)
+L. UPDATE: 29 Jul. 2021 (Fulber-Garcia; Implemented "fromDictionary" and "toDictionary" methods; Declared "validate" method)
 DESCRIPTION: Implementation of the reference structure that
 			 describes information about an external connec-
 			 tion point of a VNF instance in the Ve-Vnfm-em
@@ -1151,6 +1552,29 @@ class VnfExtCpInfo:
 	metadata = None							#KeyValuePairs (Dictionary), optional (0..1)
 	associatedVnfcCpId = None				#Identifier (String), optional (0..1)
 	associatedVnfVirtualLinkId = None		#Identifier (String), optional (0..1)
+
+	def validate(self):
+		#TODO
+		pass
+
+	def fromDictionary(self, dictData):
+		self.id = dictData["id"]
+		self.cpdId = dictData["cpdId"]
+		self.cpConfigId = dictData["cpConfigId"]
+		self.vnfdId = dictData["vnfdId"]
+		self.cpProtocolInfo = []
+		for cpi in dictData["cpProtocolInfo"]:
+			self.cpProtocolInfo.append(CpProtocolInfo.fromDictionary(cpi))
+		self.extLinkPortId = dictData["extLinkPortId"]
+		self.metadata = dictData["metadata"]
+		self.associatedVnfcCpId = dictData["associatedVnfcCpId"]
+		self.associatedVnfVirtualLinkId = dictData["associatedVnfVirtualLinkId"]
+
+		return self
+
+	def toDictionary(self):
+		return {"id":self.id, "cpdId":self.cpdId, "cpConfigId":self.cpConfigId, "vnfdId":self.vnfdId, "cpProtocolInfo":[cpi.toDictionary() for cpi in self.cpProtocolInfo],
+				"extLinkPortId":self.extLinkPortId, "metadata":self.metadata, "associatedVnfcCpId":self.associatedVnfcCpId, "associatedVnfVirtualLinkId":associatedVnfVirtualLinkId}
 
 '''
 CLASS: VnfcSnapshotInfo

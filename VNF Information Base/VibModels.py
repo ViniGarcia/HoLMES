@@ -23,7 +23,7 @@ import json
 CLASS: VibSummaryModels
 AUTHOR: Vinicius Fulber-Garcia
 CREATION: 30 Oct. 2020
-L. UPDATE: 28 Jul. 2021 (Fulber-Garcia; Included "vnfmAddress" into VibVnfmInstance model)
+L. UPDATE: 29 Jul. 2021 (Fulber-Garcia; Included VibVnfmDriverInstance model)
 DESCRIPTION: This class represents the table creation rou-
 			 tines of all the tables of the VIB. Once a
 			 table is updated in its respective class, the
@@ -75,11 +75,18 @@ class VibSummaryModels:
        					REFERENCES PlatformInstance (platformId)
                     ); """
 
+	VibVnfmDriverInstance = """ CREATE TABLE IF NOT EXISTS VnfmDriverInstance (
+                     	 vnfmId text PRIMARY KEY,
+                     	 vnfmDriver text NOT NULL
+                    	); """
+
 	VibVnfmInstance = """ CREATE TABLE IF NOT EXISTS VnfmInstance (
                      	 vnfmId text PRIMARY KEY,
                      	 vnfmDriver text NOT NULL,
                      	 vnfmAddress text NOT NULL,
-                     	 vnfmCredentials text
+                     	 vnfmCredentials text,
+                     	 FOREIGN KEY (vnfmDriver)
+       					 	REFERENCES VnfmDriverInstance (vnfmId)
                     	); """
 
 '''
@@ -440,6 +447,53 @@ class VibPlatformInstance:
 
 	def toDictionary(self):
 		return {"platformId":self.platformId, "platformDriver":self.platformDriver}
+
+'''
+CLASS: VibVnfmDriverInstance
+AUTHOR: Vinicius Fulber-Garcia
+CREATION: 29 Jul. 2021
+L. UPDATE: 29 Jul. 2021 (Fulber-Garcia; class creation)
+DESCRIPTION: This class represents the VnfmDriverInstance table of
+			 the VIB. Note that modifications on this class, parti-
+			 culary in the attributes, must be updated in the Vib-
+			 SummaryModels too.
+'''
+class VibVnfmDriverInstance:
+	vnfmId = None
+	vnfmDriver = None
+
+	def __init__(self):
+		return
+
+	def validate(self):
+		if type(self.vnfmId) != str:
+			return ("0", -1)
+		if type(self.vnfmDriver) != str:
+			return ("1", -1)
+
+		return ("2", 0)
+
+	def fromData(self, vnfmId, vnfmDriver):
+		self.vnfmId = vnfmId
+		self.vnfmDriver = vnfmDriver
+		return self
+
+	def fromSql(self, sqlData):
+		self.vnfmId = sqlData[0]
+		self.vnfmDriver = sqlData[1]
+		return self
+
+	def fromDictionary(self, dictData):
+		self.vnfmId = dictData["vnfmId"]
+		self.vnfmDriver = dictData["vnfmDriver"]
+		return self
+
+	def toSql(self):
+		return ('''INSERT INTO VnfmDriverInstance(vnfmId,vnfmDriver)
+              	   VALUES(?,?)''', (self.vnfmId, self.vnfmDriver))
+
+	def toDictionary(self):
+		return {"vnfmId":self.vnfmId, "vnfmDriver":self.vnfmDriver}
 
 '''
 CLASS: VibVnfmInstance

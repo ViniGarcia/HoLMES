@@ -183,6 +183,19 @@ class ImAgent:
 				return self.__delete_vib_vnfm_managerId(irManagement)
 			else:
 				return -8
+		elif irManagement.operationId.endswith("vnf_manager_drivers") or irManagement.operationId.endswith("vnfmd_vnfmId"):
+			if irManagement.operationId == "get_vib_vnf_manager_drivers":
+				return self.__get_vib_vnf_manager_drivers(irManagement)
+			elif irManagement.operationId == "post_vib_vnf_manager_drivers":
+				return self.__post_vib_vnf_manager_drivers(irManagement)
+			elif irManagement.operationId == "get_vib_vnfmd_vnfmId":
+				return self.__get_vib_vnfmd_vnfmId(irManagement)
+			elif irManagement.operationId == "patch_vib_vnfmd_vnfmId":
+				return self.__patch_vib_vnfmd_vnfmId(irManagement)
+			elif irManagement.operationId == "delete_vib_vnfmd_vnfmId":
+				return self.__delete_vib_vnfmd_vnfmId(irManagement)
+			else:
+				return -8
 		else:
 			return -8
 
@@ -272,14 +285,27 @@ class ImAgent:
 				return self.__delete_as_c_credentialId(irManagement)
 			else:
 				return -8
-		elif irManagement.operationId.endswith("driver") or irManagement.operationId.endswith("vnfmId"):
-			if irManagement.operationId == "get_as_vnfm_running_driver":
-				return self.__get_as_vnfm_running_driver(irManagement)
-			elif irManagement.operationId == "get_as_vrd_vnfmId":
-				return self.__get_as_vrd_vnfmId(irManagement)
-			elif irManagement.operationId == "post_as_vrd_vnfmId":
-				return self.__post_as_vrd_vnfmId(irManagement)
-			elif irManagement.operationId == "get_as_vnfm_driver":
+		elif irManagement.operationId.endswith("vnfm") or irManagement.operationId.endswith("instance") or irManagement.operationId.endswith("vi_vnfmId") or irManagement.operationId.endswith("vrv_vnfmId"):
+			if irManagement.operationId == "get_as_vnfm_running_vnfm":
+				return self.__get_as_vnfm_running_vnfm(irManagement)
+			elif irManagement.operationId == "get_as_vrv_vnfmId":
+				return self.__get_as_vrv_vnfmId(irManagement)
+			elif irManagement.operationId == "post_as_vrv_vnfmId":
+				return self.__post_as_vrv_vnfmId(irManagement)
+			elif irManagement.operationId == "get_as_vnfm_instance":
+				return self.__get_as_vnfm_instance(irManagement)
+			elif irManagement.operationId == "post_as_vnfm_instance":
+				return self.__post_as_vnfm_instance(irManagement)
+			elif irManagement.operationId == "get_as_vi_vnfmId":
+				return self.__get_as_vi_vnfmId(irManagement)
+			elif irManagement.operationId == "patch_as_vi_vnfmId":
+				return self.__patch_as_vi_vnfmId(irManagement)
+			elif irManagement.operationId == "delete_as_vi_vnfmId":
+				return self.__delete_as_vi_vnfmId(irManagement)
+			else:
+				return -8
+		elif irManagement.operationId.endswith("driver") or irManagement.operationId.endswith("vd_vnfmId"):
+			if irManagement.operationId == "get_as_vnfm_driver":
 				return self.__get_as_vnfm_driver(irManagement)
 			elif irManagement.operationId == "post_as_vnfm_driver":
 				return self.__post_as_vnfm_driver(irManagement)
@@ -370,6 +396,8 @@ class ImAgent:
 		insertion = self.vibManager.operateVibDatabase(irManagement.operationArgs.toSql())
 		if type(insertion) == sqlite3.Error:
 			return ("ERROR CODE #2: SQL ERROR DURING USER INSERTION", 2)
+		if type(insertion) == sqlite3.IntegrityError:
+			return ("ERROR CODE #2: INTEGRITY ERROR DURING VNF MANAGER INSERTION", 2)
 
 		return irManagement.operationArgs
 
@@ -463,6 +491,8 @@ class ImAgent:
 		insertion = self.vibManager.operateVibDatabase(irManagement.operationArgs.toSql())
 		if type(insertion) == sqlite3.Error:
 			return ("ERROR CODE #2: SQL ERROR DURING CREDENTIAL INSERTION", 2)
+		if type(insertion) == sqlite3.IntegrityError:
+			return ("ERROR CODE #2: INTEGRITY ERROR DURING VNF MANAGER INSERTION", 2)
 
 		return irManagement.operationArgs
 
@@ -558,6 +588,8 @@ class ImAgent:
 		insertion = self.vibManager.operateVibDatabase(irManagement.operationArgs.toSql())
 		if type(insertion) == sqlite3.Error:
 			return ("ERROR CODE #2: SQL ERROR DURING SUBSCRIPTION INSERTION", 2)
+		if type(insertion) == sqlite3.IntegrityError:
+			return ("ERROR CODE #2: INTEGRITY ERROR DURING VNF MANAGER INSERTION", 2)
 
 		return irManagement.operationArgs
 
@@ -655,6 +687,8 @@ class ImAgent:
 		insertion = self.vibManager.operateVibDatabase(irManagement.operationArgs.toSql())
 		if type(insertion) == sqlite3.Error:
 			return ("ERROR CODE #2: SQL ERROR DURING MONITORING AGENT INSERTION", 2)
+		if type(insertion) == sqlite3.IntegrityError:
+			return ("ERROR CODE #2: INTEGRITY ERROR DURING VNF MANAGER INSERTION", 2)
 
 		return irManagement.operationArgs
 
@@ -760,6 +794,8 @@ class ImAgent:
 		insertion = self.vibManager.operateVibDatabase(irManagement.operationArgs.toSql())
 		if type(insertion) == sqlite3.Error:
 			return ("ERROR CODE #2: SQL ERROR DURING VNF INSTANCE INSERTION", 2)
+		if type(insertion) == sqlite3.IntegrityError:
+			return ("ERROR CODE #2: INTEGRITY ERROR DURING VNF MANAGER INSERTION", 2)
 
 		return irManagement.operationArgs
 
@@ -856,6 +892,8 @@ class ImAgent:
 		insertion = self.vibManager.operateVibDatabase(irManagement.operationArgs.toSql())
 		if type(insertion) == sqlite3.Error:
 			return ("ERROR CODE #2: SQL ERROR DURING PLATFORM INSERTION", 2)
+		if type(insertion) == sqlite3.IntegrityError:
+			return ("ERROR CODE #2: INTEGRITY ERROR DURING VNF MANAGER INSERTION", 2)
 
 		return irManagement.operationArgs
 
@@ -942,6 +980,8 @@ class ImAgent:
 		insertion = self.vibManager.operateVibDatabase(irManagement.operationArgs.toSql())
 		if type(insertion) == sqlite3.Error:
 			return ("ERROR CODE #2: SQL ERROR DURING VNF MANAGER INSERTION", 2)
+		if type(insertion) == sqlite3.IntegrityError:
+			return ("ERROR CODE #2: INTEGRITY ERROR DURING VNF MANAGER INSERTION", 2)
 
 		return irManagement.operationArgs
 
@@ -971,7 +1011,7 @@ class ImAgent:
 		if len(manager) == 0:
 			return ("ERROR CODE #4: THE REQUIRED VNF MANAGER DOES NOT EXIST", 4)
 
-		update = self.vibManager.operateVibDatabase(("UPDATE VnfmInstance SET vnfmDriver = ? WHERE vnfmId = ?;", (irManagement.operationArgs.vnfmDriver, irManagement.operationArgs.vnfmId)))
+		update = self.vibManager.operateVibDatabase(("UPDATE VnfmInstance SET vnfmDriver = ?, vnfmAddress = ?, vnfmCredentials = ? WHERE vnfmId = ?;", (irManagement.operationArgs.vnfmDriver, irManagement.operationArgs.vnfmAddress, irManagement.operationArgs.vnfmCredentials, irManagement.operationArgs.vnfmId)))
 		if type(update) == sqlite3.Error:
 			return ("ERROR CODE #2: SQL ERROR DURING VNF MANAGER UPDATING", 2)
 
@@ -993,6 +1033,90 @@ class ImAgent:
 			return ("ERROR CODE #2: SQL ERROR DURING VNFM MANAGER DELETING", 2)
 
 		return VibModels.VibVnfmInstance().fromSql(manager[0])
+
+	#----
+
+	def __get_vib_vnf_manager_drivers(self, irManagement):
+
+		if irManagement.operationArgs != None:
+			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (None is expected)", 1)
+
+		drivers = self.vibManager.queryVibDatabase("SELECT * FROM VnfmDriverInstance;")
+		if type(drivers) == sqlite3.Error:
+			return ("ERROR CODE #2: SQL ERROR DURING VNF MANAGER DRIVERS CONSULTING", 2)
+
+		return [VibModels.VibVnfmDriverInstance().fromSql(m) for m in drivers]
+
+	def __post_vib_vnf_manager_drivers(self, irManagement):
+
+		if type(irManagement.operationArgs) != VibModels.VibVnfmDriverInstance:
+			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (VibVnfmDriverInstance is expected)", 1)
+		if irManagement.operationArgs.validate()[1] != 0:
+			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (VibVnfmDriverInstance is not valid)", 1)
+
+		redundancy = self.vibManager.queryVibDatabase("SELECT * FROM VnfmDriverInstance WHERE vnfmId = \"" + irManagement.operationArgs.vnfmId + "\";")
+		if type(redundancy) == sqlite3.Error:
+			return ("ERROR CODE #2: SQL ERROR DURING VNF MANAGER DRIVERS CONSULTING", 2)
+		if len(redundancy) != 0:
+			return ("ERROR CODE #3: THE REQUIRED VNF MANAGER DRIVER ALREADY EXISTS", 3)
+
+		insertion = self.vibManager.operateVibDatabase(irManagement.operationArgs.toSql())
+		if type(insertion) == sqlite3.Error:
+			return ("ERROR CODE #2: SQL ERROR DURING VNF MANAGER DRIVER INSERTION", 2)
+		if type(insertion) == sqlite3.IntegrityError:
+			return ("ERROR CODE #2: INTEGRITY ERROR DURING VNF MANAGER INSERTION", 2)
+
+		return irManagement.operationArgs
+
+	def __get_vib_vnfmd_vnfmId(self, irManagement):
+
+		if type(irManagement.operationArgs) != str:
+			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (vnfmId is expected)", 1)
+
+		driver = self.vibManager.queryVibDatabase("SELECT * FROM VnfmDriverInstance WHERE vnfmId = \"" + irManagement.operationArgs +"\";")
+		if type(driver) == sqlite3.Error:
+			return ("ERROR CODE #2: SQL ERROR DURING VNF MANAGER DRIVERS CONSULTING", 2)
+		if len(driver) == 0:
+			return ("ERROR CODE #4: THE REQUIRED VNF MANAGER DRIVER DOES NOT EXIST", 4)
+
+		return VibModels.VibVnfmDriverInstance().fromSql(driver[0])
+
+	def __patch_vib_vnfmd_vnfmId(self, irManagement):
+
+		if type(irManagement.operationArgs) != VibModels.VibVnfmDriverInstance:
+			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (VibVnfmDriverInstance is expected)", 1)
+		if irManagement.operationArgs.validate()[1] != 0:
+			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (VibVnfmDriverInstance is not valid)", 1)
+
+		driver = self.vibManager.queryVibDatabase("SELECT * FROM VnfmDriverInstance WHERE vnfmId = \"" + irManagement.operationArgs.vnfmId + "\";")
+		if type(driver) == sqlite3.Error:
+			return ("ERROR CODE #2: SQL ERROR DURING VNF MANAGER DRIVERS CONSULTING", 2)
+		if len(driver) == 0:
+			return ("ERROR CODE #4: THE REQUIRED VNF MANAGER DRIVER DOES NOT EXIST", 4)
+
+		update = self.vibManager.operateVibDatabase(("UPDATE VnfmDriverInstance SET vnfmDriver = ? WHERE vnfmId = ?;", (irManagement.operationArgs.vnfmDriver, irManagement.operationArgs.vnfmId)))
+		if type(update) == sqlite3.Error:
+			return ("ERROR CODE #2: SQL ERROR DURING VNF MANAGER DRIVER UPDATING", 2)
+
+		return VibModels.VibVnfmDriverInstance().fromSql(driver[0])
+
+	def __delete_vib_vnfmd_vnfmId(self, irManagement):
+
+		if type(irManagement.operationArgs) != str:
+			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (vnfmId is expected)", 1)
+
+		driver = self.vibManager.queryVibDatabase("SELECT * FROM VnfmDriverInstance WHERE vnfmId = \"" + irManagement.operationArgs + "\";")
+		if type(driver) == sqlite3.Error:
+			return ("ERROR CODE #2: SQL ERROR DURING VNFM MANAGER DRIVERS CONSULTING", 2)
+		if len(driver) == 0:
+			return ("ERROR CODE #4: THE REQUIRED VNFM MANAGER DRIVER DOES NOT EXIST", 4)
+
+		delete = self.vibManager.operateVibDatabase(("DELETE FROM VnfmDriverInstance WHERE vnfmId = ?;", (irManagement.operationArgs, )))
+		if type(delete) == sqlite3.Error:
+			return ("ERROR CODE #2: SQL ERROR DURING VNFM MANAGER DRIVER DELETING", 2)
+
+		return VibModels.VibVnfmDriverInstance().fromSql(driver[0])
+
 
 ################################################################################################################################################################
 ################################################################################################################################################################
@@ -1103,24 +1227,24 @@ class ImAgent:
 
 		return self.__delete_vib_c_credentialId(irManagement)
 
-	def __get_as_vnfm_running_driver(self, irManagement):
+	def __get_as_vnfm_running_vnfm(self, irManagement):
 
 		if irManagement.operationArgs != None:
 			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (None is expected)", 1)
-		
-		return self.asOpAgent.getRunningDriver()
+
+		return self.asOpAgent.getRunningVnfm()
 	
-	def __get_as_vrd_vnfmId(self, irManagement):
+	def __get_as_vrv_vnfmId(self, irManagement):
 
 		if type(irManagement.operationArgs) != str:
 			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (vnfmId is expected)", 1)
 
-		if self.asOpAgent.getRunningDriver() == irManagement.operationArgs:
+		if self.asOpAgent.getRunningVnfm()["vnfmId"] == irManagement.operationArgs:
 			return True
 
 		return False
 
-	def __post_as_vrd_vnfmId(self, irManagement):
+	def __post_as_vrv_vnfmId(self, irManagement):
 
 		if type(irManagement.operationArgs) != str:
 			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (vnfmId is expected)", 1)
@@ -1134,9 +1258,39 @@ class ImAgent:
 
 		return driver
 
-	def __get_as_vnfm_driver(self, irManagement):
+	def __get_as_vnfm_instance(self, irManagement):
 
 		return self.__get_vib_vnf_managers(irManagement)
+
+	def __post_as_vnfm_instance(self, irManagement):
+
+		return self.__post_vib_vnf_managers(irManagement)
+
+	def __get_as_vi_vnfmId(self, irManagement):
+
+		return self.__get_vib_vnfm_managerId(irManagement)
+
+	def __patch_as_vi_vnfmId(self, irManagement):
+
+		if not hasattr(irManagement.operationArgs, "vnfmId") or not hasattr(irManagement.operationArgs, "vnfmDriver"):
+			return ("ERROR CODE #1: THERE IS NO vnfmId/vnfmDriver IN irManagement.operationArgs", 1)
+		if self.__get_as_vrv_vnfmId(IrModels.IrManagement().fromData("AS", "get_as_vrv_vnfmId", irManagement.operationArgs.vnfmId)):
+			return ("ERROR CODE #1: vnfmId IS THE RUNNING VNFM", 1)
+
+		return self.__patch_vib_vnfm_managerId(irManagement)
+
+	def __delete_as_vi_vnfmId(self, irManagement):
+
+		if type(irManagement.operationArgs) != str:
+			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (vnfmId is expected)", 1)
+		if self.__get_as_vrv_vnfmId(IrModels.IrManagement().fromData("AS", "get_as_vrv_vnfmId", irManagement.operationArgs)):
+			return ("ERROR CODE #1: vnfmId IS THE RUNNING VNFM", 1)
+
+		return self.__delete_vib_vnfm_managerId(irManagement)
+
+	def __get_as_vnfm_driver(self, irManagement):
+
+		return self.__get_vib_vnf_manager_drivers(irManagement)
 
 	def __post_as_vnfm_driver(self, irManagement):
 
@@ -1148,7 +1302,10 @@ class ImAgent:
 		original = irManagement.operationArgs.vnfmDriver
 		irManagement.operationArgs.vnfmDriver = irManagement.operationArgs.vnfmDriver.replace("\\", "/").split("/")[-1][:-3]
 
-		result = self.__post_vib_vnf_managers(irManagement)
+		if os.path.isfile("Access Subsystem/Ve-Vnfm-em/" + irManagement.operationArgs.vnfmDriver + ".py"):
+			return ("ERROR CODE #3: THE PROVIDED DRIVER vnfDriver IS ALREADY AVAILABLE", 3)
+
+		result = self.__post_vib_vnf_manager_drivers(irManagement)
 		if type(result) == tuple:
 			return result
 
@@ -1158,7 +1315,7 @@ class ImAgent:
 
 	def __get_as_vd_vnfmId(self, irManagement):
 
-		return self.__get_vib_vnfm_managerId(irManagement)
+		return self.__get_vib_vnfmd_vnfmId(irManagement)
 
 	def __patch_as_vd_vnfmId(self, irManagement):
 
@@ -1166,21 +1323,28 @@ class ImAgent:
 			return ("ERROR CODE #1: THERE IS NO vnfmId/vnfmDriver IN irManagement.operationArgs", 1)
 		if not os.path.isfile(irManagement.operationArgs.vnfmDriver) or not irManagement.operationArgs.vnfmDriver.endswith(".py"):
 			return ("ERROR CODE #1: INVALID vnfmDriver PROVIDED", 1)
-		if self.__get_as_vrd_vnfmId(IrModels.IrManagement().fromData("AS", "get_as_vrd_vnfmId", irManagement.operationArgs.vnfmId)):
-			return ("ERROR CODE #1: vnfmId IS THE RUNNING DRIVER", 1)
 		
 		original = irManagement.operationArgs.vnfmDriver
 		irManagement.operationArgs.vnfmDriver = irManagement.operationArgs.vnfmDriver.replace("\\", "/").split("/")[-1][:-3]
 
-		result = self.__patch_vib_vnfm_managerId(irManagement)
+		check = self.vibManager.queryVibDatabase("SELECT * FROM VnfmDriverInstance WHERE vnfmId = \"" + irManagement.operationArgs.vnfmId + "\";")
+		if len(check) == 0:
+			return ("ERROR CODE #1: INVALID vnfmId PROVIDED", 1)
+		check = VibModels.VibVnfmDriverInstance().fromSql(check[0])
+
+		running = self.__get_as_vnfm_running_vnfm(IrModels.IrManagement().fromData("AS", "get_as_vnfm_running_vnfm", None))
+		if running["vnfmDriver"] == check.vnfmId:
+			return ("ERROR CODE #1: vnfmId IS THE RUNNING DRIVER", 1)
+
+		if irManagement.operationArgs.vnfmDriver != check.vnfmDriver:
+			if os.path.isfile("Access Subsystem/Ve-Vnfm-em/" + irManagement.operationArgs.vnfmDriver + ".py"):
+				return ("ERROR CODE #3: THE PROVIDED PATCH DRIVER vnfmDriver IS ALREADY AVAILABLE", 3)
+
+		result = self.__patch_vib_vnfmd_vnfmId(irManagement)
 		if type(result) == tuple:
 			return result
-
-		if result.vnfmDriver != irManagement.operationArgs.vnfmDriver:
-			delete = self.vibManager.queryVibDatabase("SELECT * FROM VnfmInstance WHERE vnfmDriver = \"" + result.vnfmDriver + "\";")
-			if len(delete) == 0:
-				os.remove("VNF Subsystem/Ve-Em-vnf/" + result.vnfmDriver + ".py")
-
+		
+		os.remove("Access Subsystem/Ve-Vnfm-em/" + result.vnfmDriver + ".py")
 		shutil.copyfile(original, "Access Subsystem/Ve-Vnfm-em/" + irManagement.operationArgs.vnfmDriver + ".py")
 
 		return result
@@ -1189,16 +1353,28 @@ class ImAgent:
 
 		if type(irManagement.operationArgs) != str:
 			return ("ERROR CODE #1: INVALID ARGUMENTS PROVIDED (vnfmId is expected)", 1)
-		if self.__get_as_vrd_vnfmId(IrModels.IrManagement().fromData("AS", "get_as_vrd_vnfmId", irManagement.operationArgs)):
+		
+		check = self.vibManager.queryVibDatabase("SELECT * FROM VnfmDriverInstance WHERE vnfmId = \"" + irManagement.operationArgs + "\";")
+		if len(check) == 0:
+			return ("ERROR CODE #1: INVALID vnfmId PROVIDED", 1)
+		check = VibModels.VibVnfmDriverInstance().fromSql(check[0])
+
+		running = self.__get_as_vnfm_running_vnfm(IrModels.IrManagement().fromData("AS", "get_as_vnfm_running_vnfm", None))
+		if running["vnfmDriver"] == check.vnfmId:
 			return ("ERROR CODE #1: vnfmId IS THE RUNNING DRIVER", 1)
 
-		result = self.__delete_vib_vnfm_managerId(irManagement)
+		vnfm = self.vibManager.queryVibDatabase("SELECT * FROM VnfmInstance WHERE vnfmDriver = \"" + irManagement.operationArgs + "\";")
+		if len(vnfm) > 0:
+			return ("ERROR CODE #5: THE REQUIRED VNFM DRIVER IS BEING USED IN THE VNFM INSTANCE TABLE", 5)
+
+		result = self.__delete_vib_vnfmd_vnfmId(irManagement)
 		if type(result) == tuple:
 			return result
 
 		os.remove("Access Subsystem/Ve-Vnfm-em/" + result.vnfmDriver + ".py")
 
 		return result
+
 
 ################################################################################################################################################################
 ################################################################################################################################################################

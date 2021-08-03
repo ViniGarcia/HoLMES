@@ -491,7 +491,7 @@ def environment(aiIp):
 
 	asAuthAgent.setupAuthentication("PlainText")
 
-	asOpAgent.setupAgent(vibManager, "DummyVnfmDriver", aiAgent, asAuthAgent, irAgent)
+	asOpAgent.setupAgent(vibManager, "DummyVnfm", aiAgent, asAuthAgent, irAgent)
 	imAgent.setupAgent(vibManager, msManager, asAuthAgent, asOpAgent, vsAgent)
 	irAgent.setupAgent(imAgent, vsAgent)
 

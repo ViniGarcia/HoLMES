@@ -2,6 +2,7 @@ import uuid
 import json
 import yaml
 import flask
+import sqlite3
 import os.path
 import importlib
 
@@ -28,20 +29,24 @@ DESCRIPTION: Operation agent implementation. This class
 			 of the EMS platform.
 CODES:  -1 -> Invalid data type of __vibManager
 	    -2 -> Invalid data type of __veVnfmEm
-	    -3 -> Invalid driver name of __veVnfmEm
-		-4 -> Invalid class instantiation of __veVnfmEm
-		-5 -> Invalid data type of aiAs
-		-6 -> Invalid data type of oaAa
-		-7 -> Invalid data type of asIr
-		-8 -> Unavailable authentication attribute
-		-9 -> Error during request authentication
-		-10 -> Invalid argument type received
-		-11 -> Invalid id of VNF provided
-		-12 -> Invalid id of indicator provided
-		-13 -> Error during VIB table entry creation
-		-14 -> Error on database operation
-		-15 -> Invalid id of subscription provided
-		-16 -> Error on response creation
+	    -3 -> SQL error while consulting standard dummy VNFM
+	    -4 -> Standard dummy VNFM is not available
+	    -5 -> SQL error while consulting standard dummy VNFM driver
+	    -6 -> Standard dummy VNFM driver is not available
+	    -7 -> Invalid driver name of __veVnfmEm
+		-8 -> Invalid class instantiation of __veVnfmEm
+		-9 -> Invalid data type of aiAs
+		-10 -> Invalid data type of oaAa
+		-11 -> Invalid data type of asIr
+		-12 -> Unavailable authentication attribute
+		-13 -> Error during request authentication
+		-14 -> Invalid argument type received
+		-15 -> Invalid id of VNF provided
+		-16 -> Invalid id of indicator provided
+		-17 -> Error during VIB table entry creation
+		-18 -> Error on database operation
+		-19 -> Invalid id of subscription provided
+		-20 -> Error on response creation
 '''
 class OperationAgent:
 
@@ -63,54 +68,80 @@ class OperationAgent:
 
 		if type(veVnfmEm) != str:
 			return -2
-		if not os.path.isfile("Access Subsystem/Ve-Vnfm-em/" + veVnfmEm + ".py"):
+		
+		vnfm = self.__vibManager.queryVibDatabase("SELECT * FROM VnfmInstance WHERE vnfmId = \"" + veVnfmEm + "\";")
+		if type(vnfm) == sqlite3.Error:
 			return -3
-		try:
-			self.__veVnfmEm = getattr(importlib.import_module("Ve-Vnfm-em." + veVnfmEm), veVnfmEm)(veVnfmEm, "127.0.0.1", "")
-		except Exception as e:
+		if len(vnfm) != 1:
 			return -4
+		vnfm = VibModels.VibVnfmInstance().fromSql(vnfm[0])
+		driver = self.__vibManager.queryVibDatabase("SELECT * FROM VnfmDriverInstance WHERE vnfmId = \"" + vnfm.vnfmDriver + "\";")
+		if type(driver) == sqlite3.Error:
+			return -5
+		if len(driver) != 1:
+			return -6
+		driver = VibModels.VibVnfmDriverInstance().fromSql(driver[0])
+
+		if not os.path.isfile("Access Subsystem/Ve-Vnfm-em/" + driver.vnfmDriver + ".py"):
+			return -7
+		try:
+			self.__veVnfmEm = getattr(importlib.import_module("Ve-Vnfm-em." + driver.vnfmDriver), driver.vnfmDriver)(vnfm.vnfmId, vnfm.vnfmAddress, vnfm.vnfmCredentials)
+		except Exception as e:
+			return -8
 
 		if type(aiAs) != flask.Flask:
-			return -5
+			return -9
 		self.__aiAs = aiAs
 		self.__setupAccessInterface()
 
 		if type(oaAa) != AsAuthAgent.AuthenticationAgent:
-			return -6
+			return -10
 		self.__oaAa = oaAa
 
 		if type(asIr) != IrAgent.IrAgent:
-			return -7
+			return -11
 		self.__asIr = asIr
 
 		return self
 
 	def setupDriver(self, vibVnfmInstance):
 
-		if not os.path.isfile("Access Subsystem/Ve-Vnfm-em/" + vibVnfmInstance.vnfmDriver + ".py"):
-			return -3
+		driver = self.__vibManager.queryVibDatabase("SELECT * FROM VnfmDriverInstance WHERE vnfmId = \"" + vibVnfmInstance.vnfmDriver + "\";")
+		if type(driver) == sqlite3.Error:
+			return -5
+		if len(driver) != 1:
+			return -6
+		driver = VibModels.VibVnfmDriverInstance().fromSql(driver[0])
+
+		if not os.path.isfile("Access Subsystem/Ve-Vnfm-em/" + driver.vnfmDriver + ".py"):
+			return -7
 		try:
-			self.__veVnfmEm = getattr(importlib.import_module("Ve-Vnfm-em." + vibVnfmInstance.vnfmDriver), vibVnfmInstance.vnfmDriver)(vibVnfmInstance.vnfmDriver, vibVnfmInstance.vnfmAddress, vibVnfmInstance.vnfmCredentials)
+			self.__veVnfmEm = getattr(importlib.import_module("Ve-Vnfm-em." + driver.vnfmDriver), driver.vnfmDriver)(vibVnfmInstance.vnfmId, vibVnfmInstance.vnfmAddress, vibVnfmInstance.vnfmCredentials)
 		except Exception as e:
-			return -4
+			return -8
 
 		return 0
 
-	def getRunningDriver(self):
+	def getRunningVnfm(self):
 
 		if self.__veVnfmEm != None:
-			return self.__veVnfmEm.vnfmId
+			vnfm = self.__vibManager.queryVibDatabase("SELECT * FROM VnfmInstance WHERE vnfmId = \"" + self.__veVnfmEm.vnfmId + "\";")
+			if type(vnfm) == sqlite3.Error:
+				return -3
+			if len(vnfm) != 1:
+				return -4
+			return VibModels.VibVnfmInstance().fromSql(vnfm[0]).toDictionary()
 
 		return None
 
 	def __authenticateRequest(self, userRequest, vnfRequest):
 		
 		if not "userAuth" in flask.request.values:
-			return -8
+			return -12
 
 		authResult = self.__oaAa.authenticationCheck(flask.request.values.get("userAuth"))
 		if type(authResult) == int:
-			return -9
+			return -13
 		if type(authResult) == bool:
 			return authResult
 
@@ -128,7 +159,7 @@ class OperationAgent:
 
 		authResult = self.__oaAa.authenticationCheck(authentication)
 		if type(authResult) == int:
-			return -9
+			return -13
 
 		return authResult
 
@@ -198,6 +229,8 @@ class OperationAgent:
 		self.__aiAs.add_url_rule("/im/vib/platforms/<platformId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_p_platformId)
 		self.__aiAs.add_url_rule("/im/vib/vnf_managers", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_vnf_managers)
 		self.__aiAs.add_url_rule("/im/vib/vnf_managers/<managerId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_vnfm_managerId)
+		self.__aiAs.add_url_rule("/im/vib/vnf_managers_drivers", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_vnf_managers_drivers)
+		self.__aiAs.add_url_rule("/im/vib/vnf_managers_drivers/<vnfmId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_vib_vnfmd_vnfmId)
 
 		self.__aiAs.add_url_rule("/im/ms/running_subscription", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_ms_running_subscription)
 		self.__aiAs.add_url_rule("/im/ms/running_subscription/<subscriptionId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_msrs_subscriptionId)
@@ -216,8 +249,10 @@ class OperationAgent:
 		self.__aiAs.add_url_rule("/im/as/credential/user/<userId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_c_userId)
 		self.__aiAs.add_url_rule("/im/as/credential/vnf/<vnfId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_c_vnfId)
 		self.__aiAs.add_url_rule("/im/as/credential/<userId>/<vnfId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_c_credentialId)
-		self.__aiAs.add_url_rule("/im/as/vnfm/running_driver", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_vnfm_running_driver)
-		self.__aiAs.add_url_rule("/im/as/vnfm/running_driver/<vnfmId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_vrd_vnfmId)
+		self.__aiAs.add_url_rule("/im/as/vnfm/running_vnfm", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_vnfm_running_vnfm)
+		self.__aiAs.add_url_rule("/im/as/vnfm/running_vnfm/<vnfmId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_vrv_vnfmId)
+		self.__aiAs.add_url_rule("/im/as/vnfm/instance", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_vnfm_instance)
+		self.__aiAs.add_url_rule("/im/as/vnfm/instance/<vnfmId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_vi_vnfmId)
 		self.__aiAs.add_url_rule("/im/as/vnfm/driver", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_vnfm_driver)
 		self.__aiAs.add_url_rule("/im/as/vnfm/driver/<vnfmId>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], view_func=self.im_as_vd_vnfmId)
 
@@ -1218,6 +1253,40 @@ class OperationAgent:
 			return self.patch_vib_vnfm_managerId(managerId, flask.request.values.get("vibVnfmInstance"))
 		elif flask.request.method == "DELETE":
 			return self.delete_vib_vnfm_managerId(managerId)
+
+	def im_vib_vnf_managers_drivers(self):
+
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VIB", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
+
+		if flask.request.method == "GET":
+			return self.get_vib_vnf_manager_drivers()
+		elif flask.request.method == "POST":
+			return self.post_vib_vnf_manager_drivers(flask.request.values.get("vibVnfmDriverInstance"))
+		elif flask.request.method == "PUT":
+			return self.put_vib_vnf_manager_drivers()
+		elif flask.request.method == "PATCH":
+			return self.patch_vib_vnf_manager_drivers()
+		elif flask.request.method == "DELETE":
+			return self.delete_vib_vnf_manager_drivers()
+
+	def im_vib_vnfmd_vnfmId(self, vnfmId):
+
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("VIB", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
+
+		if flask.request.method == "GET":
+			return self.get_vib_vnfmd_vnfmId(vnfmId)
+		elif flask.request.method == "POST":
+			return self.post_vib_vnfmd_vnfmId()
+		elif flask.request.method == "PUT":
+			return self.put_vib_vnfmd_vnfmId()
+		elif flask.request.method == "PATCH":
+			return self.patch_vib_vnfmd_vnfmId(vnfmId, flask.request.values.get("vibVnfmDriverInstance"))
+		elif flask.request.method == "DELETE":
+			return self.delete_vib_vnfmd_vnfmId(vnfmId)
 	
 	def im_ms_running_subscription(self):
 
@@ -1494,39 +1563,73 @@ class OperationAgent:
 		elif flask.request.method == "DELETE":
 			return self.delete_as_c_vnfId()
 
-	def im_as_vnfm_running_driver(self):
+	def im_as_vnfm_running_vnfm(self):
 
 		if self.__oaAa.getRunningAuthenticator() != "None":
 			if self.__authenticateRequest("AS", None) != True:
 				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
 
 		if flask.request.method == "GET":
-			return self.get_as_vnfm_running_driver()
+			return self.get_as_vnfm_running_vnfm()
 		elif flask.request.method == "POST":
-			return self.post_as_vnfm_running_driver()
+			return self.post_as_vnfm_running_vnfm()
 		elif flask.request.method == "PUT":
-			return self.put_as_vnfm_running_driver()
+			return self.put_as_vnfm_running_vnfm()
 		elif flask.request.method == "PATCH":
-			return self.patch_as_vnfm_running_driver()
+			return self.patch_as_vnfm_running_vnfm()
 		elif flask.request.method == "DELETE":
-			return self.delete_as_vnfm_running_driver()
+			return self.delete_as_vnfm_running_vnfm()
 
-	def im_as_vrd_vnfmId(self, vnfmId):
+	def im_as_vrv_vnfmId(self, vnfmId):
 
 		if self.__oaAa.getRunningAuthenticator() != "None":
 			if self.__authenticateRequest("AS", None) != True:
 				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
 
 		if flask.request.method == "GET":
-			return self.get_as_vrd_vnfmId(vnfmId)
+			return self.get_as_vrv_vnfmId(vnfmId)
 		elif flask.request.method == "POST":
-			return self.post_as_vrd_vnfmId(vnfmId)
+			return self.post_as_vrv_vnfmId(vnfmId)
 		elif flask.request.method == "PUT":
-			return self.put_as_vrd_vnfmId()
+			return self.put_as_vrv_vnfmId()
 		elif flask.request.method == "PATCH":
-			return self.patch_as_vrd_vnfmId()
+			return self.patch_as_vrv_vnfmId()
 		elif flask.request.method == "DELETE":
-			return self.delete_as_vrd_vnfmId()
+			return self.delete_as_vrv_vnfmId()
+
+	def im_as_vnfm_instance(self):
+
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("AS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
+
+		if flask.request.method == "GET":
+			return self.get_as_vnfm_instance()
+		elif flask.request.method == "POST":
+			return self.post_as_vnfm_instance(flask.request.values.get("vibVnfmInstance"))
+		elif flask.request.method == "PUT":
+			return self.put_as_vnfm_instance()
+		elif flask.request.method == "PATCH":
+			return self.patch_as_vnfm_instance()
+		elif flask.request.method == "DELETE":
+			return self.delete_as_vnfm_instance()
+
+	def im_as_vi_vnfmId(self, vnfmId):
+
+		if self.__oaAa.getRunningAuthenticator() != "None":
+			if self.__authenticateRequest("AS", None) != True:
+				return "ERROR CODE #4 (AA): REQUEST COULD NOT BE AUTHENTICATED", 400
+
+		if flask.request.method == "GET":
+			return self.get_as_vi_vnfmId(vnfmId)
+		elif flask.request.method == "POST":
+			return self.post_as_vi_vnfmId()
+		elif flask.request.method == "PUT":
+			return self.put_as_vi_vnfmId()
+		elif flask.request.method == "PATCH":
+			return self.patch_as_vi_vnfmId(vnfmId, flask.request.values.get("vibVnfmInstance"))
+		elif flask.request.method == "DELETE":
+			return self.delete_as_vi_vnfmId(vnfmId)
 
 	def im_as_vnfm_driver(self):
 
@@ -1537,7 +1640,7 @@ class OperationAgent:
 		if flask.request.method == "GET":
 			return self.get_as_vnfm_driver()
 		elif flask.request.method == "POST":
-			return self.post_as_vnfm_driver(flask.request.values.get("vibVnfmInstance"))
+			return self.post_as_vnfm_driver(flask.request.values.get("vibVnfmDriverInstance"))
 		elif flask.request.method == "PUT":
 			return self.put_as_vnfm_driver()
 		elif flask.request.method == "PATCH":
@@ -1558,7 +1661,7 @@ class OperationAgent:
 		elif flask.request.method == "PUT":
 			return self.put_as_vd_vnfmId()
 		elif flask.request.method == "PATCH":
-			return self.patch_as_vd_vnfmId(vnfmId, flask.request.values.get("vibVnfmInstance"))
+			return self.patch_as_vd_vnfmId(vnfmId, flask.request.values.get("vibVnfmDriverInstance"))
 		elif flask.request.method == "DELETE":
 			return self.delete_as_vd_vnfmId(vnfmId)
 
@@ -2995,7 +3098,7 @@ class OperationAgent:
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "post_vib_vnf_managers", vibVnfmInstance), "AS", "IM")
 		manager = self.__asIr.sendMessage(request)
 		if type(manager.messageData) == tuple:
-			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING PLATFORM OPERATION (" + str(manager.messageData[1]) + ")", 400
+			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING VNF MANAGER INSTANCE OPERATION (" + str(manager.messageData[1]) + ")", 400
 
 		return json.dumps(manager.messageData.toDictionary())
 
@@ -3067,7 +3170,7 @@ class OperationAgent:
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "delete_vib_vnfm_managerId", managerId), "AS", "IM")
 		manager = self.__asIr.sendMessage(request)
 		if type(manager.messageData) == tuple:
-			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING PLATFORM INSTANCE OPERATION (" + str(manager.messageData[1]) + ")", 400
+			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING VNFM INSTANCE OPERATION (" + str(manager.messageData[1]) + ")", 400
 
 		return json.dumps(manager.messageData.toDictionary())
 
@@ -3078,6 +3181,130 @@ class OperationAgent:
 	def post_vib_vnfm_managerId(self):
 		return "NOT AVAILABLE", 405
 	def put_vib_vnfm_managerId(self):
+		return "NOT AVAILABLE", 405
+
+
+	'''
+	PATH: 		 /im/vib/vnf_managers_drivers
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve all the available VNF manager drivers
+				 of the VIB database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibVnfmDriverInstance [0..N]
+				 - Integer error code (HTTP)
+	
+	'''
+	def get_vib_vnf_manager_drivers(self):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "get_vib_vnf_manager_drivers", None), "AS", "IM")
+		drivers = self.__asIr.sendMessage(request)
+		if type(drivers.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING VNF MANAGER DRIVER OPERATION (" + str(drivers.messageData[1]) + ")", 400
+
+		return json.dumps([m.toDictionary() for m in drivers.messageData]), 200
+
+	'''
+	PATH: 		 /im/vib/vnf_managers_drivers
+	ACTION: 	 POST
+	DESCRIPTION: Send a new VNF manager driver to be saved
+				 in the VIB database.
+	ARGUMENT: 	 VibVnfmDriverInstance (JSON Dictionary)
+	RETURN: 	 - 200 (HTTP) + VibVnfmDriverInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def post_vib_vnf_manager_drivers(self, vibVnfmDriverInstance):
+		
+		try:
+			vibVnfmDriverInstance = VibModels.VibVnfmDriverInstance().fromDictionary(json.loads(vibVnfmDriverInstance))
+		except Exception as e:
+			return "ERROR CODE #0 (AS): INVALID VNF MANAGER DRIVER INSTANCE PROVIDED (" + str(e) + ")", 400
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "post_vib_vnf_manager_drivers", vibVnfmDriverInstance), "AS", "IM")
+		driver = self.__asIr.sendMessage(request)
+		if type(driver.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING MANAGER DRIVER OPERATION (" + str(driver.messageData[1]) + ")", 400
+
+		return json.dumps(driver.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/vib/vnf_managers_drivers
+	N/A ACTIONS: PUT, PATCH, DELETE
+	'''
+	def put_vib_vnf_manager_drivers(self):
+		return "NOT AVAILABLE", 405
+	def patch_vib_vnf_manager_drivers(self):
+		return "NOT AVAILABLE", 405
+	def delete_vib_vnf_manager_drivers(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/vib/vnf_managers_drivers/{vnfmId}
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve a particular VNF manager driver
+				 from the VIB database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibVnfmDriverInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def get_vib_vnfmd_vnfmId(self, vnfmId):
+		
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "get_vib_vnfmd_vnfmId", vnfmId), "AS", "IM")
+		driver = self.__asIr.sendMessage(request)
+		if type(driver.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING VNF MANAGER DRIVER OPERATION (" + str(driver.messageData[1]) + ")", 400
+
+		return json.dumps(driver.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/vib/vnf_managers_drivers/{vnfmId}
+	ACTION: 	 PATCH
+	DESCRIPTION: Send updates to a particular VNF manager
+				 driver already saved in the VIB database.
+	ARGUMENT: 	 VibManagerDriverInstance (JSON Dictionary)
+	RETURN: 	 - 200 (HTTP) + VibManagerDriverInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def patch_vib_vnfmd_vnfmId(self, vnfmId, vibVnfmDriverInstance):
+		
+		try:
+			vibVnfmDriverInstance = VibModels.VibVnfmDriverInstance().fromDictionary(json.loads(vibVnfmDriverInstance))
+			if vnfmId != vibVnfmDriverInstance.vnfmId:
+				return "ERROR CODE #0 (AS): INVALID VNF MANAGER DRIVER INSTANCE PROVIDED (" + str(vnfmId) + " != " + str(vibVnfmDriverInstance.vnfmId) + ")", 400
+		except Exception as e:
+			return "ERROR CODE #0 (AS): INVALID VNF MANAGER INSTANCE DRIVER PROVIDED (" + str(e) + ")" , 400
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "patch_vib_vnfmd_vnfmId", vibVnfmDriverInstance), "AS", "IM")
+		driver = self.__asIr.sendMessage(request)
+		if type(driver.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING VNF MANAGER DRIVER INSTANCE OPERATION (" + str(driver.messageData[1]) + ")", 400
+
+		return json.dumps(driver.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/vib/vnf_managers_drivers/{vnfmId}
+	ACTION: 	 DELETE
+	DESCRIPTION: Delete a particular VNF manager driver
+				 from the VIB database.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibVnfmInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def delete_vib_vnfmd_vnfmId(self, vnfmId):
+		
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("VIB", "delete_vib_vnfmd_vnfmId", vnfmId), "AS", "IM")
+		driver = self.__asIr.sendMessage(request)
+		if type(driver.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/VIB ERROR DURING VNFM INSTANCE OPERATION (" + str(driver.messageData[1]) + ")", 400
+
+		return json.dumps(driver.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/vib/vnf_managers_drivers/{vnfmId}
+	N/A ACTIONS: POST, PUT
+	'''
+	def post_vib_vnfmd_vnfmId(self):
+		return "NOT AVAILABLE", 405
+	def put_vib_vnfmd_vnfmId(self):
 		return "NOT AVAILABLE", 405
 
 	'''
@@ -3094,7 +3321,7 @@ class OperationAgent:
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "get_ms_running_subscription", None), "AS", "IM")
 		subscriptions = self.__asIr.sendMessage(request)
 		if type(subscriptions.messageData) == tuple:
-			return "ERROR CODE #3 (AS): IM/MS ERROR DURING PLATFORM INSTANCE OPERATION (" + str(subscriptions.messageData[1]) + ")", 400
+			return "ERROR CODE #3 (AS): IM/MS ERROR DURING SUBSCRIPTION OPERATION (" + str(subscriptions.messageData[1]) + ")", 400
 
 		return json.dumps(list(subscriptions.messageData.keys()))
 
@@ -3125,7 +3352,7 @@ class OperationAgent:
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "get_msrs_subscriptionId", subscriptionId), "AS", "IM")
 		subscription = self.__asIr.sendMessage(request)
 		if type(subscription.messageData) == tuple:
-			return "ERROR CODE #3 (AS): IM/MS ERROR DURING PLATFORM INSTANCE OPERATION (" + str(subscription.messageData[1]) + ")", 400
+			return "ERROR CODE #3 (AS): IM/MS ERROR DURING SUBSCRIPTION OPERATION (" + str(subscription.messageData[1]) + ")", 400
 
 		return json.dumps(subscription.messageData)
 
@@ -3165,7 +3392,7 @@ class OperationAgent:
 			request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "patch_msrs_subscriptionId", (subscriptionId, json.loads(agentArguments))), "AS", "IM")
 		subscription = self.__asIr.sendMessage(request)
 		if type(subscription.messageData) == tuple:
-			return "ERROR CODE #3 (AS): IM/MS ERROR DURING PLATFORM INSTANCE OPERATION (" + str(subscription.messageData[1]) + ")", 400
+			return "ERROR CODE #3 (AS): IM/MS ERROR DURING SUBSCRIPTION OPERATION (" + str(subscription.messageData[1]) + ")", 400
 
 		return json.dumps(subscription.messageData.toDictionary())
 
@@ -3183,7 +3410,7 @@ class OperationAgent:
 		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("MS", "delete_msrs_subscriptionId", subscriptionId), "AS", "IM")
 		subscription = self.__asIr.sendMessage(request)
 		if type(subscription.messageData) == tuple:
-			return "ERROR CODE #3 (AS): IM/MS ERROR DURING PLATFORM INSTANCE OPERATION (" + str(subscription.messageData[1]) + ")", 400
+			return "ERROR CODE #3 (AS): IM/MS ERROR DURING SUBSCRIPTION OPERATION (" + str(subscription.messageData[1]) + ")", 400
 
 		return json.dumps(subscription.messageData.toDictionary())
 
@@ -3863,7 +4090,7 @@ class OperationAgent:
 		return "NOT AVAILABLE", 405
 
 	'''
-	PATH: 		 /im/as/vnfm/running_driver
+	PATH: 		 /im/as/vnfm/running_vnfm
 	ACTION: 	 GET
 	DESCRIPTION: Retrieve the currently running vnfm driver in
 				 the access subsystem.
@@ -3871,9 +4098,9 @@ class OperationAgent:
 	RETURN: 	 - 200 (HTTP) + String [1]
 				 - Integer error code (HTTP)
 	'''
-	def get_as_vnfm_running_driver(self):
+	def get_as_vnfm_running_vnfm(self):
 
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "get_as_vnfm_running_driver", None), "AS", "IM")
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "get_as_vnfm_running_vnfm", None), "AS", "IM")
 		driver = self.__asIr.sendMessage(request)
 		if type(driver.messageData) == tuple:
 			return "ERROR CODE #3 (AS): IM/AS ERROR DURING VNFM DRIVER INSTANCE OPERATION (" + str(driver.messageData[1]) + ")", 400
@@ -3881,20 +4108,20 @@ class OperationAgent:
 		return json.dumps(driver.messageData)
 
 	'''
-	PATH: 		 /im/as/vnfm/running_driver
+	PATH: 		 /im/as/vnfm/running_vnfm
 	N/A ACTIONS: POST, PUT, PATCH, DELETE
 	'''
-	def post_as_vnfm_running_driver(self):
+	def post_as_vnfm_running_vnfm(self):
 		return "NOT AVAILABLE", 405
-	def put_as_vnfm_running_driver(self):
+	def put_as_vnfm_running_vnfm(self):
 		return "NOT AVAILABLE", 405
-	def patch_as_vnfm_running_driver(self):
+	def patch_as_vnfm_running_vnfm(self):
 		return "NOT AVAILABLE", 405
-	def delete_as_vnfm_running_driver(self):
+	def delete_as_vnfm_running_vnfm(self):
 		return "NOT AVAILABLE", 405	
 
 	'''
-	PATH: 		 /im/as/vnfm/running_driver/{vnfmId}
+	PATH: 		 /im/as/vnfm/running_vnfm/{vnfmId}
 	ACTION: 	 GET
 	DESCRIPTION: Return "True" if a required VNF manager is
 				 running, or "False" if it is not.
@@ -3902,9 +4129,9 @@ class OperationAgent:
 	RETURN: 	 - 200 (HTTP) + Boolean [1]
 				 - Integer error code (HTTP)
 	'''
-	def get_as_vrd_vnfmId(self, vnfmId):
+	def get_as_vrv_vnfmId(self, vnfmId):
 
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "get_as_vrd_vnfmId", vnfmId), "AS", "IM")
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "get_as_vrv_vnfmId", vnfmId), "AS", "IM")
 		driver = self.__asIr.sendMessage(request)
 		if type(driver.messageData) == tuple:
 			return "ERROR CODE #3 (AS): IM/AS ERROR DURING VNFM DRIVER INSTANCE OPERATION (" + str(driver.messageData[1]) + ")", 400
@@ -3912,7 +4139,7 @@ class OperationAgent:
 		return json.dumps(driver.messageData)
 
 	'''
-	PATH: 		 /im/as/vnfm/running_driver/{vnfmId}
+	PATH: 		 /im/as/vnfm/running_vnfm/{vnfmId}
 	ACTION: 	 POST
 	DESCRIPTION: Retrieve the required VNF manager from the
 				 VIB and prepare it to be executed in the
@@ -3921,9 +4148,9 @@ class OperationAgent:
 	RETURN: 	 - 200 (HTTP) + VibVnfmInstance [1]
 				 - Integer error code (HTTP)
 	'''
-	def post_as_vrd_vnfmId(self, vnfmId):
+	def post_as_vrv_vnfmId(self, vnfmId):
 
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "post_as_vrd_vnfmId", vnfmId), "AS", "IM")
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "post_as_vrv_vnfmId", vnfmId), "AS", "IM")
 		driver = self.__asIr.sendMessage(request)
 		if type(driver.messageData) == tuple:
 			return "ERROR CODE #3 (AS): IM/AS ERROR DURING VNFM DRIVER INSTANCE OPERATION (" + str(driver.messageData[1]) + ")", 400
@@ -3931,23 +4158,145 @@ class OperationAgent:
 		return json.dumps(driver.messageData.toDictionary())
 
 	'''
-	PATH: 		 /im/as/vnfm/running_driver/{vnfmId}
+	PATH: 		 /im/as/vnfm/running_vnfm/{vnfmId}
 	N/A ACTIONS: PUT, PATCH, DELETE
 	'''
-	def put_as_vrd_vnfmId(self):
+	def put_as_vrv_vnfmId(self):
 		return "NOT AVAILABLE", 405
-	def patch_as_vrd_vnfmId(self):
+	def patch_as_vrv_vnfmId(self):
 		return "NOT AVAILABLE", 405
-	def delete_as_vrd_vnfmId(self):
+	def delete_as_vrv_vnfmId(self):
 		return "NOT AVAILABLE", 405
 
 	'''
-	PATH: 		 /im/as/vnfm/driver
+	PATH: 		 /im/as/vnfm/instance
 	ACTION: 	 GET
 	DESCRIPTION: Retrieve all the available VNF managers in
 				 the access subsystem.
 	ARGUMENT: 	 --
 	RETURN: 	 - 200 (HTTP) + VibVfnmInstance [0..N]
+				 - Integer error code (HTTP)
+	'''
+	def get_as_vnfm_instance(self):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "get_as_vnfm_instance", None), "AS", "IM")
+		vnfms = self.__asIr.sendMessage(request)
+		if type(vnfms.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/AS ERROR DURING VNFM DRIVER INSTANCE OPERATION (" + str(vnfms.messageData[1]) + ")", 400
+
+		return json.dumps([v.toDictionary() for v in vnfms.messageData])
+
+	'''
+	PATH: 		 /im/as/vnfm/instance
+	ACTION: 	 POST
+	DESCRIPTION: Send a new VNF manager to be saved in the
+				 access subsystem.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibVnfmInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def post_as_vnfm_instance(self, vibVnfmInstance):
+
+		try:
+			vibVnfmInstance = VibModels.VibVnfmInstance().fromDictionary(json.loads(vibVnfmInstance))
+		except:
+			return "ERROR CODE #0 (AS): INVALID VNFM DRIVER PROVIDED", 400		
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "post_as_vnfm_instance", vibVnfmInstance), "AS", "IM")
+		vnfm = self.__asIr.sendMessage(request)
+		if type(vnfm.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/AS ERROR DURING VNFM DRIVER OPERATION (" + str(vnfm.messageData[1]) + ")", 400
+
+		return json.dumps(vnfm.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/as/vnfm/instance
+	N/A ACTIONS: PUT, PATCH, DELETE
+	'''
+	def put_as_vnfm_instance(self):
+		return "NOT AVAILABLE", 405
+	def patch_as_vnfm_instance(self):
+		return "NOT AVAILABLE", 405
+	def delete_as_vnfm_instance(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/as/vnfm/instance/{vnfmId}
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve a particular VNF manager from the
+				 access subsystem.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibVnfmInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def get_as_vi_vnfmId(self, vnfmId):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "get_as_vi_vnfmId", vnfmId), "AS", "IM")
+		vnfm = self.__asIr.sendMessage(request)
+		if type(vnfm.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/AS ERROR DURING VNFM DRIVER INSTANCE OPERATION (" + str(vnfm.messageData[1]) + ")", 400
+
+		return vnfm.messageData.toDictionary()
+
+	'''
+	PATH: 		 /im/as/vnfm/instance/{vnfmId}
+	ACTION: 	 PATCH
+	DESCRIPTION: Send updates to a particular VNF manager
+				 already saved in the access subsystem.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibVnfmInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def patch_as_vi_vnfmId(self, vnfmId, vibVnfmInstance):
+
+		try:
+			vibVnfmInstance = VibModels.VibVnfmInstance().fromDictionary(json.loads(vibVnfmInstance))
+			if vnfmId != vibVnfmInstance.vnfmId:
+				return "ERROR CODE #0 (AS): INVALID VNFM DRIVER INSTANCE PROVIDED", 400
+		except:
+			return "ERROR CODE #0 (AS): INVALID VNFM DRIVER INSTANCE PROVIDED", 400
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "patch_as_vi_vnfmId", vibVnfmInstance), "AS", "IM")
+		vnfm = self.__asIr.sendMessage(request)
+		if type(vnfm.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/AS ERROR DURING VNFM DRIVER INSTANCE OPERATION (" + str(vnfm.messageData[1]) + ")", 400
+
+		return json.dumps(vnfm.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/as/vnfm/instance/{vnfmId}
+	ACTION: 	 DELETE
+	DESCRIPTION: Delete a particular VNF manager from the
+				 access subsystem.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibVnfmInstance [1]
+				 - Integer error code (HTTP)
+	'''
+	def delete_as_vi_vnfmId(self, vnfmId):
+
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "delete_as_vi_vnfmId", vnfmId), "AS", "IM")
+		vnfm = self.__asIr.sendMessage(request)
+		if type(vnfm.messageData) == tuple:
+			return "ERROR CODE #3 (AS): IM/AS ERROR DURING VNFM DRIVER INSTANCE OPERATION (" + str(vnfm.messageData[1]) + ")", 400
+
+		return json.dumps(vnfm.messageData.toDictionary())
+
+	'''
+	PATH: 		 /im/as/vnfm/instance/{vnfmId}
+	N/A ACTIONS: POST, PUT
+	'''
+	def post_as_vi_vnfmId(self):
+		return "NOT AVAILABLE", 405
+	def put_as_vi_vnfmId(self):
+		return "NOT AVAILABLE", 405
+
+	'''
+	PATH: 		 /im/as/vnfm/driver
+	ACTION: 	 GET
+	DESCRIPTION: Retrieve all the available VNF manager drivers
+				 in the access subsystem.
+	ARGUMENT: 	 --
+	RETURN: 	 - 200 (HTTP) + VibVfnmDriverInstance [0..N]
 				 - Integer error code (HTTP)
 	'''
 	def get_as_vnfm_driver(self):
@@ -3962,20 +4311,20 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/as/vnfm/driver
 	ACTION: 	 POST
-	DESCRIPTION: Send a new VNF manager to be saved in the
-				 access subsystem.
+	DESCRIPTION: Send a new VNF manager driver to be saved
+				 in the access subsystem.
 	ARGUMENT: 	 --
-	RETURN: 	 - 200 (HTTP) + VibVnfmInstance [1]
+	RETURN: 	 - 200 (HTTP) + VibVnfmDriverInstance [1]
 				 - Integer error code (HTTP)
 	'''
-	def post_as_vnfm_driver(self, vibVnfmInstance):
+	def post_as_vnfm_driver(self, vibVnfmDriverInstance):
 
 		try:
-			vibVnfmInstance = VibModels.VibVnfmInstance().fromDictionary(json.loads(vibVnfmInstance))
+			vibVnfmDriverInstance = VibModels.VibVnfmDriverInstance().fromDictionary(json.loads(vibVnfmDriverInstance))
 		except:
 			return "ERROR CODE #0 (AS): INVALID VNFM DRIVER PROVIDED", 400		
 
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "post_as_vnfm_driver", vibVnfmInstance), "AS", "IM")
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "post_as_vnfm_driver", vibVnfmDriverInstance), "AS", "IM")
 		driver = self.__asIr.sendMessage(request)
 		if type(driver.messageData) == tuple:
 			return "ERROR CODE #3 (AS): IM/AS ERROR DURING VNFM DRIVER OPERATION (" + str(driver.messageData[1]) + ")", 400
@@ -3996,10 +4345,10 @@ class OperationAgent:
 	'''
 	PATH: 		 /im/as/vnfm/driver/{vnfmId}
 	ACTION: 	 GET
-	DESCRIPTION: Retrieve a particular VNF manager from the
-				 access subsystem.
+	DESCRIPTION: Retrieve a particular VNF manager driver 
+				 from the access subsystem.
 	ARGUMENT: 	 --
-	RETURN: 	 - 200 (HTTP) + VibVnfmInstance [1]
+	RETURN: 	 - 200 (HTTP) + VibVnfmDriverInstance [1]
 				 - Integer error code (HTTP)
 	'''
 	def get_as_vd_vnfmId(self, vnfmId):
@@ -4020,16 +4369,16 @@ class OperationAgent:
 	RETURN: 	 - 200 (HTTP) + VibVnfmInstance [1]
 				 - Integer error code (HTTP)
 	'''
-	def patch_as_vd_vnfmId(self, vnfmId, vibVnfmInstance):
+	def patch_as_vd_vnfmId(self, vnfmId, vibVnfmDriverInstance):
 
 		try:
-			vibVnfmInstance = VibModels.VibVnfmInstance().fromDictionary(json.loads(vibVnfmInstance))
-			if vnfmId != vibVnfmInstance.vnfmId:
+			vibVnfmDriverInstance = VibModels.VibVnfmDriverInstance().fromDictionary(json.loads(vibVnfmDriverInstance))
+			if vnfmId != vibVnfmDriverInstance.vnfmId:
 				return "ERROR CODE #0 (AS): INVALID VNFM DRIVER INSTANCE PROVIDED", 400
 		except:
 			return "ERROR CODE #0 (AS): INVALID VNFM DRIVER INSTANCE PROVIDED", 400
 
-		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "patch_as_vd_vnfmId", vibVnfmInstance), "AS", "IM")
+		request = IrModels.IrMessage().fromData(IrModels.IrManagement().fromData("AS", "patch_as_vd_vnfmId", vibVnfmDriverInstance), "AS", "IM")
 		driver = self.__asIr.sendMessage(request)
 		if type(driver.messageData) == tuple:
 			return "ERROR CODE #3 (AS): IM/AS ERROR DURING VNFM DRIVER INSTANCE OPERATION (" + str(driver.messageData[1]) + ")", 400

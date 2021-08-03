@@ -1,7 +1,7 @@
 HoLMES: Holistic, Lightweight and Malleable EMS Solution
 ========================================================
 
-*Status: Alfa -- Version: 0.1*
+*Status: Alfa -- Version: 0.2*
 
 ### What is HoLMES?
 <p align="justify"> HoLMES is an Element Management System (EMS) platform designed to be fully compliant with the Network Function Virtualization (NFV) reference architecture from the ETSI. HoLMES can execute a myriad of EMS operations in the NFV environment by straightforward communicating with the Virtualized Network Functions (VNF) instances or exchanging information with the NFV Management and Orchestration (NFV-MANO) through the VNF Manager (VNFM). There are two possible communication agents in HoLMES: (i) users or generic external systems and (ii) VNFM. The communication from users or generic external systems, besides being able to access typical VNFM operations (if allowed), can configure the HoLMES platform itself by accessing its Internal Manager (IM) operations. The communication from VNFM platforms, in turn, follows the specification documents from the ETSI. HoLMES is holistic and malleable, being able to work with any VNFM and VNF platforms. This support comes from a driver system defined with templates. Within this driver system, the operators can implement simple drivers that enable HoLMES to communicate with particularly desired platforms. </p>

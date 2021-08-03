@@ -21,7 +21,7 @@ class VibManager:
 
         try:
             self.__vibConnection = sqlite3.connect(self.__vibPath, check_same_thread=False)
-
+            self.__vibConnection.execute("PRAGMA foreign_keys = 1")
         except sqlite3.Error as e:
             self.__vibConnection = None
 
@@ -46,7 +46,11 @@ class VibManager:
             
             standardUser = VibModels.VibUserInstance().fromData("admin", "admin", None, ["VLMI", "VPMI", "VFMI", "VII", "VCI", "VNF", "VIB", "MS", "AS", "VS"])
             self.operateVibDatabase(standardUser.toSql())
-            standardVnfm = VibModels.VibVnfmInstance().fromData("DummyVnfmDriver", "DummyVnfmDriver", "127.0.0.1", "")
+            vinesVnfmDriver = VibModels.VibVnfmDriverInstance().fromData("StdVinesVnfmDriver", "VinesVnfmDriver")
+            self.operateVibDatabase(vinesVnfmDriver.toSql())
+            standardVnfmDriver = VibModels.VibVnfmDriverInstance().fromData("StdDummyVnfmDriver", "DummyVnfmDriver")
+            self.operateVibDatabase(standardVnfmDriver.toSql())
+            standardVnfm = VibModels.VibVnfmInstance().fromData("DummyVnfm", "StdDummyVnfmDriver", "127.0.0.1", "")
             self.operateVibDatabase(standardVnfm.toSql())
             for standardPlatform in [{"platformId": "Click-On-OSv", "platformDriver": "ClickOnOSvDriver"}, {"platformId": "COVEN-HTTP", "platformDriver": "HttpCovenDriver"}, {"platformId": "COVEN-Socket", "platformDriver": "SocketCovenDriver"}, {"platformId": "Leaf", "platformDriver": "LeafDriver"}]:
                 self.operateVibDatabase(VibModels.VibPlatformInstance().fromDictionary(standardPlatform).toSql())
@@ -65,7 +69,7 @@ class VibManager:
             return vibCursor.fetchall()
        
         except sqlite3.Error as e:
-            raise e
+            return e
 
     def operateVibDatabase(self, sqlData):
 
@@ -76,13 +80,13 @@ class VibManager:
             return opResult
        
         except sqlite3.Error as e:
-            raise e
+            return e
 
     #TEMPORARY
-    def vibTesting(self):
+    '''def vibTesting(self):
 
         if self.__resetVibDatabase():
-            
+
             print(self.queryVibDatabase("SELECT * FROM PlatformInstance;"))
             classTest = VibModels.VibPlatformInstance().fromData("PLATFORM01", "CooDriver")
             self.operateVibDatabase(classTest.toSql())
@@ -115,8 +119,12 @@ class VibManager:
             self.operateVibDatabase(classTest.toSql())
             print(self.queryVibDatabase("SELECT * FROM SubscriptionInstance WHERE visId = \"SUBS01\";"))
 
-            classTest = VibModels.VibVnfmInstance().fromData("VNFM01", "DummyVnfmDriver", "127.0.0.1", "APIKey;APIPasswd")
+            classTest = VibModels.VibVnfmDriverInstance().fromData("VNFMNAME01", "VNFDRIVER01")
+            self.operateVibDatabase(classTest.toSql())
+            print(self.queryVibDatabase("SELECT * FROM VnfmDriverInstance WHERE vnfmId = \"VNFMNAME01\";"))
+
+            classTest = VibModels.VibVnfmInstance().fromData("VNFM01", "VNFMNAME01", "127.0.0.1", "APIKey;APIPasswd")
             self.operateVibDatabase(classTest.toSql())
             print(self.queryVibDatabase("SELECT * FROM VnfmInstance WHERE vnfmId = \"VNFM01\";"))
 
-            self.__resetVibDatabase()
+            self.__resetVibDatabase()'''
