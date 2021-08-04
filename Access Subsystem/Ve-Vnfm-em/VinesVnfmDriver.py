@@ -59,7 +59,7 @@ class VinesVnfmDriver(VnfmDriverTemplate.VnfmDriverTemplate):
 			instanceClass.metadata = {"creationDate":ir["created"], "vinesEmsId":ir["emsid"]}
 			veVnfmEmResults.append(instanceClass.toDictionary())
 
-		return (str(requestResponse.getcode()), veVnfmEmResults)
+		return json.dumps([requestResponse.getcode(), veVnfmEmResults])
 	
 	def get_vlmi_vi_vnfInstanceID(self, vnfInstanceId):
 
@@ -82,9 +82,14 @@ class VinesVnfmDriver(VnfmDriverTemplate.VnfmDriverTemplate):
 			instanceClass.metadata = {"creationDate":ir["created"], "vinesEmsId":ir["emsid"]}
 			veVnfmEmResults.append(instanceClass.toDictionary())
 
-		return (str(requestResponse.getcode()), veVnfmEmResults)
+		return json.dumps([requestResponse.getcode(), veVnfmEmResults])
 
 	def post_vlmi_viid_operate(self, vnfInstanceId, operateVnfRequest):
+
+		try:
+			operateVnfRequest = AsModels.OperateVnfRequest().fromDictionary(json.loads(operateVnfRequest))
+		except Exception as e:
+			return "400"
 
 		if operateVnfRequest.changeStateTo == None:
 			return "400"

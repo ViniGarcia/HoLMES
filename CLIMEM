@@ -1,0 +1,100 @@
+send POST /im/as/vnfm/running_vnfm/<LocalVines>
+send GET /vlmi/vnf_instances 
+exit
+send POST /im/as/vnfm/running_vnfm/<LocalVines>
+send GET /vlmi/vnf_instances 
+send /vlmi/vnf_instances/<vnfInstanceId>/operate/<e69b195f-eb53-42d8-8244-02ebe34bc17c> {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+send POST /vlmi/vnf_instances/<vnfInstanceId>/operate/<e69b195f-eb53-42d8-8244-02ebe34bc17c> {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate/ {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate2 {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate2 {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate2 {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send GET /vlmi/vnf_instances 
+send POST /im/as/vnfm/running_vnfm/<LocalVines>
+send GET /vlmi/vnf_instances 
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /im/as/vnfm/running_vnfm/<LocalVines>
+send GET /vlmi/vnf_instances 
+send POST /im/as/vnfm/running_vnfm/<LocalVines>
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /im/as/vnfm/running_vnfm/<LocalVines>
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /im/as/vnfm/running_vnfm/<LocalVines>
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /im/as/vnfm/running_vnfm/<LocalVines>
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /im/as/vnfm/running_vnfm/<LocalVines>
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /im/as/vnfm/running_vnfm/<LocalVines>
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /im/as/vnfm/running_vnfm/<LocalVines>
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+exit
+send POST /im/as/vnfm/running_vnfm/<LocalVines>
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": None, "additionalParams": None, "changeStateTo": 0, "stopType": None}
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": null, "additionalParams": null, "changeStateTo": 0, "stopType": null}
+exit
+send POST /im/as/vnfm/running_vnfm/<LocalVines>
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": null, "additionalParams": null, "changeStateTo": 0, "stopType": null}
+exit
+send POST /im/as/vnfm/running_vnfm/<LocalVines>
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": null, "additionalParams": null, "changeStateTo": 0, "stopType": null}
+exit
+send POST /im/as/vnfm/running_vnfm/<LocalVines>
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": null, "additionalParams": null, "changeStateTo": 0, "stopType": null}
+exit
+send POST /im/as/vnfm/running_vnfm/<LocalVines>
+send POST /vlmi/vnf_instances/<e69b195f-eb53-42d8-8244-02ebe34bc17c>/operate {"vnfcInstanceId": [], "gracefulStopTimeout": null, "additionalParams": null, "changeStateTo": 1, "stopType": 0}
+exit

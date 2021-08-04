@@ -52,7 +52,7 @@ class EmsCli(cmd.Cmd):
 	exit = False
 
 	operations = {
-		"vlmi":{"/vlmi/vnf_instances/":{"GET":[], "POST":["createVnfRequest"]},
+		"vlmi":{"/vlmi/vnf_instances":{"GET":[], "POST":["createVnfRequest"]},
 				"/vlmi/vnf_instances/<vnfInstanceId>":{"GET":[], "PATCH":["vnfInfoModificationRequest"], "DELETE":[]},
 				"/vlmi/vnf_instances/<vnfInstanceId>/instantiate":{"POST":["instantiateVnfRequest"]},
 				"/vlmi/vnf_instances/<vnfInstanceId>/scale":{"POST":["scaleVnfRequest"]},
@@ -110,7 +110,9 @@ class EmsCli(cmd.Cmd):
 				"/im/vib/platforms":{"GET":[], "POST":["vibPlatformInstance"]},
 				"/im/vib/platforms/<platformId>":{"GET":[], "PATCH":["vibPlatformInstance"], "DELETE":[]},
 				"/im/vib/vnf_managers":{"GET":[], "POST":["vibVnfmInstance"]},
-				"/im/vib/vnf_managers/<managerId>":{"GET":[], "PATCH":["vibVnfmInstance"], "DELETE":[]}
+				"/im/vib/vnf_managers/<managerId>":{"GET":[], "PATCH":["vibVnfmInstance"], "DELETE":[]},
+				"/im/vib/vnf_managers_drivers":{"GET":[], "POST":["vibVnfmDriverInstance"]},
+				"/im/vib/vnf_managers_drivers/<vnfmId>":{"GET":[], "PATCH":["vibVnfmDriverInstance"], "DELETE":[]}
 		},
 		"ms":  {"/im/ms/running_subscription":{"GET":[]},
 				"/im/ms/running_subscription/<subscriptionId>":{"GET":[], "POST":[], "PATCH":["agentArguments"], "DELETE":[]},
@@ -129,10 +131,12 @@ class EmsCli(cmd.Cmd):
 				 "/im/as/credential/<userId>/<vnfId>":{"GET":[], "DELETE":[]},
 				 "/im/as/credential/user/<userId>":{"GET":[]},
 				 "/im/as/credential/vnf/<vnfId>":{"GET":[]},
-				 "/im/as/vnfm/running_driver":{"GET":[]},
-				 "/im/as/vnfm/running_driver/<vnfmId>":{"GET":[], "POST":[]},
-				 "/im/as/vnfm/driver":{"GET":[], "POST":["vibVnfmInstance"]},
-				 "/im/as/vnfm/driver/<vnfmId>":{"GET":[], "PATCH":["vibVnfmInstance"], "DELETE":[]}
+				 "/im/as/vnfm/running_vnfm":{"GET":[]},
+				 "/im/as/vnfm/running_vnfm/<vnfmId>":{"GET":[], "POST":[]},
+				 "/im/as/vnfm/instance":{"GET":[], "POST":["vibVnfmInstance"]},
+				 "/im/as/vnfm/instance/<vnfmId>":{"GET":[], "PATCH":["vibVnfmInstance"], "DELETE":[]},
+				 "/im/as/vnfm/driver":{"GET":[], "POST":["vibVnfmDriverInstance"]},
+				 "/im/as/vnfm/driver/<vnfmId>":{"GET":[], "PATCH":["vibVnfmDriverInstance"], "DELETE":[]}
 		},
 		"vs":   {"/vnf/operation/<vnfId>/<operationId>":{"POST":["operationArguments"]},
 				 "/im/vs/vnf_instance":{"GET":[], "POST":["vibVnfInstance"]},
@@ -199,23 +203,32 @@ class EmsCli(cmd.Cmd):
 			print("ERROR: INVALID \"SEND\" OPERATION REQUESTED (INVALID EXECUTION TYPE RECEIVED)!\n")
 			return 
 
-		url = re.findall(r"<([^>]*)>", args[1])
-		if len(url) > 0:
-			args[1] = "/".join(args[1].split("/")[:-len(url)])
+		requestHTML = args[1].split("/")
+		requestArgs = [i for i in range(len(requestHTML)) if requestHTML[i].startswith("<")]
+		requestHTML = [re.findall(r"<([^>]*)>", a)[0] if a.startswith("<") else a for a in requestHTML]
 
 		required = None
 		for module in self.operations:
 			for operation in self.operations[module]:
-				if operation.startswith(args[1]):
-					check = re.findall(r"<([^>]*)>", operation)
-					if len(check) == len(url):
+				operationHTML = operation.split("/")
+				operationArgs = [i for i in range(len(operationHTML)) if operationHTML[i].startswith("<")]
+				if len(operationHTML) == len(requestHTML) and operationArgs == requestArgs:
+					matchOperation = True
+					for index in range(len(operationHTML)):
+						if not index in operationArgs:
+							if operationHTML[index] != requestHTML[index]:
+								matchOperation = False
+					
+					if matchOperation:
 						if not args[0] in self.operations[module][operation]:
 							print ("ERROR: INVALID \"SEND\" OPERATION REQUESTED (OPERATION DOES NOT EXIST)!\n")
 							return
-						if len(url) > 0:
-							args[1] = args[1] + "/" + "/".join(url)
+						args[1] = "/".join(requestHTML)
 						required = self.operations[module][operation][args[0]]
 						break
+			if required != None:
+				break
+
 		if required == None:
 			print ("ERROR: INVALID \"SEND\" OPERATION REQUESTED (OPERATION DOES NOT EXIST)!\n")
 			return

@@ -477,7 +477,7 @@ DESCRIPTION: Implementation of the reference structure that
 '''
 class OperateVnfRequest:
 	vnfcInstanceId = []						#Identifier (String), optional (0..N)
-	changeStateTo = None					#VnfOperationalStateType (Class), optional (0..N)
+	changeStateTo = None					#VnfOperationalStateType (Class), madatory (1)
 	stopType = None							#StopType (Class), optional (0..1)
 	gracefulStopTimeout = None				#Integer, optional (0..1)
 	additionalParams = None					#KeyValuePairs (Dictionary), optional (0..1)
@@ -489,15 +489,25 @@ class OperateVnfRequest:
 	def fromDictionary(self, dictData):
 		self.vnfcInstanceId = dictData["vnfcInstanceId"]
 		self.changeStateTo = VnfOperationalStateType(int(dictData["changeStateTo"]))
-		self.stopType = StopType(int(dictData["stopType"]))
-		self.gracefulStopTimeout = int(dictData["gracefulStopTimeout"])
+		if dictData["stopType"] != None:
+			self.stopType = StopType(int(dictData["stopType"]))
+		else:
+			self.stopType = dictData["stopType"]
+		if dictData["gracefulStopTimeout"] != None:
+			self.gracefulStopTimeout = int(dictData["gracefulStopTimeout"])
+		else:
+			self.stopType = dictData["gracefulStopTimeout"]
 		self.additionalParams = dictData["additionalParams"]
 
 		return self
 
 	def toDictionary(self):
-		return {"vnfcInstanceId":self.vnfcInstanceId, "changeStateTo":self.changeStateTo.value, "stopType":self.stopType.value,
-				"gracefulStopTimeout":self.gracefulStopTimeout, "additionalParams":self.additionalParams}
+		if self.stopType != None:
+			return {"vnfcInstanceId":self.vnfcInstanceId, "changeStateTo":self.changeStateTo.value, "stopType":self.stopType.value,
+					"gracefulStopTimeout":self.gracefulStopTimeout, "additionalParams":self.additionalParams}
+		else:
+			return {"vnfcInstanceId":self.vnfcInstanceId, "changeStateTo":self.changeStateTo.value, "stopType":self.stopType,
+					"gracefulStopTimeout":self.gracefulStopTimeout, "additionalParams":self.additionalParams}
 
 '''
 CLASS: ChangeExtVnfConnectivityRequest

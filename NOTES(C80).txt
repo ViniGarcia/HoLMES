@@ -1,0 +1,5 @@
+CLI -> [i] Included "/im/as/vnfm/driver" operation family into the framework of EmsCli class
+	   [ii] Included "/im/as/vnfm/driver/<vnfmId>" operation family into the framework of EmsCli class
+	   [iii] Changed the preparation phase of operation requests in "do_send" method of EmsCli class
+
+	- Changed: EmsCli
