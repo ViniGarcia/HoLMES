@@ -42,7 +42,7 @@ HoLMES: Holistic, Lightweight and Malleable EMS Solution
 
 ### HoLMES Platform
 
-<p align="justify"> HoLMES is also provided as a platform on the Ubuntu Cloud operating system. You can download the platform version <a href="https://drive.google.com/file/d/1HeyzE9Nrb55pgPF_UkOpoBCZb6QXYePh/view?usp=sharing">HERE</a>. The virtual machine standard credentials are "user" for the username and "holmes" for the password. </p>
+<p align="justify"> HoLMES is also provided as a platform on the Ubuntu Cloud operating system. You can download the platform version <a href="https://drive.google.com/file/d/15mo5yXFeM8V79YiLfjW5PSsAU7HlfDk4/view?usp=sharing">HERE</a>. The virtual machine standard credentials are "user" for the username and "holmes" for the password. </p>
 
 ### How does it was created?
 
