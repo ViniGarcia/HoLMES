@@ -487,7 +487,7 @@ def validate(ip):
 	return False
 
 def environment(aiIp):
-	sys.stdout = open(os.devnull, "w")
+	#sys.stdout = open(os.devnull, "w")
 
 	vibManager = VibManager.VibManager()
 
