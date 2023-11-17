@@ -80,4 +80,5 @@ HoLMES: Holistic, Lightweight and Malleable EMS Solution
 
 Vinícius Fülber Garcia (UFPR - Brazil)<br/>
 José Wilson Vieira Flauzino (UFPR - Brazil)<br/>
+Carlos Raniery Paula dos Santos (UFSM - Brazil)<br/>
 Elias Procópio Duarte Junior (UFPR - Brazil)
