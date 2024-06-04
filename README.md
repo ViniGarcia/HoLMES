@@ -85,4 +85,4 @@ Elias Procópio Duarte Junior (UFPR - Brazil)
 
 ### Publications
 
-Fulber-Garcia, V.; Flauzino, J.; Santos, C. R. P. d.; Duarte Jr., E. P.. An ETSI-compliant Architecture for the Element Management System: The Key for Holistic NFV Management. International Conference on Network and Service Management (CNSM). 2023.
+<p align="justify">Fulber-Garcia, V.; Flauzino, J.; Santos, C. R. P. d.; Duarte Jr., E. P.. An ETSI-compliant Architecture for the Element Management System: The Key for Holistic NFV Management. International Conference on Network and Service Management (CNSM). 2023.</p>
