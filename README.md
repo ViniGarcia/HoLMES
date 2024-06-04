@@ -74,7 +74,7 @@ HoLMES: Holistic, Lightweight and Malleable EMS Solution
 
 ### Support
 
-<p align="justify"> Contact us towards git issues requests or by the e-mail vfulber@inf.ufsm.br. </p>
+<p align="justify"> Contact us towards git issues requests or by the e-mail vinicius@inf.ufpr.br. </p>
 
 ### HoLMES Research Group
 
@@ -82,3 +82,7 @@ Vinícius Fülber Garcia (UFPR - Brazil)<br/>
 José Wilson Vieira Flauzino (UFPR - Brazil)<br/>
 Carlos Raniery Paula dos Santos (UFSM - Brazil)<br/>
 Elias Procópio Duarte Junior (UFPR - Brazil)
+
+### Publications
+
+Fulber-Garcia, V.; Flauzino, J.; Santos, C. R. P. d.; Duarte Jr., E. P.. An ETSI-compliant Architecture for the Element Management System: The Key for Holistic NFV Management. International Conference on Network and Service Management (CNSM). 2023.
